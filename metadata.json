@@ -1,0 +1,6 @@
+{
+  "name": "Lal Sabuj Paribahan - Bus Seat Matrix & Chalan System",
+  "description": "Real-time bus seat matrix dashboard and chalan manifest generator synced with Firebase Realtime Database for Lal Sabuj Paribahan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

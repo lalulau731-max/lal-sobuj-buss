@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom Lal Sabuj Brand Colors */
+:root {
+  --lal-red: #c41230;
+  --lal-red-dark: #990000;
+  --sabuj-green: #006a4e;
+  --sabuj-green-dark: #004d38;
+  --lal-gold: #f59e0b;
+}
+
+/* Print Styles for Chalan Sheet */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 6mm 8mm;
+  }
+
+  /* Reset all canvas for clean single half-page print */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print,
+  header,
+  nav,
+  aside,
+  main,
+  footer,
+  .activity-log,
+  .controls-bar,
+  button {
+    display: none !important;
+  }
+
+  /* Keep modal backdrop active as layout container without overlay effects */
+  .modal-backdrop {
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+    box-shadow: none !important;
+  }
+
+  .modal-backdrop > div {
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  /* Show and scale only the printable chalan container within top half of A4 */
+  #printable-chalan {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 194mm !important; /* Standard printable width within 8mm margins */
+    max-height: 138mm !important; /* Top half of 297mm A4 page */
+    margin: 0 auto !important;
+    padding: 4mm 6mm !important;
+    box-shadow: none !important;
+    border: 1.5px solid #000000 !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: hidden !important;
+  }
+}
+

@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "lal-sobuj-bus"
+  },
+  "targets": {
+    "lal-sobuj-bus": {
+      "hosting": {
+        "app": [
+          "lal-sobuj-bus"
+        ]
+      }
+    }
+  }
+}
