@@ -133,3 +133,36 @@ export interface ActivityLogItem {
   source: BookedVia | 'system';
   counterOrUser: string;
 }
+
+export interface TripDaySummary {
+  tripId: string;
+  coachNumber: string;
+  registrationNumber: string;
+  routeTitle: string;
+  departureTime: string;
+  coachType: string;
+  seatCapacity: number;
+  soldSeats: number;
+  reservedSeats: number;
+  availableSeats: number;
+  revenue: number;
+  occupancyRate: number;
+}
+
+export interface DayAnalytics {
+  date: string; // YYYY-MM-DD
+  totalTrips: number;
+  totalCapacity: number;
+  soldSeats: number;
+  reservedSeats: number;
+  availableSeats: number;
+  occupancyRate: number; // 0 - 100
+  totalRevenue: number;
+  collectedRevenue: number;
+  dueRevenue: number;
+  malePassengers: number;
+  femalePassengers: number;
+  counterBookings: number;
+  mobileAppBookings: number;
+  tripsSummary: TripDaySummary[];
+}

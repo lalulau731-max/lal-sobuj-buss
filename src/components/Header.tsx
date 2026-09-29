@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   RotateCw,
-  ExternalLink
+  ExternalLink,
+  Calendar
 } from 'lucide-react';
 import { FirebaseConnectionConfig, Trip } from '../types/bus';
 import { firebaseSync } from '../services/firebaseSync';
@@ -20,6 +21,8 @@ import { firebaseSync } from '../services/firebaseSync';
 interface HeaderProps {
   currentTrip: Trip;
   connectionConfig: FirebaseConnectionConfig;
+  currentView?: 'matrix' | 'calendar';
+  onSelectView?: (view: 'matrix' | 'calendar') => void;
   onOpenChalan: () => void;
   onOpenSimulator: () => void;
   onOpenFirebaseConfig: () => void;
@@ -32,6 +35,8 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   currentTrip,
   connectionConfig,
+  currentView = 'matrix',
+  onSelectView,
   onOpenChalan,
   onOpenSimulator,
   onOpenFirebaseConfig,
@@ -127,6 +132,39 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Action Bar & Controls */}
           <div className="flex flex-wrap items-center gap-2.5">
+
+            {/* View Switcher: Matrix vs Calendar */}
+            {onSelectView && (
+              <div className="flex items-center bg-black/30 p-1 rounded-xl border border-white/15 shadow-inner">
+                <button
+                  onClick={() => onSelectView('matrix')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    currentView === 'matrix'
+                      ? 'bg-white text-emerald-950 shadow-sm'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                  title="Switch to Bus Seat Matrix Cabin"
+                >
+                  <Bus className="w-3.5 h-3.5" />
+                  <span>Seat Matrix</span>
+                </button>
+                <button
+                  onClick={() => onSelectView('calendar')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    currentView === 'calendar'
+                      ? 'bg-white text-emerald-950 shadow-sm'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                  title="Switch to Operations Calendar & Fleet Analytics"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Calendar</span>
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-emerald-500 text-white leading-none">
+                    Analytics
+                  </span>
+                </button>
+              </div>
+            )}
             
             {/* Realtime Database Sync Status Pill */}
             <button

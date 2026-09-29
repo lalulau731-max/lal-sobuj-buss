@@ -25,6 +25,7 @@ interface TripSelectorProps {
   journeyDate: string;
   onChangeJourneyDate: (date: string) => void;
   onRefetch?: () => void;
+  onOpenCalendar?: () => void;
 }
 
 export const TripSelector: React.FC<TripSelectorProps> = ({
@@ -38,6 +39,7 @@ export const TripSelector: React.FC<TripSelectorProps> = ({
   journeyDate,
   onChangeJourneyDate,
   onRefetch,
+  onOpenCalendar,
 }) => {
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 space-y-4">
@@ -98,10 +100,21 @@ export const TripSelector: React.FC<TripSelectorProps> = ({
             />
           </div>
 
+          {onOpenCalendar && (
+            <button
+              onClick={onOpenCalendar}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              title="Open Dispatcher Calendar & Fleet Analytics"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Calendar</span>
+            </button>
+          )}
+
           {onRefetch && (
             <button
               onClick={onRefetch}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
               title="Refresh live data from Firebase"
             >
               <RotateCw className="w-3.5 h-3.5" />

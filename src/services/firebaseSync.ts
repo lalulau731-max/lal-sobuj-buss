@@ -10,7 +10,7 @@ import {
   query,
   where 
 } from 'firebase/firestore';
-import { Trip, Seat, CoachRecord, FirebaseConnectionConfig, ActivityLogItem, SeatStatus, Gender } from '../types/bus';
+import { Trip, Seat, CoachRecord, FirebaseConnectionConfig, ActivityLogItem, SeatStatus, Gender, DayAnalytics, TripDaySummary } from '../types/bus';
 import { FIREBASE_CONFIG, getFirebaseDatabase, firestore, app } from '../firebase/config';
 import { INITIAL_COACHES, generateSeatsForCoach, generate2x2Seats, generateDoubleDeckSeats } from '../data/mockTrips';
 
@@ -28,7 +28,7 @@ class FirebaseSyncService {
   private rawBookings: Record<string, any> = {};
   private tripsData: Record<string, Trip> = {};
   private activeTripId: string = '212';
-  private selectedJourneyDate: string = '2026-09-28'; // Today's operational date
+  private selectedJourneyDate: string = '2026-09-29'; // Today's operational date
   private activeDeck: 'lower' | 'upper' = 'lower';
 
   // Listeners
@@ -562,6 +562,180 @@ class FirebaseSyncService {
 
   public getRawCoaches(): CoachRecord[] {
     return Object.values(this.rawCoaches);
+  }
+
+  // Generate realistic & live seats for a coach on any target date
+  private getSeatsForCoachAndDate(coach: CoachRecord, date: string): Record<string, Seat> {
+    const seats = generateSeatsForCoach(coach);
+    const explicitBookings = Object.values(this.rawBookings).filter(
+      (b: any) =>
+        (b.coachNumber === coach.coachNumber || String(b.coachId) === String(coach.id)) &&
+        b.journeyDate === date &&
+        !b.isDeleted
+    );
+
+    if (explicitBookings.length > 0) {
+      explicitBookings.forEach((b: any) => {
+        if (b.seatNumber && seats[b.seatNumber]) {
+          const isSold = (b.bookingType || b.status) === 'SOLD';
+          seats[b.seatNumber].status = isSold ? 'sold' : 'reserved';
+          seats[b.seatNumber].passengerName = b.passengerName || 'Passenger';
+          seats[b.seatNumber].gender = (b.passengerGender || '').toLowerCase() === 'female' ? 'female' : 'male';
+          seats[b.seatNumber].fare = b.totalAmount || coach.ticketFare;
+          seats[b.seatNumber].bookedVia = b.operatorId ? 'counter' : 'mobile_app';
+          seats[b.seatNumber].paymentStatus = b.dueAmount > 0 ? 'due' : 'paid';
+          seats[b.seatNumber].dueAmount = b.dueAmount || 0;
+        }
+      });
+      return seats;
+    }
+
+    // Deterministic realistic simulated bookings for past / future days on calendar overview
+    const seed = (date + coach.coachNumber).split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    const seatKeys = Object.keys(seats);
+    // Occupancy ratio between 55% and 88%
+    const targetSold = Math.floor(seatKeys.length * (0.55 + ((seed % 34) / 100)));
+
+    for (let i = 0; i < targetSold; i++) {
+      const sKey = seatKeys[(i * 3 + (seed % 7)) % seatKeys.length];
+      if (seats[sKey] && seats[sKey].status === 'available') {
+        const isFemale = (i + seed) % 4 === 0;
+        const isMobile = (i + seed) % 3 === 0;
+        seats[sKey].status = 'sold';
+        seats[sKey].passengerName = isFemale ? 'Female Passenger' : 'Male Passenger';
+        seats[sKey].gender = isFemale ? 'female' : 'male';
+        seats[sKey].fare = coach.ticketFare || 700;
+        seats[sKey].bookedVia = isMobile ? 'mobile_app' : 'counter';
+        seats[sKey].paymentStatus = (i % 7 === 0) ? 'due' : 'paid';
+        seats[sKey].dueAmount = (i % 7 === 0) ? 200 : 0;
+      }
+    }
+
+    return seats;
+  }
+
+  // Calculate complete daily analytics for any given date
+  public getDayAnalytics(targetDate: string): DayAnalytics {
+    const coaches = Object.values(this.rawCoaches);
+    let totalCapacity = 0;
+    let soldSeats = 0;
+    let reservedSeats = 0;
+    let availableSeats = 0;
+    let totalRevenue = 0;
+    let collectedRevenue = 0;
+    let dueRevenue = 0;
+    let malePassengers = 0;
+    let femalePassengers = 0;
+    let counterBookings = 0;
+    let mobileAppBookings = 0;
+    const tripsSummary: TripDaySummary[] = [];
+
+    const isCurrentActive = targetDate === this.selectedJourneyDate;
+
+    coaches.forEach((coach) => {
+      const coachSeats = isCurrentActive && this.tripsData[coach.coachNumber]
+        ? this.tripsData[coach.coachNumber].seats
+        : this.getSeatsForCoachAndDate(coach, targetDate);
+
+      let coachSold = 0;
+      let coachReserved = 0;
+      let coachRevenue = 0;
+      const capacity = coach.totalSeats || Object.keys(coachSeats).length || 40;
+
+      Object.values(coachSeats).forEach((seat) => {
+        if (seat.status === 'sold') {
+          coachSold++;
+          const fare = seat.fare || coach.ticketFare || 700;
+          coachRevenue += fare;
+          totalRevenue += fare;
+
+          if (seat.paymentStatus === 'due' && seat.dueAmount) {
+            dueRevenue += seat.dueAmount;
+            collectedRevenue += (fare - seat.dueAmount);
+          } else {
+            collectedRevenue += fare;
+          }
+
+          if (seat.gender === 'female') {
+            femalePassengers++;
+          } else {
+            malePassengers++;
+          }
+
+          if (seat.bookedVia === 'mobile_app') {
+            mobileAppBookings++;
+          } else {
+            counterBookings++;
+          }
+        } else if (seat.status === 'reserved' || seat.status === 'locked') {
+          coachReserved++;
+        }
+      });
+
+      const coachAvailable = Math.max(0, capacity - coachSold - coachReserved);
+      soldSeats += coachSold;
+      reservedSeats += coachReserved;
+      availableSeats += coachAvailable;
+      totalCapacity += capacity;
+
+      const coachOcc = capacity > 0 ? Math.round((coachSold / capacity) * 100) : 0;
+
+      tripsSummary.push({
+        tripId: coach.coachNumber,
+        coachNumber: coach.coachNumber,
+        registrationNumber: coach.registrationNumber || 'DHAKA METRO-BA',
+        routeTitle: coach.assignedRoute,
+        departureTime: coach.departureTime,
+        coachType: coach.coachModel || 'Scania Multi-Axle AC',
+        seatCapacity: capacity,
+        soldSeats: coachSold,
+        reservedSeats: coachReserved,
+        availableSeats: coachAvailable,
+        revenue: coachRevenue,
+        occupancyRate: coachOcc,
+      });
+    });
+
+    const overallOccupancy = totalCapacity > 0 ? Math.round((soldSeats / totalCapacity) * 100) : 0;
+
+    return {
+      date: targetDate,
+      totalTrips: coaches.length,
+      totalCapacity,
+      soldSeats,
+      reservedSeats,
+      availableSeats,
+      occupancyRate: overallOccupancy,
+      totalRevenue,
+      collectedRevenue,
+      dueRevenue,
+      malePassengers,
+      femalePassengers,
+      counterBookings,
+      mobileAppBookings,
+      tripsSummary,
+    };
+  }
+
+  // Get aggregated month summary mapping date string to core stats
+  public getMonthSummary(year: number, month: number): Record<string, { totalTrips: number; soldSeats: number; totalCapacity: number; occupancyRate: number; totalRevenue: number }> {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const result: Record<string, { totalTrips: number; soldSeats: number; totalCapacity: number; occupancyRate: number; totalRevenue: number }> = {};
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayStr = String(day).padStart(2, '0');
+      const mStr = String(month).padStart(2, '0');
+      const dateKey = `${year}-${mStr}-${dayStr}`;
+      const analytics = this.getDayAnalytics(dateKey);
+      result[dateKey] = {
+        totalTrips: analytics.totalTrips,
+        soldSeats: analytics.soldSeats,
+        totalCapacity: analytics.totalCapacity,
+        occupancyRate: analytics.occupancyRate,
+        totalRevenue: analytics.totalRevenue,
+      };
+    }
+    return result;
   }
 
   // Update seats in real-time, syncing to Firebase Firestore and Realtime Database
