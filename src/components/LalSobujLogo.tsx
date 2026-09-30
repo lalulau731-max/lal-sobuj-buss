@@ -41,50 +41,42 @@ export const LalSobujLogo: React.FC<LalSobujLogoProps> = ({
           strokeLinecap="round"
         />
 
-        {/* Clean, Bold, Minimalist Bengali Typography: "লাল সবুজ" in Pure Black */}
+        {/* Clean, Bold, Minimalist Typography: "LAL SABUJ" */}
         <g fill="#000000">
           <text
-            x="115"
-            y="272"
-            fontFamily="'Anek Bangla', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif"
+            x="250"
+            y="270"
+            textAnchor="middle"
+            fontFamily="'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif"
             fontWeight="900"
-            fontSize="88"
-            letterSpacing="-3"
+            fontSize="64"
+            letterSpacing="3"
           >
-            লাল
-          </text>
-          <text
-            x="260"
-            y="272"
-            fontFamily="'Anek Bangla', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif"
-            fontWeight="900"
-            fontSize="88"
-            letterSpacing="-2"
-          >
-            সবুজ
+            LAL SABUJ
           </text>
         </g>
 
         {/* Dynamic Curved Swoosh Arc */}
         <path
-          d="M165 300 C215 255 295 255 345 300"
+          d="M140 295 C200 270 300 270 360 295"
           stroke="#000000"
-          strokeWidth="8"
+          strokeWidth="6"
           strokeLinecap="round"
           fill="none"
         />
 
-        {/* Clean, Bold Bengali Typography: "পরিবহন" in Pure Black Calligraphy */}
+        {/* Clean, Bold English Typography: "PARIBAHAN" */}
         <g fill="#000000">
           <text
-            x="130"
-            y="360"
-            fontFamily="'Anek Bangla', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif"
-            fontWeight="900"
-            fontSize="80"
-            letterSpacing="2"
+            x="250"
+            y="355"
+            textAnchor="middle"
+            fontFamily="'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif"
+            fontWeight="800"
+            fontSize="44"
+            letterSpacing="8"
           >
-            পরিবহন
+            PARIBAHAN
           </text>
         </g>
       </svg>

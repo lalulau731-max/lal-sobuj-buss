@@ -72,7 +72,7 @@ export const LalSobujHeader: React.FC<LalSobujHeaderProps> = ({
   }, [isMenuOpen]);
 
   return (
-    <header className="no-print bg-[#661d7a] text-white shadow-md select-none sticky top-0 z-40">
+    <header className="no-print navbar navigation-bar bg-[#661d7a] text-white shadow-md select-none sticky top-0 z-40">
       <div className="w-full px-3 sm:px-4 py-2 flex items-center justify-between">
         
         {/* Left: Brand Title */}

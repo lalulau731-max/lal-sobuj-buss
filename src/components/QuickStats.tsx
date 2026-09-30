@@ -53,7 +53,7 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ trip }) => {
       {/* Available Seats */}
       <div className="bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200 shadow-sm flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Available (খালি)</p>
+          <p className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Available Seats</p>
           <p className="text-2xl font-black text-emerald-800 mt-0.5">{available}</p>
           <span className="text-[11px] text-emerald-600 font-semibold">{Math.round((available / total) * 100)}% vacant</span>
         </div>
@@ -65,7 +65,7 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ trip }) => {
       {/* Sold Seats */}
       <div className="bg-red-50/70 p-3.5 rounded-xl border border-red-200 shadow-sm flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-bold text-red-700 uppercase tracking-wider">Sold (বিক্রীত)</p>
+          <p className="text-[11px] font-bold text-red-700 uppercase tracking-wider">Sold Seats</p>
           <p className="text-2xl font-black text-red-800 mt-0.5">{sold}</p>
           <span className="text-[11px] text-red-600 font-semibold">{occupancyPct}% Booked</span>
         </div>
@@ -77,7 +77,7 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ trip }) => {
       {/* Reserved Seats */}
       <div className="bg-amber-50/80 p-3.5 rounded-xl border border-amber-200 shadow-sm flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Reserved (সংরক্ষিত)</p>
+          <p className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Reserved / Hold</p>
           <p className="text-2xl font-black text-amber-800 mt-0.5">{reserved}</p>
           <span className="text-[11px] text-amber-600 font-medium">Counter & VIP hold</span>
         </div>
@@ -89,7 +89,7 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ trip }) => {
       {/* Gross Revenue */}
       <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-sm flex items-center justify-between">
         <div>
-          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Collection (ভাড়া)</p>
+          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Collection</p>
           <p className="text-2xl font-black text-slate-900 mt-0.5">৳{totalFareCollected.toLocaleString()}</p>
           <span className="text-[11px] text-slate-500">Base: ৳{trip.baseFare}</span>
         </div>

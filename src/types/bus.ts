@@ -62,7 +62,7 @@ export interface Trip {
   id: string;
   tripNumber: string; // e.g. "Coach 212"
   chalanNumber: string; // e.g. "CH-LSP-2026-0412"
-  routeTitle: string; // e.g. "ঢাকা - সোনাপুর"
+  routeTitle: string; // e.g. "Dhaka - Sonapur"
   source: string;
   destination: string;
   departureDate: string; // e.g. "2026-09-28"

@@ -102,6 +102,21 @@ export default function App() {
     }
   };
 
+  // Today's Trip Handler - Sets date automatically to current local date
+  const handleSetToday = () => {
+    try {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      const today = `${y}-${m}-${d}`;
+      firebaseSync.setJourneyDate(today);
+      showToast(`Viewing Today's Trips (${today})`, 'success');
+    } catch (e) {
+      console.warn(e);
+    }
+  };
+
   // Filtered Trips list based on destination and search query
   const filteredTrips = useMemo(() => {
     let list = allTrips;
@@ -172,7 +187,7 @@ export default function App() {
         gender: idx % 2 === 0 ? 'female' : 'male',
         fare: activeTrip.baseFare,
         ticketNumber: `TXN-${Math.floor(10000 + Math.random() * 90000)}`,
-        boardingPoint: activeTrip.startingCounter || 'মিরপুর ১০',
+        boardingPoint: activeTrip.startingCounter || 'Mirpur-10',
         droppingPoint: activeTrip.destination || 'Sonapur',
         bookedVia: 'mobile_app',
         bookedAt: new Date().toISOString(),
@@ -289,7 +304,7 @@ export default function App() {
       {currentView === 'home' ? (
         <div className="flex-1 flex flex-col">
           
-          {/* Top Filter Bar (From, To, Date, Search Bar, NO PNR, & Date Navigation - Image 1) */}
+          {/* Top Filter Bar (From, To, Date, Today's Trip, Search Bar & Date Navigation) */}
           <LalSobujFilterBar
             fromLocation={fromLocation}
             onChangeFrom={setFromLocation}
@@ -302,6 +317,7 @@ export default function App() {
             onSearch={() => {}}
             onPrevDay={handlePrevDay}
             onNextDay={handleNextDay}
+            onToday={handleSetToday}
           />
 
           {/* Coach List Container (Reference Image 1) */}

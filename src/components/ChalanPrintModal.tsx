@@ -191,12 +191,18 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
     document.body.removeChild(link);
   };
 
+  const densityClass = manifestSeats.length > 24 
+    ? 'chalan-ultra-dense' 
+    : manifestSeats.length > 14 
+    ? 'chalan-dense' 
+    : '';
+
   return (
     <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
       <div className="relative w-full max-w-5xl bg-white rounded-xl shadow-2xl border border-slate-300 overflow-hidden my-2 sm:my-4">
         
         {/* Floating Controls Bar (Hidden during printing via .no-print) */}
-        <div className="no-print bg-slate-900 text-white px-4 py-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-700">
+        <div className="no-print controls-bar chalan-controls-bar bg-slate-900 text-white px-4 py-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-700">
           <div className="flex items-center gap-2.5">
             <FileText className="w-5 h-5 text-emerald-400 shrink-0" />
             <div>
@@ -245,42 +251,42 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
         </div>
 
         {/* Modal Scrollable Container for Preview */}
-        <div className="p-3 sm:p-6 max-h-[88vh] overflow-y-auto bg-slate-100/50 flex flex-col items-center">
+        <div className="chalan-preview-container p-3 sm:p-6 max-h-[88vh] overflow-y-auto bg-slate-100/50 flex flex-col items-center">
           
           {/* Printable Chalan Sheet: ALL TEXT IN SMOOTH PROFESSIONAL SANS-SERIF, BOLD AND BLACK */}
           <div 
             id="printable-chalan"
-            className="w-full max-w-[194mm] bg-white text-black border-2 border-black p-3 sm:p-4 text-[10.5px] leading-tight select-text shadow-sm font-bold font-sans"
+            className={`w-full max-w-[194mm] bg-white text-black border-2 border-black p-3 sm:p-4 text-[10.5px] leading-tight select-text shadow-sm font-bold font-sans ${densityClass}`}
           >
             {/* Header: Company Name & Document Title in Bold Black */}
-            <div className="border-b-2 border-black pb-2 mb-2 text-center">
+            <div className="chalan-header border-b-2 border-black pb-2 mb-2 text-center">
               <div className="flex items-start justify-between">
                 
                 {/* Top Left: Clean High-Contrast Black & White Logo Neatly in the Designated Corner */}
                 <div className="text-left w-36 sm:w-40 flex flex-col items-start justify-center pt-0.5">
-                  <ChalanLogoBW className="w-24 sm:w-28 h-auto shrink-0" width={112} height={80} />
+                  <ChalanLogoBW className="chalan-logo w-24 sm:w-28 h-auto shrink-0" width={112} height={80} />
                 </div>
 
-                {/* Center: Enlarged Bengali Text, Trip Chalan Header, & Large Mirpur-10 */}
+                {/* Center: Brand Title, Trip Chalan Header, & Large Mirpur-10 */}
                 <div className="text-center flex-1 px-2">
-                  {/* Enlarged Bengali text with Private Limited removed in clean sans-serif */}
-                  <h1 className="text-2xl sm:text-3xl font-black text-black tracking-wide leading-tight font-sans">
-                    লাল সবুজ পরিবহন
+                  {/* Clean sans-serif English brand title */}
+                  <h1 className="chalan-brand-title text-2xl sm:text-3xl font-black text-black tracking-wide leading-tight font-sans">
+                    LAL SABUJ PARIBAHAN
                   </h1>
 
                   {/* Trip Chalan Header */}
-                  <div className="mt-1 inline-block border-2 border-black px-4 py-0.5 text-[9.5px] font-black uppercase tracking-widest text-black bg-white font-sans">
-                    TRIP CHALAN SHEET (যাত্রী চালান পত্র)
+                  <div className="chalan-subtitle-badge mt-1 inline-block border-2 border-black px-4 py-0.5 text-[9.5px] font-black uppercase tracking-widest text-black bg-white font-sans">
+                    TRIP CHALAN SHEET (PASSENGER MANIFEST)
                   </div>
 
                   {/* Below Trip Chalan Header: Mirpur-10 in Large Bold Black Text */}
-                  <div className="text-lg sm:text-xl font-black uppercase text-black tracking-wider mt-1 font-sans">
+                  <div className="chalan-counter-location text-lg sm:text-xl font-black uppercase text-black tracking-wider mt-1 font-sans">
                     Mirpur-10
                   </div>
                 </div>
 
                 {/* Top Right Form Reference */}
-                <div className="text-right text-[9px] text-black w-32 font-sans font-bold pt-1">
+                <div className="chalan-form-ref text-right text-[9px] text-black w-32 font-sans font-bold pt-1">
                   <span className="font-black block text-black">FORM: LSP-CH-01</span>
                   <span className="text-[8.5px] text-black font-bold">Waybill Manifest</span>
                 </div>
@@ -288,41 +294,41 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
             </div>
 
             {/* Trip Details Metadata Grid in Bold Black (Serial/Chalan No box removed) */}
-            <div className="border-2 border-black grid grid-cols-2 sm:grid-cols-5 text-[10px] mb-2 divide-x-2 divide-y sm:divide-y-0 divide-black font-bold font-sans">
-              <div className="p-1 px-1.5">
-                <span className="text-[8.5px] font-black text-black uppercase block">Coach / Bus No</span>
-                <span className="font-sans font-black text-black text-[11px] block">{trip.coachNumber}</span>
-                <span className="text-[8px] text-black font-bold block">{trip.registrationNumber || 'DHAKA METRO'}</span>
+            <div className="chalan-meta-grid border-2 border-black grid grid-cols-2 sm:grid-cols-5 text-[10px] mb-2 divide-x-2 divide-y sm:divide-y-0 divide-black font-bold font-sans">
+              <div className="chalan-meta-cell p-1 px-1.5">
+                <span className="chalan-meta-label text-[8.5px] font-black text-black uppercase block">Coach / Bus No</span>
+                <span className="chalan-meta-value font-sans font-black text-black text-[11px] block">{trip.coachNumber}</span>
+                <span className="chalan-meta-sub text-[8px] text-black font-bold block">{trip.registrationNumber || 'DHAKA METRO'}</span>
               </div>
 
-              <div className="p-1 px-1.5">
-                <span className="text-[8.5px] font-black text-black uppercase block">Date & Day</span>
-                <span className="font-black text-black block">{trip.departureDate}</span>
+              <div className="chalan-meta-cell p-1 px-1.5">
+                <span className="chalan-meta-label text-[8.5px] font-black text-black uppercase block">Date & Day</span>
+                <span className="chalan-meta-value font-black text-black block">{trip.departureDate}</span>
               </div>
 
-              <div className="p-1 px-1.5">
-                <span className="text-[8.5px] font-black text-black uppercase block">Departure / Reporting</span>
-                <span className="font-black text-black block">{trip.departureTime}</span>
-                <span className="text-[8px] text-black font-bold block">Rep: {trip.reportingTime || trip.departureTime}</span>
+              <div className="chalan-meta-cell p-1 px-1.5">
+                <span className="chalan-meta-label text-[8.5px] font-black text-black uppercase block">Departure / Reporting</span>
+                <span className="chalan-meta-value font-black text-black block">{trip.departureTime}</span>
+                <span className="chalan-meta-sub text-[8px] text-black font-bold block">Rep: {trip.reportingTime || trip.departureTime}</span>
               </div>
 
-              <div className="p-1 px-1.5 sm:col-span-1">
-                <span className="text-[8.5px] font-black text-black uppercase block">Assigned Road / Route</span>
-                <span className="font-black text-black block truncate" title={trip.routeTitle}>
+              <div className="chalan-meta-cell p-1 px-1.5 sm:col-span-1">
+                <span className="chalan-meta-label text-[8.5px] font-black text-black uppercase block">Assigned Road / Route</span>
+                <span className="chalan-meta-value font-black text-black block truncate" title={trip.routeTitle}>
                   {trip.routeTitle}
                 </span>
               </div>
 
-              <div className="p-1 px-1.5">
-                <span className="text-[8.5px] font-black text-black uppercase block">Supervisor Mobile</span>
-                <span className="font-sans font-black text-black block">{trip.supervisorPhone}</span>
-                <span className="text-[8px] text-black font-bold block truncate">{trip.supervisorName.split('(')[0]}</span>
+              <div className="chalan-meta-cell p-1 px-1.5">
+                <span className="chalan-meta-label text-[8.5px] font-black text-black uppercase block">Supervisor Mobile</span>
+                <span className="chalan-meta-value font-sans font-black text-black block">{trip.supervisorPhone}</span>
+                <span className="chalan-meta-sub text-[8px] text-black font-bold block truncate">{trip.supervisorName.split('(')[0]}</span>
               </div>
             </div>
 
             {/* Passenger Manifest Data Table (SL and Sign columns removed, Group column included) */}
-            <div className="overflow-x-auto mb-2 border-2 border-black font-sans">
-              <table className="w-full text-left text-[9.5px] border-collapse font-bold font-sans">
+            <div className="chalan-table-wrapper overflow-x-auto mb-2 border-2 border-black font-sans">
+              <table className="chalan-table w-full text-left text-[9.5px] border-collapse font-bold font-sans">
                 <thead>
                   <tr className="border-b-2 border-black bg-white text-black font-black uppercase text-[9px] tracking-wider">
                     <th className="p-1 border-r-2 border-black text-center w-12 text-black font-black">Seat</th>
@@ -397,7 +403,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                           <td className="p-0.5 px-1 border-r border-black text-center font-sans">
                             {groupSize > 1 ? (
                               <span 
-                                className="inline-block px-1.5 py-0.5 text-[8.5px] font-black text-white bg-black rounded-xs leading-none"
+                                className="chalan-group-badge inline-block px-1.5 py-0.5 text-[8.5px] font-black text-white bg-black rounded-xs leading-none"
                                 title={`Group booking: ${groupSize} seats`}
                               >
                                 {groupSize}
@@ -415,7 +421,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                           {/* Due Amount: BACKGROUND IS BOLD BLACK */}
                           <td className="p-0.5 px-1 text-center font-sans">
                             {hasDue ? (
-                              <div className="inline-block px-2 py-0.5 text-[9px] font-black text-white bg-black border border-black rounded-xs tracking-tight whitespace-nowrap font-sans">
+                              <div className="chalan-due-badge inline-block px-2 py-0.5 text-[9px] font-black text-white bg-black border border-black rounded-xs tracking-tight whitespace-nowrap font-sans">
                                 ৳{seatDue} DUE
                               </div>
                             ) : (
@@ -437,28 +443,28 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
             </div>
 
             {/* Reconciliation Totals & Summary Row (Fare section removed, Due Amount with bold black background) */}
-            <div className="border-2 border-black p-1.5 mb-2 grid grid-cols-2 gap-4 text-[9.5px] text-black bg-white font-bold font-sans">
+            <div className="chalan-summary-box border-2 border-black p-1.5 mb-2 grid grid-cols-2 gap-4 text-[9.5px] text-black bg-white font-bold font-sans">
               <div>
-                <span className="text-[8.5px] font-black text-black uppercase block">Manifest Seat Count:</span>
-                <span className="font-sans font-black text-black text-[10px]">
+                <span className="chalan-summary-label text-[8.5px] font-black text-black uppercase block">Manifest Seat Count:</span>
+                <span className="chalan-summary-value font-sans font-black text-black text-[10px]">
                   {manifestSeats.length} Seats ({soldCount} Sold, {reservedCount} RESERVATION, {lockedCount} LOCKED)
                 </span>
               </div>
 
               <div>
-                <span className="text-[8.5px] font-black text-black uppercase block">Total Due Amount:</span>
+                <span className="chalan-summary-label text-[8.5px] font-black text-black uppercase block">Total Due Amount:</span>
                 {totalDueAmount > 0 ? (
-                  <span className="inline-block px-2.5 py-0.5 bg-black text-white font-sans font-black text-[9.5px] rounded-xs mt-0.5">
+                  <span className="chalan-summary-badge inline-block px-2.5 py-0.5 bg-black text-white font-sans font-black text-[9.5px] rounded-xs mt-0.5">
                     ৳{totalDueAmount.toLocaleString()} DUE
                   </span>
                 ) : (
-                  <span className="font-sans font-black text-black">৳0 (Fully Paid)</span>
+                  <span className="chalan-summary-value font-sans font-black text-black">৳0 (Fully Paid)</span>
                 )}
               </div>
             </div>
 
             {/* Bottom Scale & Perforation Line */}
-            <div className="mt-3 pt-1 border-t border-dashed border-black text-center text-[8.5px] text-black flex items-center justify-between font-sans font-bold">
+            <div className="chalan-perforation mt-3 pt-1 border-t border-dashed border-black text-center text-[8.5px] text-black flex items-center justify-between font-sans font-bold">
               <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
               <span className="font-black text-black uppercase tracking-wider px-2 font-sans">
                 TOP HALF OF A4 SHEET (140MM SCALE)

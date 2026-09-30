@@ -14,15 +14,15 @@ export const ChalanLogoBW: React.FC<ChalanLogoBWProps> = ({
   const [imageError, setImageError] = useState(false);
 
   return (
-    <div className={`relative inline-flex items-center justify-start select-none ${className}`}>
+    <div className={`chalan-logo relative inline-flex items-center justify-start select-none ${className}`}>
       {!imageError ? (
         <img
           src="/chalan_bw_logo.jpg"
-          alt="লাল সবুজ পরিবহন"
+          alt="Lal Sabuj Paribahan"
           width={width}
           height={height}
           onError={() => setImageError(true)}
-          className="w-full h-auto object-contain filter contrast-125 grayscale"
+          className="chalan-logo-img w-full h-auto object-contain filter contrast-125 grayscale"
           style={{ maxHeight: '72px' }}
         />
       ) : (
@@ -31,7 +31,7 @@ export const ChalanLogoBW: React.FC<ChalanLogoBWProps> = ({
           viewBox="0 0 500 420"
           width={width}
           height={height}
-          className="w-full h-auto"
+          className="chalan-logo-img w-full h-auto"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -55,50 +55,42 @@ export const ChalanLogoBW: React.FC<ChalanLogoBWProps> = ({
             strokeLinecap="round"
           />
 
-          {/* Bold Minimalist Bengali: "লাল সবুজ" */}
+          {/* Bold Clean English Typography: "LAL SABUJ" */}
           <g fill="#000000">
             <text
-              x="115"
-              y="215"
-              fontFamily="'Hind Siliguri', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif"
+              x="250"
+              y="225"
+              textAnchor="middle"
+              fontFamily="'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif"
               fontWeight="900"
-              fontSize="92"
-              letterSpacing="-3"
+              fontSize="68"
+              letterSpacing="3"
             >
-              লাল
-            </text>
-            <text
-              x="265"
-              y="215"
-              fontFamily="'Hind Siliguri', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif"
-              fontWeight="900"
-              fontSize="92"
-              letterSpacing="-2"
-            >
-              সবুজ
+              LAL SABUJ
             </text>
           </g>
 
           {/* Dynamic Arched Swoosh */}
           <path
-            d="M165 242 C215 198 295 198 345 242"
+            d="M140 250 C200 230 300 230 360 250"
             stroke="#000000"
-            strokeWidth="8"
+            strokeWidth="6"
             strokeLinecap="round"
             fill="none"
           />
 
-          {/* Bold Bengali Calligraphy: "পরিবহন" */}
+          {/* Bold English Typography: "PARIBAHAN" */}
           <g fill="#000000">
             <text
-              x="130"
-              y="308"
-              fontFamily="'Hind Siliguri', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif"
-              fontWeight="900"
-              fontSize="82"
-              letterSpacing="2"
+              x="250"
+              y="315"
+              textAnchor="middle"
+              fontFamily="'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif"
+              fontWeight="800"
+              fontSize="48"
+              letterSpacing="8"
             >
-              পরিবহন
+              PARIBAHAN
             </text>
           </g>
         </svg>

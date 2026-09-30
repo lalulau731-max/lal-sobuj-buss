@@ -60,7 +60,7 @@ export const CoachInfoModal: React.FC<CoachInfoModalProps> = ({ trip, onClose })
                 <User className="w-3.5 h-3.5 text-purple-700" />
                 <span>Supervisor:</span>
               </span>
-              <span className="font-bold text-slate-900">{trip.supervisorName || 'মো: কামাল উদ্দিন'}</span>
+              <span className="font-bold text-slate-900">{trip.supervisorName || 'Md. Kamal Uddin'}</span>
             </div>
 
             <div className="flex items-center justify-between">

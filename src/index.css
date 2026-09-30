@@ -21,7 +21,7 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 6mm 8mm;
+    margin: 3mm 5mm 3mm 5mm;
   }
 
   /* Reset all canvas for clean single half-page print */
@@ -30,23 +30,64 @@
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
+    height: 145mm !important;
+    max-height: 145mm !important;
+    overflow: hidden !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
+  /* Reset root containers to avoid 100vh forcing page breaks */
+  #root,
+  #root > div {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: 145mm !important;
+    overflow: hidden !important;
+    background: transparent !important;
+  }
+
+  /* ------------------------------------------------------------- */
+  /* HIDE ALL NON-ESSENTIAL ELEMENTS FROM PRINT OUTPUT             */
+  /* Search bars, dropdowns, navigation bars, headers, buttons, etc */
+  /* ------------------------------------------------------------- */
   .no-print,
   header,
   nav,
   aside,
   main,
   footer,
+  input,
+  select,
+  textarea,
+  button,
+  form,
   .activity-log,
   .controls-bar,
-  button {
+  .filter-bar,
+  .search-bar,
+  .search-box,
+  .search-input-wrapper,
+  .navigation-bar,
+  .navbar,
+  .dropdown,
+  .dropdown-menu,
+  .seat-matrix-wrapper,
+  .drawer-container,
+  .simulator-drawer,
+  .toast-alert,
+  [role="navigation"],
+  [role="search"],
+  [role="combobox"],
+  [role="listbox"],
+  [role="dialog"]:not(.modal-backdrop) {
     display: none !important;
+    visibility: hidden !important;
   }
 
-  /* Keep modal backdrop active as layout container without overlay effects */
+  /* Keep modal backdrop active as clean transparent layout container */
   .modal-backdrop {
     position: static !important;
     inset: auto !important;
@@ -56,6 +97,9 @@
     overflow: visible !important;
     display: block !important;
     box-shadow: none !important;
+    border: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .modal-backdrop > div {
@@ -65,30 +109,242 @@
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
+    overflow: visible !important;
   }
 
-  /* Show and scale only the printable chalan container within top half of A4 */
+  .chalan-preview-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: transparent !important;
+    display: block !important;
+  }
+
+  /* Show and format printable chalan strictly within top half of A4 on a single sheet */
   #printable-chalan {
     display: block !important;
-    position: static !important;
+    position: relative !important;
     width: 100% !important;
-    max-width: 194mm !important; /* Standard printable width within 8mm margins */
-    max-height: 138mm !important; /* Top half of 297mm A4 page */
+    max-width: 198mm !important; /* Printable width within 5mm margins on 210mm A4 */
+    max-height: 140mm !important; /* Formatted strictly for top half of 297mm A4 sheet */
     margin: 0 auto !important;
-    padding: 4mm 6mm !important;
+    padding: 1.5mm 3mm !important;
+    box-sizing: border-box !important;
     box-shadow: none !important;
     border: 1.5px solid #000000 !important;
     background: #ffffff !important;
+    color: #000000 !important;
     page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
     break-inside: avoid !important;
+    break-after: avoid !important;
+    break-before: avoid !important;
     overflow: hidden !important;
-    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hind Siliguri', sans-serif !important;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
   }
 
   #printable-chalan * {
-    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hind Siliguri', sans-serif !important;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+    box-shadow: none !important;
+  }
+
+  /* Compact print header */
+  #printable-chalan .chalan-header {
+    padding-bottom: 1.5px !important;
+    margin-bottom: 1.5px !important;
+    border-bottom: 1.5px solid #000000 !important;
+  }
+
+  #printable-chalan .chalan-logo,
+  #printable-chalan .chalan-logo img,
+  #printable-chalan .chalan-logo svg {
+    max-height: 20px !important;
+    height: 20px !important;
+    width: auto !important;
+  }
+
+  #printable-chalan .chalan-brand-title {
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0.5px !important;
+    margin: 0 !important;
+    font-weight: 900 !important;
+  }
+
+  #printable-chalan .chalan-subtitle-badge {
+    font-size: 7.5px !important;
+    padding: 0.5px 4px !important;
+    margin-top: 1px !important;
+    line-height: 1 !important;
+    border: 1px solid #000000 !important;
+  }
+
+  #printable-chalan .chalan-counter-location {
+    font-size: 10px !important;
+    margin-top: 1px !important;
+    line-height: 1 !important;
+    font-weight: 900 !important;
+  }
+
+  #printable-chalan .chalan-form-ref {
+    font-size: 7px !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Compact metadata grid */
+  #printable-chalan .chalan-meta-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    margin-bottom: 1.5px !important;
+    border-width: 1px !important;
+  }
+
+  #printable-chalan .chalan-meta-cell {
+    padding: 1px 2px !important;
+    border-right: 1px solid #000000 !important;
+    border-bottom: none !important;
+  }
+
+  #printable-chalan .chalan-meta-cell:last-child {
+    border-right: none !important;
+  }
+
+  #printable-chalan .chalan-meta-label {
+    font-size: 6px !important;
+    line-height: 1 !important;
+  }
+
+  #printable-chalan .chalan-meta-value {
+    font-size: 7.5px !important;
+    line-height: 1.1 !important;
+    font-weight: 900 !important;
+  }
+
+  #printable-chalan .chalan-meta-sub {
+    font-size: 6px !important;
+    line-height: 1 !important;
+  }
+
+  /* Compact manifest table */
+  #printable-chalan .chalan-table-wrapper {
+    margin-bottom: 1.5px !important;
+    border-width: 1px !important;
+    overflow: visible !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #printable-chalan table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 7.5px !important;
+    line-height: 1.1 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #printable-chalan table th {
+    padding: 1px 2px !important;
+    font-size: 7px !important;
+    line-height: 1.1 !important;
+    border-bottom: 1.5px solid #000000 !important;
+    border-right: 1px solid #000000 !important;
+    font-weight: 900 !important;
+    background: #ffffff !important;
+  }
+
+  #printable-chalan table td {
+    padding: 0.5px 2px !important;
+    font-size: 7px !important;
+    line-height: 1.1 !important;
+    border-bottom: 0.5px solid #000000 !important;
+    border-right: 0.5px solid #000000 !important;
+  }
+
+  #printable-chalan table td.no-border-right,
+  #printable-chalan table td:last-child,
+  #printable-chalan table th:last-child {
+    border-right: none !important;
+  }
+
+  #printable-chalan .chalan-due-badge {
+    background: #000000 !important;
+    color: #ffffff !important;
+    padding: 0 2px !important;
+    font-size: 6.5px !important;
+    line-height: 1.1 !important;
+    border-radius: 1px !important;
+    display: inline-block !important;
+  }
+
+  #printable-chalan .chalan-group-badge {
+    background: #000000 !important;
+    color: #ffffff !important;
+    padding: 0 2px !important;
+    font-size: 6.5px !important;
+    line-height: 1.1 !important;
+    border-radius: 1px !important;
+    display: inline-block !important;
+  }
+
+  /* Compact summary bar */
+  #printable-chalan .chalan-summary-box {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    padding: 1px 3px !important;
+    margin-bottom: 1.5px !important;
+    border-width: 1px !important;
+    font-size: 7.5px !important;
+    line-height: 1.1 !important;
+  }
+
+  #printable-chalan .chalan-summary-label {
+    font-size: 6.5px !important;
+    line-height: 1 !important;
+  }
+
+  #printable-chalan .chalan-summary-value {
+    font-size: 7.5px !important;
+    line-height: 1.1 !important;
+  }
+
+  #printable-chalan .chalan-summary-badge {
+    font-size: 7px !important;
+    padding: 0 2px !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+  }
+
+  /* Perforation divider strictly marking half of A4 */
+  #printable-chalan .chalan-perforation {
+    margin-top: 1px !important;
+    padding-top: 1px !important;
+    font-size: 6.5px !important;
+    line-height: 1 !important;
+    border-top: 1px dashed #000000 !important;
+  }
+
+  /* Dense modes for full passenger manifests (15+ seats) */
+  #printable-chalan.chalan-dense table th,
+  #printable-chalan.chalan-dense table td {
+    font-size: 6.5px !important;
+    padding: 0.25px 1.5px !important;
+    line-height: 1.05 !important;
+  }
+
+  /* Ultra-dense modes for full passenger manifests (25+ seats) */
+  #printable-chalan.chalan-ultra-dense table th,
+  #printable-chalan.chalan-ultra-dense table td {
+    font-size: 5.8px !important;
+    padding: 0.1px 1px !important;
+    line-height: 1.02 !important;
   }
 }
 

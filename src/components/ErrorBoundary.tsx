@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <div>
               <h2 className="text-xl font-bold text-white tracking-wide">
-                লাল-সবুজ পরিবহন (Lal Sobuj Paribahan)
+                Lal Sabuj Paribahan
               </h2>
               <p className="text-sm text-slate-400 mt-1">
                 Operational Dispatch & Seat Management System

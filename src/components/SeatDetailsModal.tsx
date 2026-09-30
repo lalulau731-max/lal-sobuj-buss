@@ -311,7 +311,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                        Passenger Name * (যাত্রীর নাম)
+                        Passenger Name *
                       </label>
                       <div className="relative">
                         <User className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
@@ -328,7 +328,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
 
                     <div>
                       <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                        Mobile Number * (মোবাইল নম্বর)
+                        Mobile Number *
                       </label>
                       <div className="relative">
                         <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
@@ -347,7 +347,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                   {/* Gender Selection (Vital for Bangladesh Bus Seats) */}
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                      Gender (লিঙ্গ)
+                      Gender
                     </label>
                     <div className="flex items-center gap-3">
                       <label className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border cursor-pointer font-bold transition-all ${
@@ -363,7 +363,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                           onChange={() => setGender('male')}
                           className="hidden"
                         />
-                        <span>♂ Male (পুরুষ)</span>
+                        <span>♂ Male</span>
                       </label>
 
                       <label className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border cursor-pointer font-bold transition-all ${
@@ -379,7 +379,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                           onChange={() => setGender('female')}
                           className="hidden"
                         />
-                        <span>♀ Female (মহিলা)</span>
+                        <span>♀ Female</span>
                       </label>
                     </div>
                   </div>
@@ -388,7 +388,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                        Boarding Point (উঠার স্থান)
+                        Boarding Point
                       </label>
                       <select
                         value={boardingPoint}
@@ -403,7 +403,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
 
                     <div>
                       <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                        Dropping Point (গন্তব্য)
+                        Dropping Point
                       </label>
                       <select
                         value={droppingPoint}
@@ -420,7 +420,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                   {/* Pricing and Payment */}
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Fare (৳)</label>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Fare (BDT)</label>
                       <input
                         type="number"
                         value={farePerSeat}
@@ -429,7 +429,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Discount (৳)</label>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">Discount (BDT)</label>
                       <input
                         type="number"
                         value={discount}
@@ -444,8 +444,8 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                         onChange={(e) => setPaymentStatus(e.target.value as PaymentStatus)}
                         className="w-full px-2 py-2 bg-slate-50 border border-slate-200 rounded-xl font-medium"
                       >
-                        <option value="paid">Paid (নগদ পরিশোধ)</option>
-                        <option value="due">Due (বকেয়া)</option>
+                        <option value="paid">Paid (Cash / Online)</option>
+                        <option value="due">Due / Pay on Board</option>
                         <option value="cash_on_board">Cash on Board</option>
                       </select>
                     </div>
@@ -454,7 +454,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                   {/* Issuing Counter */}
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                      Issuing Counter (কাউন্টার)
+                      Issuing Counter
                     </label>
                     <select
                       value={counterName}
@@ -521,7 +521,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                 <form onSubmit={handleReservationSubmit} className="space-y-3.5 text-xs">
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                      Reserved For / Passenger Name (সংরক্ষণকারীর নাম)
+                      Reserved For / Passenger Name
                     </label>
                     <input
                       type="text"
@@ -535,7 +535,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
 
                   <div>
                     <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                      Contact Phone Number (মোবাইল নম্বর)
+                      Contact Phone Number
                     </label>
                     <input
                       type="tel"
@@ -549,7 +549,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                        Hold Duration (ধরে রাখার সময়)
+                        Hold Duration
                       </label>
                       <select
                         value={holdMinutes}

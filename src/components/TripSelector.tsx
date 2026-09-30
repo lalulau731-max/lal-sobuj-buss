@@ -100,6 +100,23 @@ export const TripSelector: React.FC<TripSelectorProps> = ({
             />
           </div>
 
+          {/* Today's Trip Button */}
+          <button
+            type="button"
+            onClick={() => {
+              const now = new Date();
+              const y = now.getFullYear();
+              const m = String(now.getMonth() + 1).padStart(2, '0');
+              const d = String(now.getDate()).padStart(2, '0');
+              onChangeJourneyDate(`${y}-${m}-${d}`);
+            }}
+            className="bg-[#188038] hover:bg-[#12642a] active:bg-[#0d4f20] text-white text-xs font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs transition-all cursor-pointer border border-emerald-700 shrink-0"
+            title="Automatically view today's trips and schedules"
+          >
+            <Calendar className="w-3.5 h-3.5 text-emerald-200" />
+            <span>Today's Trip</span>
+          </button>
+
           {onOpenCalendar && (
             <button
               onClick={onOpenCalendar}

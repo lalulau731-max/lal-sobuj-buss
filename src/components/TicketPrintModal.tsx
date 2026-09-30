@@ -37,7 +37,7 @@ export const TicketPrintModal: React.FC<TicketPrintModalProps> = ({
         <div className="no-print bg-slate-900 text-white p-3 px-4 flex items-center justify-between">
           <span className="text-xs font-bold flex items-center gap-1.5">
             <Bus className="w-4 h-4 text-emerald-400" />
-            <span>Passenger Boarding Pass (যাত্রী টিকিট)</span>
+            <span>Passenger Boarding Pass</span>
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -66,7 +66,7 @@ export const TicketPrintModal: React.FC<TicketPrintModalProps> = ({
                 LAL SABUJ PARIBAHAN
               </h3>
               <p className="text-xs font-bold text-emerald-800">
-                লাল সবুজ পরিবহন (প্রাঃ) লিঃ
+                Intercity Luxury Coach Service
               </p>
               <p className="text-[10px] text-slate-500">
                 Customer Care: 01711-223344 • Central Dispatch: Sayedabad
@@ -76,13 +76,13 @@ export const TicketPrintModal: React.FC<TicketPrintModalProps> = ({
             {/* Ticket & Seat Ribbon */}
             <div className="flex items-center justify-between bg-slate-900 text-white p-2 rounded-lg">
               <div>
-                <span className="text-[9px] uppercase text-slate-400 block">Ticket No (টিকিট নং)</span>
+                <span className="text-[9px] uppercase text-slate-400 block">Ticket No</span>
                 <span className="font-mono font-bold text-xs text-emerald-300">
                   {seat.ticketNumber || 'TKT-894101'}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-[9px] uppercase text-slate-400 block">Seat No (আসন নং)</span>
+                <span className="text-[9px] uppercase text-slate-400 block">Seat No</span>
                 <span className="font-mono font-black text-xl text-amber-300">
                   {seat.seatNumber}
                 </span>
@@ -132,7 +132,7 @@ export const TicketPrintModal: React.FC<TicketPrintModalProps> = ({
               <div className="text-right">
                 <span className="text-[10px] text-slate-500 block uppercase">Payment Status</span>
                 <span className="text-xs font-bold text-emerald-700 uppercase bg-emerald-100 px-2 py-0.5 rounded">
-                  {seat.paymentStatus || 'Paid (পরিশোধিত)'}
+                  {seat.paymentStatus || 'Paid'}
                 </span>
               </div>
             </div>

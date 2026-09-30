@@ -115,43 +115,46 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
     let statusBadge = null;
 
     if (seat.status === 'sold') {
-      statusBg = 'bg-gradient-to-b from-red-600 to-red-700 text-white';
+      // Sold: RED
+      statusBg = 'bg-[#dc2626] text-white';
       statusBorder = 'border-red-800 shadow-sm';
       statusBadge = (
-        <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-red-950/70 text-red-200">
-          {seat.gender === 'female' ? '♀ Female' : '♂ Male'}
+        <span className="flex items-center gap-0.5 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-red-950 text-white uppercase tracking-wider">
+          SOLD
         </span>
       );
     } else if (seat.status === 'reserved') {
-      statusBg = 'bg-gradient-to-b from-amber-400 to-amber-500 text-slate-900';
-      statusBorder = 'border-amber-600 shadow-sm';
+      // Reserved: YELLOW
+      statusBg = 'bg-[#eab308] text-slate-950';
+      statusBorder = 'border-yellow-600 shadow-sm';
       statusBadge = (
-        <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-900/20 text-amber-950">
-          <Clock className="w-2.5 h-2.5 inline" /> HOLD
+        <span className="flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded bg-yellow-950 text-amber-300 uppercase tracking-wider">
+          <Clock className="w-3 h-3 inline stroke-[2.5]" /> HOLD
         </span>
       );
     } else if (seat.status === 'locked') {
-      statusBg = 'bg-gradient-to-b from-slate-700 to-slate-800 text-slate-100';
-      statusBorder = 'border-slate-900 shadow-sm';
+      // Processing / Locked: DISTINCT ROYAL BLUE
+      statusBg = 'bg-blue-600 text-white animate-pulse';
+      statusBorder = 'border-blue-800 shadow-sm';
       statusBadge = (
-        <span className="flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded bg-black/40 text-amber-300">
-          <Lock className="w-2.5 h-2.5 inline" /> LOCKED
+        <span className="flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded bg-blue-950 text-blue-200 uppercase tracking-wider">
+          <Lock className="w-3 h-3 inline stroke-[2.5]" /> PROCESSING
         </span>
       );
     } else {
-      // available
-      statusBg = 'bg-gradient-to-b from-white to-emerald-50/70 text-slate-800 hover:to-emerald-100 hover:border-emerald-500';
-      statusBorder = 'border-emerald-300/80 shadow-2xs';
+      // Available: GREEN
+      statusBg = 'bg-[#16a34a] hover:bg-[#15803d] text-white';
+      statusBorder = 'border-emerald-700 shadow-2xs';
       statusBadge = (
-        <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded">
-          ৳{seat.fare || trip.baseFare}
+        <span className="text-[10px] font-black text-emerald-950 bg-emerald-100 px-2 py-0.5 rounded font-mono">
+          BDT {seat.fare || trip.baseFare}
         </span>
       );
     }
 
     if (isSelected) {
-      statusBg = 'bg-gradient-to-b from-blue-600 to-indigo-700 text-white';
-      statusBorder = 'border-blue-400 ring-4 ring-blue-400/40 shadow-lg';
+      statusBg = 'bg-indigo-700 text-white';
+      statusBorder = 'border-indigo-400 ring-4 ring-indigo-400/40 shadow-lg';
     }
 
     return (
@@ -165,21 +168,21 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
           }
         }}
         onDoubleClick={() => onOpenSeatModal(seatNo)}
-        className={`group relative flex flex-col justify-between p-2 rounded-xl border-2 cursor-pointer transition-all duration-200 select-none ${statusBg} ${statusBorder} ${opacityClass} ${
+        className={`group relative flex flex-col justify-between p-2.5 rounded-xl border-2 cursor-pointer transition-all duration-200 select-none ${statusBg} ${statusBorder} ${opacityClass} ${
           isRecentlyUpdated ? 'animate-bounce ring-4 ring-emerald-400' : ''
-        } min-h-[96px]`}
+        } min-h-[105px]`}
         title={`Seat ${seatNo}: ${seat.status.toUpperCase()} ${
           seat.passengerName ? ` - ${seat.passengerName}` : ''
         }`}
       >
         {/* Top: Seat number & Badge */}
         <div className="flex items-start justify-between gap-1">
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-black tracking-tight font-mono">
+          <div className="flex items-center gap-1.5">
+            <span className="text-base sm:text-lg font-black tracking-tight font-mono">
               {seatNo}
             </span>
             {isSelected && (
-              <span className="w-4 h-4 rounded-full bg-white text-blue-700 flex items-center justify-center font-bold text-[10px]">
+              <span className="w-4 h-4 rounded-full bg-white text-indigo-700 flex items-center justify-center font-black text-[10px]">
                 ✓
               </span>
             )}
@@ -191,16 +194,16 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
         <div className="my-1 overflow-hidden">
           {seat.status === 'sold' && (
             <div className="space-y-0.5">
-              <p className="text-[11px] font-bold leading-tight truncate text-white drop-shadow-2xs">
+              <p className="text-xs sm:text-[13px] font-black leading-tight truncate text-white drop-shadow-2xs">
                 {seat.passengerName || 'Confirmed Passenger'}
               </p>
-              <p className="text-[9px] text-red-100/90 truncate flex items-center gap-1">
-                <span>{seat.boardingPoint || 'মিরপুর ১০'}</span>
+              <p className="text-[10px] text-red-100/90 truncate flex items-center gap-1 font-semibold">
+                <span>{seat.boardingPoint || 'Mirpur-10'}</span>
                 <span>→</span>
                 <span>{seat.droppingPoint?.split(',')[0] || 'Sonapur'}</span>
               </p>
               {seat.ticketNumber && (
-                <p className="text-[9px] font-mono text-red-200 truncate">
+                <p className="text-[10px] font-mono text-red-200 truncate font-bold">
                   {seat.ticketNumber}
                 </p>
               )}
@@ -209,10 +212,10 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
 
           {seat.status === 'reserved' && (
             <div className="space-y-0.5">
-              <p className="text-[11px] font-extrabold text-amber-950 truncate leading-tight">
+              <p className="text-xs sm:text-[13px] font-black text-slate-950 truncate leading-tight">
                 {seat.passengerName || 'Reservation Hold'}
               </p>
-              <p className="text-[9px] text-amber-900 font-semibold truncate">
+              <p className="text-[10px] text-slate-900 font-bold truncate">
                 {seat.phone || 'Phone Booking'}
               </p>
             </div>
@@ -220,29 +223,29 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
 
           {seat.status === 'locked' && (
             <div className="space-y-0.5">
-              <p className="text-[11px] font-extrabold text-amber-300 truncate leading-tight">
-                {seat.passengerName || 'Counter Locked'}
+              <p className="text-xs sm:text-[13px] font-black text-blue-100 truncate leading-tight">
+                {seat.passengerName || 'Processing in Cart'}
               </p>
-              <p className="text-[9px] text-slate-300 font-semibold truncate">
-                Terminal Block
+              <p className="text-[10px] text-blue-200 font-bold truncate">
+                Terminal Locked
               </p>
             </div>
           )}
 
           {seat.status === 'available' && !isSelected && (
-            <div className="flex flex-col items-center justify-center py-0.5 text-center">
-              <span className="text-[10px] font-semibold text-emerald-700 group-hover:hidden">
+            <div className="flex flex-col items-center justify-center py-1 text-center">
+              <span className="text-xs font-black text-white group-hover:hidden tracking-wide uppercase">
                 Available
               </span>
-              <span className="text-[9px] font-bold text-emerald-800 hidden group-hover:block bg-emerald-200/80 px-1 rounded">
-                + Book / Hold
+              <span className="text-[11px] font-black text-emerald-950 hidden group-hover:block bg-emerald-200 px-2 py-0.5 rounded uppercase">
+                + Select Seat
               </span>
             </div>
           )}
 
           {isSelected && (
-            <div className="text-center py-0.5">
-              <span className="text-[10px] font-bold text-white bg-blue-800/80 px-1.5 py-0.5 rounded">
+            <div className="text-center py-1">
+              <span className="text-xs font-black text-white bg-indigo-900/80 px-2 py-0.5 rounded tracking-wide uppercase">
                 Selected
               </span>
             </div>
@@ -250,8 +253,8 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
         </div>
 
         {/* Bottom bar */}
-        <div className="flex items-center justify-between pt-1 border-t border-black/10 text-[9px] opacity-75">
-          <span className="uppercase tracking-wider font-bold">
+        <div className="flex items-center justify-between pt-1 border-t border-black/10 text-[10px] font-bold opacity-85">
+          <span className="uppercase tracking-wider">
             {seat.column === 1 ? 'Window' : seat.column === 4 || (isDoubleDeck && seat.column === 3) ? 'Window' : 'Aisle'}
           </span>
           <button
@@ -259,7 +262,7 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
               e.stopPropagation();
               onOpenSeatModal(seatNo);
             }}
-            className="underline font-semibold hover:opacity-100"
+            className="underline font-bold hover:opacity-100 cursor-pointer"
           >
             Details
           </button>
@@ -277,11 +280,11 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-emerald-700" />
             <div>
-              <span className="text-xs font-bold text-slate-800 block">
+              <span className="text-xs sm:text-sm font-extrabold text-slate-900 block">
                 Double-Deck Scania Coach ({trip.seatMatrixLayout})
               </span>
-              <span className="text-[11px] text-slate-500">
-                Switch decks to view and manage specific level seats
+              <span className="text-xs text-slate-600 font-medium">
+                1+2 VIP Layout: Single seat on Door side (Left), Double seats on Driver side (Right)
               </span>
             </div>
           </div>
@@ -289,7 +292,7 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
           <div className="flex items-center gap-1.5 bg-slate-200 p-1 rounded-xl">
             <button
               onClick={() => onSelectDeck && onSelectDeck('lower')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeDeck === 'lower'
                   ? 'bg-red-600 text-white shadow-sm'
                   : 'text-slate-700 hover:text-slate-900'
@@ -299,7 +302,7 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
             </button>
             <button
               onClick={() => onSelectDeck && onSelectDeck('upper')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeDeck === 'upper'
                   ? 'bg-emerald-600 text-white shadow-sm'
                   : 'text-slate-700 hover:text-slate-900'
@@ -311,42 +314,42 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
         </div>
       )}
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200/80 text-xs">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="font-bold text-slate-700 flex items-center gap-1.5">
-            <Armchair className="w-4 h-4 text-slate-500" />
+      {/* Legend: Available (Green), Sold (Red), Reserved (Yellow), Processing (Blue), Selected (Indigo) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-200/90 text-xs sm:text-sm">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-5">
+          <span className="font-extrabold text-slate-800 flex items-center gap-1.5">
+            <Armchair className="w-4 h-4 text-slate-600" />
             Legend:
           </span>
           
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-emerald-100 border border-emerald-400"></div>
-            <span className="font-semibold text-slate-700">Available</span>
+            <div className="w-4 h-4 rounded bg-[#16a34a] border border-emerald-700 shadow-2xs"></div>
+            <span className="font-bold text-slate-800">Available</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-red-600 border border-red-800"></div>
-            <span className="font-semibold text-slate-700">Sold</span>
+            <div className="w-4 h-4 rounded bg-[#dc2626] border border-red-800 shadow-2xs"></div>
+            <span className="font-bold text-slate-800">Sold</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-amber-400 border border-amber-600"></div>
-            <span className="font-semibold text-slate-700">Reserved / Hold</span>
+            <div className="w-4 h-4 rounded bg-[#eab308] border border-yellow-600 shadow-2xs"></div>
+            <span className="font-bold text-slate-800">Reserved</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-slate-800 border border-black"></div>
-            <span className="font-semibold text-slate-700">Locked</span>
+            <div className="w-4 h-4 rounded bg-blue-600 border border-blue-800 animate-pulse shadow-2xs"></div>
+            <span className="font-bold text-slate-800">Processing</span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="w-3.5 h-3.5 rounded bg-blue-600 border border-blue-400 ring-2 ring-blue-300"></div>
-            <span className="font-semibold text-slate-700">Selected</span>
+            <div className="w-4 h-4 rounded bg-indigo-700 border border-indigo-400 ring-2 ring-indigo-300 shadow-2xs"></div>
+            <span className="font-bold text-slate-800">Selected</span>
           </div>
         </div>
 
-        <div className="text-[11px] text-slate-500 font-medium">
-          Showing: <strong className="text-slate-800 font-mono">{trip.coachNumber}</strong> • {trip.routeTitle}
+        <div className="text-xs text-slate-600 font-semibold">
+          Coach: <strong className="text-slate-900 font-mono text-sm">{trip.coachNumber}</strong> • {trip.routeTitle}
         </div>
       </div>
 
@@ -358,51 +361,51 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
           <div className="flex items-center justify-between text-xs px-2 pb-2 border-b border-slate-600">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-              <span className="font-black tracking-widest text-emerald-300 uppercase text-[11px]">
+              <span className="font-black tracking-widest text-emerald-300 uppercase text-xs">
                 {isDoubleDeck ? (activeDeck === 'upper' ? 'UPPER DECK WINDSHIELD' : 'LOWER CABIN FRONT') : 'FRONT WINDSHIELD'}
               </span>
             </div>
-            <span className="font-mono text-slate-300 font-bold text-[10px]">
+            <span className="font-mono text-slate-300 font-bold text-xs">
               {trip.registrationNumber} • Coach {trip.coachNumber}
             </span>
           </div>
 
-          {/* Cabin Layout Header */}
+          {/* Cabin Layout Header: Door on Left, Driver on Right */}
           <div className="flex items-center justify-between mt-3 px-2">
             
-            {/* Passenger Entry Stairs */}
-            <div className="flex items-center gap-2 bg-slate-900/70 px-3 py-2 rounded-xl border border-emerald-500/40">
+            {/* Passenger Entry Stairs (Door side: Left single seat) */}
+            <div className="flex items-center gap-2 bg-slate-900/80 px-3 py-2 rounded-xl border border-emerald-500/50">
               <div className="flex flex-col space-y-0.5">
-                <span className="w-6 h-1 bg-emerald-400 rounded-full"></span>
-                <span className="w-5 h-1 bg-emerald-400/70 rounded-full"></span>
-                <span className="w-4 h-1 bg-emerald-400/40 rounded-full"></span>
+                <span className="w-6 h-1.5 bg-emerald-400 rounded-full"></span>
+                <span className="w-5 h-1.5 bg-emerald-400/70 rounded-full"></span>
+                <span className="w-4 h-1.5 bg-emerald-400/40 rounded-full"></span>
               </div>
               <div>
-                <span className="text-[10px] font-black text-emerald-300 block uppercase">
-                  Passenger Door
+                <span className="text-[11px] sm:text-xs font-black text-emerald-300 block uppercase">
+                  {isDoubleDeck ? 'Door (Single Seat)' : 'Passenger Door'}
                 </span>
-                <span className="text-[9px] text-slate-300">প্রবেশ দ্বার</span>
+                <span className="text-[10px] text-slate-300 font-medium">Entrance</span>
               </div>
             </div>
 
             {/* Central Gangway Entrance Arrow */}
             <div className="text-center text-slate-400 hidden sm:block">
-              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest block">
-                {isDoubleDeck ? 'VIP AISLE' : 'AISLE'}
+              <span className="text-xs font-extrabold text-slate-300 uppercase tracking-widest block font-mono">
+                {isDoubleDeck ? '1+2 VIP AISLE' : 'CENTRAL AISLE'}
               </span>
-              <span className="text-xs">↓</span>
+              <span className="text-sm font-bold">↓</span>
             </div>
 
-            {/* Driver Cockpit */}
-            <div className="flex items-center gap-2.5 bg-slate-900/80 px-3 py-2 rounded-xl border border-red-500/40">
+            {/* Driver Cockpit (Driver side: Right double seats) */}
+            <div className="flex items-center gap-2.5 bg-slate-900/80 px-3 py-2 rounded-xl border border-red-500/50">
               <div className="w-7 h-7 rounded-full border-2 border-dashed border-red-400 flex items-center justify-center">
                 <Disc className="w-4 h-4 text-red-300" />
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-black text-red-300 block uppercase">
-                  Driver Cabin
+                <span className="text-[11px] sm:text-xs font-black text-red-300 block uppercase">
+                  {isDoubleDeck ? 'Driver (Double Seats)' : 'Driver Cabin'}
                 </span>
-                <span className="text-[9px] text-slate-300">{trip.driverName.split(' ')[0]}</span>
+                <span className="text-[10px] text-slate-300 font-medium">{trip.driverName?.split(' ')[0] || 'Captain'}</span>
               </div>
             </div>
 
@@ -424,7 +427,7 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
 
               {/* Central Gangway / Aisle */}
               <div className="w-8 sm:w-12 flex flex-col items-center justify-center text-center select-none">
-                <span className="text-xs font-black text-slate-400 font-mono bg-white px-2 py-1 rounded-full border border-slate-200 shadow-2xs">
+                <span className="text-xs sm:text-sm font-black text-slate-600 font-mono bg-white px-2.5 py-1 rounded-full border border-slate-300 shadow-2xs">
                   {row.label}
                 </span>
               </div>
@@ -448,12 +451,12 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
 
         {/* Bus Rear & Emergency Exit */}
         <div className="mt-6 pt-4 border-t-2 border-dashed border-slate-300 flex items-center justify-between text-xs text-slate-600 px-2">
-          <div className="flex items-center gap-1.5 text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 font-bold text-[10px]">
-            <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
-            <span>জরুরী বহির্গমন / EMERGENCY EXIT</span>
+          <div className="flex items-center gap-1.5 text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 font-bold text-[11px]">
+            <ShieldAlert className="w-4 h-4 text-rose-600" />
+            <span>EMERGENCY EXIT</span>
           </div>
 
-          <div className="text-[10px] text-slate-500 font-mono">
+          <div className="text-[11px] text-slate-500 font-mono font-bold">
             {trip.coachType} • Lal Sabuj Fleet
           </div>
         </div>
@@ -472,7 +475,7 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
                 Selected Seats: <span className="font-mono text-emerald-300 font-extrabold text-sm">{selectedSeats.join(', ')}</span>
               </p>
               <p className="text-[11px] text-slate-400">
-                Total Base Fare: <span className="font-bold text-white">৳{(selectedSeats.length * trip.baseFare).toLocaleString()}</span>
+                Total Base Fare: <span className="font-bold text-white">BDT {(selectedSeats.length * trip.baseFare).toLocaleString()}</span>
               </p>
             </div>
           </div>

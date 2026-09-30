@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <span className="text-emerald-300 font-extrabold">PARIBAHAN</span>
                 </h1>
                 <span className="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded bg-emerald-600/70 text-emerald-100 border border-emerald-400/40">
-                  লাল সবুজ পরিবহন
+                  Lal Sabuj Paribahan
                 </span>
                 <a
                   href="https://lal-sobuj-bus.web.app"
@@ -242,7 +242,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border border-emerald-400 shadow-md hover:shadow-lg transition-all transform active:scale-95"
             >
               <Printer className="w-4 h-4" />
-              <span>Print Chalan (চালান)</span>
+              <span>Print Chalan Sheet</span>
             </button>
 
             {/* Live Clock */}

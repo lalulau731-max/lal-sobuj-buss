@@ -28,9 +28,9 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
   const [deckConfig, setDeckConfig] = useState<DeckConfig>('SINGLE_DECK');
   const [seatCapacity, setSeatCapacity] = useState<number>(40);
   const [baseFare, setBaseFare] = useState<number>(700);
-  const [driverName, setDriverName] = useState<string>('মো: রফিকুল ইসলাম');
+  const [driverName, setDriverName] = useState<string>('Md. Rafiqul Islam');
   const [driverPhone, setDriverPhone] = useState<string>('01712-884910');
-  const [supervisorName, setSupervisorName] = useState<string>('মো: কামাল উদ্দিন');
+  const [supervisorName, setSupervisorName] = useState<string>('Md. Kamal Uddin');
   const [supervisorPhone, setSupervisorPhone] = useState<string>('01601-331216');
   const [startingCounter, setStartingCounter] = useState<string>('Mirpur-10');
 
@@ -131,14 +131,14 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
 
           <div>
             <label className="block text-[11px] font-bold text-slate-700 mb-1">
-              Assigned Route (যাত্রাপথ) *
+              Assigned Route *
             </label>
             <input
               type="text"
               required
               value={routeTitle}
               onChange={(e) => setRouteTitle(e.target.value)}
-              placeholder="ঢাকা - সোনাপুর"
+              placeholder="Dhaka - Sonapur"
               className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl font-medium"
             />
           </div>
@@ -187,7 +187,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
 
             <div>
               <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                Fare (৳)
+                Fare (BDT)
               </label>
               <input
                 type="number"

@@ -189,20 +189,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     return cells;
   }, [viewYear, viewMonth, selectedDate, currentDate, monthSummary]);
 
-  // Names of months in English & Bengali
+  // Names of months in English
   const monthNames = [
-    { en: 'January', bn: 'জানুয়ারি' },
-    { en: 'February', bn: 'ফেব্রুয়ারি' },
-    { en: 'March', bn: 'মার্চ' },
-    { en: 'April', bn: 'এপ্রিল' },
-    { en: 'May', bn: 'মে' },
-    { en: 'June', bn: 'জুন' },
-    { en: 'July', bn: 'জুলাই' },
-    { en: 'August', bn: 'আগস্ট' },
-    { en: 'September', bn: 'সেপ্টেম্বর' },
-    { en: 'October', bn: 'অক্টোবর' },
-    { en: 'November', bn: 'নভেম্বর' },
-    { en: 'December', bn: 'ডিসেম্বর' },
+    { en: 'January', bn: 'January' },
+    { en: 'February', bn: 'February' },
+    { en: 'March', bn: 'March' },
+    { en: 'April', bn: 'April' },
+    { en: 'May', bn: 'May' },
+    { en: 'June', bn: 'June' },
+    { en: 'July', bn: 'July' },
+    { en: 'August', bn: 'August' },
+    { en: 'September', bn: 'September' },
+    { en: 'October', bn: 'October' },
+    { en: 'November', bn: 'November' },
+    { en: 'December', bn: 'December' },
   ];
 
   const currentMonthName = monthNames[viewMonth - 1];
@@ -238,7 +238,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>অপারেশন ক্যালেন্ডার ও ফ্লিট অ্যানালিটিক্স</span>
+                  <span>Operations Calendar & Fleet Analytics</span>
                   <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 hidden sm:inline-block">
                     Live Dispatch Scheduler
                   </span>
@@ -295,7 +295,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
               </span>
-              <span>Today (আজ)</span>
+              <span>Today</span>
             </button>
           </div>
 
@@ -314,9 +314,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             <div className="text-left">
               <span className="text-base sm:text-lg font-black text-slate-900">
                 {currentMonthName.en} {viewYear}
-              </span>
-              <span className="text-xs text-slate-500 ml-2 font-medium">
-                ({currentMonthName.bn} {viewYear})
               </span>
             </div>
             <button
@@ -339,7 +336,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-              <span>Today / আজ</span>
+              <span>Today's Date</span>
             </span>
           </div>
         </div>
@@ -390,7 +387,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-black text-slate-900 font-mono">
-              ৳{(monthAggregates.totalGrossRevenue / 1000).toFixed(1)}k
+              BDT {(monthAggregates.totalGrossRevenue / 1000).toFixed(1)}k
             </span>
             <span className="text-xs text-emerald-700 font-bold">Gross Fare</span>
           </div>
@@ -434,13 +431,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
           {/* Weekday Labels */}
           <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-bold text-slate-600 pb-1">
-            <div className="py-1">Sun<span className="hidden sm:inline"> (রবি)</span></div>
-            <div className="py-1">Mon<span className="hidden sm:inline"> (সোম)</span></div>
-            <div className="py-1">Tue<span className="hidden sm:inline"> (মঙ্গল)</span></div>
-            <div className="py-1">Wed<span className="hidden sm:inline"> (বুধ)</span></div>
-            <div className="py-1">Thu<span className="hidden sm:inline"> (বৃহ)</span></div>
-            <div className="py-1 text-emerald-700">Fri<span className="hidden sm:inline"> (শুক্র)</span></div>
-            <div className="py-1 text-emerald-700">Sat<span className="hidden sm:inline"> (শনি)</span></div>
+            <div className="py-1">Sun</div>
+            <div className="py-1">Mon</div>
+            <div className="py-1">Tue</div>
+            <div className="py-1">Wed</div>
+            <div className="py-1">Thu</div>
+            <div className="py-1 text-emerald-700">Fri</div>
+            <div className="py-1 text-emerald-700">Sat</div>
           </div>
 
           {/* Day Grid Cells */}
@@ -489,7 +486,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
                     {isToday && (
                       <span className="text-[9px] font-black uppercase tracking-wider px-1 py-0.5 rounded bg-amber-500 text-white shadow-2xs leading-none">
-                        আজ
+                        TODAY
                       </span>
                     )}
 
@@ -534,7 +531,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
                       {/* Revenue Pill */}
                       <div className="text-[9px] text-slate-600 font-mono truncate hidden sm:block">
-                        ৳{Math.round(cell.stats.totalRevenue / 1000)}k
+                        BDT {Math.round(cell.stats.totalRevenue / 1000)}k
                       </div>
 
                     </div>
@@ -630,17 +627,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               </span>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-2xl font-black text-slate-900 font-mono">
-                  ৳{dayAnalytics.totalRevenue.toLocaleString()}
+                  BDT {dayAnalytics.totalRevenue.toLocaleString()}
                 </span>
               </div>
               <div className="mt-2 space-y-0.5 text-[10px] text-slate-600 font-mono">
                 <div className="flex justify-between">
                   <span className="text-emerald-700 font-bold">Paid / Confirmed:</span>
-                  <span>৳{dayAnalytics.collectedRevenue.toLocaleString()}</span>
+                  <span>BDT {dayAnalytics.collectedRevenue.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-amber-700 font-bold">Due / On-Board:</span>
-                  <span>৳{dayAnalytics.dueRevenue.toLocaleString()}</span>
+                  <span>BDT {dayAnalytics.dueRevenue.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -758,7 +755,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                   <div className="space-y-1 pt-1 border-t border-slate-100">
                     <div className="flex justify-between text-[11px] text-slate-600 font-mono">
                       <span>Occupancy: <strong className="text-slate-800">{trip.soldSeats}/{trip.seatCapacity}</strong> ({trip.occupancyRate}%)</span>
-                      <span className="font-bold text-emerald-700">৳{trip.revenue.toLocaleString()}</span>
+                      <span className="font-bold text-emerald-700">BDT {trip.revenue.toLocaleString()}</span>
                     </div>
                     <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                       <div
