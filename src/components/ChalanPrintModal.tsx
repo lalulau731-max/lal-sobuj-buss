@@ -226,11 +226,11 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
     document.body.removeChild(link);
   };
 
-  const densityClass = manifestSeats.length <= 8 
+  const densityClass = manifestSeats.length <= 10 
     ? 'chalan-spacious' 
-    : manifestSeats.length <= 16 
+    : manifestSeats.length <= 18 
     ? 'chalan-normal' 
-    : manifestSeats.length <= 25 
+    : manifestSeats.length <= 26 
     ? 'chalan-dense' 
     : 'chalan-ultra-dense';
 
@@ -299,9 +299,9 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
             <div className="chalan-header border-b-2 border-black pb-2 mb-2 text-center">
               <div className="flex items-center justify-between">
                 
-                {/* Top Left: Prominent & Visually Large Lal Sabuj Black & White Logo */}
-                <div className="chalan-logo-col text-left flex items-center justify-start shrink-0 pr-2">
-                  <ChalanLogoBW className="chalan-logo w-32 sm:w-36 h-auto shrink-0" width={135} height={90} />
+                {/* Top Left: Significantly Increased Size and Prominence Lal Sabuj Logo */}
+                <div className="chalan-logo-col text-left flex items-center justify-start shrink-0 pr-3">
+                  <ChalanLogoBW className="chalan-logo w-40 sm:w-48 h-auto shrink-0" width={180} height={120} />
                 </div>
 
                 {/* Center: Brand Title, Trip Chalan Header, & Large Mirpur-10 */}
