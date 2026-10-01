@@ -110,6 +110,11 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
     const matchesFilter = isSeatHighlighted(seat);
     const opacityClass = matchesFilter ? 'opacity-100' : 'opacity-25 grayscale pointer-events-none';
 
+    // Due amount calculation for display next to seat
+    const seatDue = seat.dueAmount !== undefined
+      ? seat.dueAmount
+      : (seat.paymentStatus === 'due' ? (seat.fare || trip.baseFare) : seat.status === 'reserved' ? (seat.fare || trip.baseFare) : 0);
+
     let statusBg = '';
     let statusBorder = '';
     let statusBadge = null;
@@ -133,20 +138,20 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
         </span>
       );
     } else if (seat.status === 'locked') {
-      // Processing / Locked: DISTINCT ROYAL BLUE
-      statusBg = 'bg-blue-600 text-white animate-pulse';
-      statusBorder = 'border-blue-800 shadow-sm';
+      // Locked: BLACK
+      statusBg = 'bg-black text-white';
+      statusBorder = 'border-black shadow-sm';
       statusBadge = (
-        <span className="flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded bg-blue-950 text-blue-200 uppercase tracking-wider">
-          <Lock className="w-3 h-3 inline stroke-[2.5]" /> PROCESSING
+        <span className="flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded bg-slate-900 text-white uppercase tracking-wider border border-slate-700">
+          <Lock className="w-3 h-3 inline stroke-[2.5]" /> LOCKED
         </span>
       );
     } else {
-      // Available: GREEN
-      statusBg = 'bg-[#16a34a] hover:bg-[#15803d] text-white';
-      statusBorder = 'border-emerald-700 shadow-2xs';
+      // Available: WHITE
+      statusBg = 'bg-white hover:bg-slate-50 text-slate-900';
+      statusBorder = 'border-slate-300 hover:border-slate-400 shadow-xs';
       statusBadge = (
-        <span className="text-[10px] font-black text-emerald-950 bg-emerald-100 px-2 py-0.5 rounded font-mono">
+        <span className="text-[10px] font-black text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded font-mono">
           BDT {seat.fare || trip.baseFare}
         </span>
       );
@@ -173,14 +178,28 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
         } min-h-[105px]`}
         title={`Seat ${seatNo}: ${seat.status.toUpperCase()} ${
           seat.passengerName ? ` - ${seat.passengerName}` : ''
-        }`}
+        } • Due: ৳${seatDue}`}
       >
-        {/* Top: Seat number & Badge */}
+        {/* Top: Seat number & Due Amount displayed next to each seat */}
         <div className="flex items-start justify-between gap-1">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-base sm:text-lg font-black tracking-tight font-mono">
               {seatNo}
             </span>
+            {/* Due Amount displayed prominently next to each seat */}
+            {seatDue > 0 ? (
+              <span className="px-1.5 py-0.5 text-[9.5px] font-black bg-black text-white rounded font-mono shadow-xs border border-slate-700 uppercase tracking-tight">
+                ৳{seatDue} DUE
+              </span>
+            ) : seat.status === 'sold' ? (
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-black/20 text-white rounded font-mono">
+                ৳0 DUE
+              </span>
+            ) : seat.status === 'available' ? (
+              <span className="px-1.5 py-0.5 text-[9px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 rounded font-mono">
+                Due: ৳0
+              </span>
+            ) : null}
             {isSelected && (
               <span className="w-4 h-4 rounded-full bg-white text-indigo-700 flex items-center justify-center font-black text-[10px]">
                 ✓
@@ -223,10 +242,10 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
 
           {seat.status === 'locked' && (
             <div className="space-y-0.5">
-              <p className="text-xs sm:text-[13px] font-black text-blue-100 truncate leading-tight">
-                {seat.passengerName || 'Processing in Cart'}
+              <p className="text-xs sm:text-[13px] font-black text-white truncate leading-tight">
+                {seat.passengerName || 'Locked Seat'}
               </p>
-              <p className="text-[10px] text-blue-200 font-bold truncate">
+              <p className="text-[10px] text-slate-300 font-bold truncate">
                 Terminal Locked
               </p>
             </div>
@@ -234,10 +253,10 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
 
           {seat.status === 'available' && !isSelected && (
             <div className="flex flex-col items-center justify-center py-1 text-center">
-              <span className="text-xs font-black text-white group-hover:hidden tracking-wide uppercase">
+              <span className="text-xs font-black text-slate-700 group-hover:hidden tracking-wide uppercase">
                 Available
               </span>
-              <span className="text-[11px] font-black text-emerald-950 hidden group-hover:block bg-emerald-200 px-2 py-0.5 rounded uppercase">
+              <span className="text-[11px] font-black text-slate-900 hidden group-hover:block bg-slate-100 border border-slate-300 px-2 py-0.5 rounded uppercase">
                 + Select Seat
               </span>
             </div>
@@ -314,7 +333,7 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
         </div>
       )}
 
-      {/* Legend: Available (Green), Sold (Red), Reserved (Yellow), Processing (Blue), Selected (Indigo) */}
+      {/* Legend: Available (White), Locked (Black), Sold (Red), Reserved (Yellow), Selected (Indigo) */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-200/90 text-xs sm:text-sm">
         <div className="flex flex-wrap items-center gap-3 sm:gap-5">
           <span className="font-extrabold text-slate-800 flex items-center gap-1.5">
@@ -323,8 +342,13 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
           </span>
           
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded bg-[#16a34a] border border-emerald-700 shadow-2xs"></div>
+            <div className="w-4 h-4 rounded bg-white border-2 border-slate-400 shadow-2xs"></div>
             <span className="font-bold text-slate-800">Available</span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-4 rounded bg-black border border-black shadow-2xs"></div>
+            <span className="font-bold text-slate-800">Locked</span>
           </div>
 
           <div className="flex items-center gap-1.5">
@@ -335,11 +359,6 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
           <div className="flex items-center gap-1.5">
             <div className="w-4 h-4 rounded bg-[#eab308] border border-yellow-600 shadow-2xs"></div>
             <span className="font-bold text-slate-800">Reserved</span>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <div className="w-4 h-4 rounded bg-blue-600 border border-blue-800 animate-pulse shadow-2xs"></div>
-            <span className="font-bold text-slate-800">Processing</span>
           </div>
 
           <div className="flex items-center gap-1.5">

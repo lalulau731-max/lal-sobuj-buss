@@ -138,6 +138,41 @@ export const COUNTERS = [
   'Sonapur Counter',
 ];
 
+// Strict validator to ensure only authentic Lal Sabuj Paribahan coaches are displayed
+export function isRealCoach(coach?: CoachRecord | Partial<CoachRecord> | null): boolean {
+  if (!coach || !coach.coachNumber) return false;
+  if (coach.isVisible === false) return false;
+
+  const num = coach.coachNumber.trim().toUpperCase();
+  const model = (coach.coachModel || '').trim().toUpperCase();
+  const route = (coach.assignedRoute || '').trim().toUpperCase();
+  const reg = (coach.registrationNumber || '').trim().toUpperCase();
+
+  // Filter out any dummy, test, demo, sample, or mock records
+  if (
+    num.includes('DUMMY') ||
+    num.includes('TEST') ||
+    num.includes('DEMO') ||
+    num.includes('SAMPLE') ||
+    num.includes('MOCK') ||
+    num.includes('TEMP') ||
+    num.includes('FAKE') ||
+    num === '0' ||
+    num === '000' ||
+    num === 'DEFAULT' ||
+    model.includes('DUMMY') ||
+    model.includes('TEST') ||
+    route.includes('DUMMY') ||
+    route.includes('TEST') ||
+    reg.includes('DUMMY') ||
+    reg.includes('TEST')
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 // Fallback seed coaches matching exact Firebase records if offline
 export const INITIAL_COACHES: CoachRecord[] = [
   {

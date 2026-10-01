@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Trip, Seat, FirebaseConnectionConfig, ActivityLogItem } from './types/bus';
+import { isRealCoach } from './data/mockTrips';
 import { firebaseSync } from './services/firebaseSync';
 import { LalSobujHeader } from './components/LalSobujHeader';
 import { LalSobujFilterBar } from './components/LalSobujFilterBar';
@@ -117,9 +118,9 @@ export default function App() {
     }
   };
 
-  // Filtered Trips list based on destination and search query
+  // Filtered Trips list based on destination and search query - strictly real coaches only
   const filteredTrips = useMemo(() => {
-    let list = allTrips;
+    let list = allTrips.filter((t) => isRealCoach(t.rawCoach));
 
     // Filter by destination in To field (e.g. Sonapur, Raipur, Chittagong, Noakhali)
     if (toLocation && toLocation.trim()) {

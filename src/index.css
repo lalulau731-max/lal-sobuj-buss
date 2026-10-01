@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
 @layer base {
-  body {
+  *, ::before, ::after {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  html, body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     background-color: #f1f5f9;
     color: #1e293b;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -560,6 +564,6 @@
 /* Global rule for printable chalan modal preview */
 #printable-chalan,
 #printable-chalan * {
-  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hind Siliguri', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 

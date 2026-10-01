@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { Trip, Seat, CoachRecord, FirebaseConnectionConfig, ActivityLogItem, SeatStatus, Gender, DayAnalytics, TripDaySummary } from '../types/bus';
 import { FIREBASE_CONFIG, getFirebaseDatabase, firestore, app } from '../firebase/config';
-import { INITIAL_COACHES, generateSeatsForCoach, generate2x2Seats, generateDoubleDeckSeats } from '../data/mockTrips';
+import { INITIAL_COACHES, generateSeatsForCoach, generate2x2Seats, generateDoubleDeckSeats, isRealCoach } from '../data/mockTrips';
 
 const CONFIG_STORAGE_KEY = 'lsp_firebase_rtdb_config_v3';
 const BROADCAST_CHANNEL_NAME = 'lsp_rtdb_live_sync_v3';
@@ -77,7 +77,7 @@ class FirebaseSyncService {
   }
 
   private initializeFromFallbackCoaches() {
-    INITIAL_COACHES.forEach((c) => {
+    INITIAL_COACHES.filter(isRealCoach).forEach((c) => {
       this.rawCoaches[c.coachNumber] = c;
     });
 
@@ -307,7 +307,7 @@ class FirebaseSyncService {
           snapshot.forEach((docSnap) => {
             const data = docSnap.data() as any;
             const cNumber = data.coachNumber || docSnap.id;
-            loadedCoaches[cNumber] = {
+            const coachRecord: CoachRecord = {
               id: data.id || docSnap.id,
               coachNumber: cNumber,
               registrationNumber: data.registrationNumber || 'DHAKA METRO-BA',
@@ -327,6 +327,11 @@ class FirebaseSyncService {
               coachModel: data.coachModel || 'Scania Multi-Axle AC',
               isVisible: data.isVisible !== false,
             };
+
+            // Strictly ensure only real coaches are stored without any dummy records
+            if (isRealCoach(coachRecord)) {
+              loadedCoaches[cNumber] = coachRecord;
+            }
           });
 
           if (Object.keys(loadedCoaches).length > 0) {
@@ -403,7 +408,8 @@ class FirebaseSyncService {
     const newTrips: Record<string, Trip> = {};
     const date = this.selectedJourneyDate;
 
-    Object.values(this.rawCoaches).forEach((coach) => {
+    // Strictly ensure only real coaches are processed into trips
+    Object.values(this.rawCoaches).filter(isRealCoach).forEach((coach) => {
       const tripId = coach.coachNumber;
       const baseSeats = generateSeatsForCoach(coach);
 
@@ -616,7 +622,7 @@ class FirebaseSyncService {
 
   // Calculate complete daily analytics for any given date
   public getDayAnalytics(targetDate: string): DayAnalytics {
-    const coaches = Object.values(this.rawCoaches);
+    const coaches = Object.values(this.rawCoaches).filter(isRealCoach);
     let totalCapacity = 0;
     let soldSeats = 0;
     let reservedSeats = 0;
@@ -891,7 +897,7 @@ class FirebaseSyncService {
       coachesSnap.forEach((docSnap) => {
         const data = docSnap.data() as any;
         const cNumber = data.coachNumber || docSnap.id;
-        loadedCoaches[cNumber] = {
+        const coachRecord: CoachRecord = {
           id: data.id || docSnap.id,
           coachNumber: cNumber,
           registrationNumber: data.registrationNumber || 'DHAKA METRO-BA',
@@ -911,6 +917,10 @@ class FirebaseSyncService {
           coachModel: data.coachModel || 'Scania Multi-Axle AC',
           isVisible: data.isVisible !== false,
         };
+
+        if (isRealCoach(coachRecord)) {
+          loadedCoaches[cNumber] = coachRecord;
+        }
       });
 
       if (Object.keys(loadedCoaches).length > 0) {

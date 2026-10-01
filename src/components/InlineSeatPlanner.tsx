@@ -323,45 +323,66 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                   }
 
                   const isSold = seat.status === 'sold';
-                  const isLocked = seat.status === 'locked'; // Processing / Locked
+                  const isLocked = seat.status === 'locked'; // Locked / Processing
                   const isReserved = seat.status === 'reserved';
                   const isSelected = selectedSeatNos.includes(seat.seatNumber);
                   const isAvailable = seat.status === 'available';
 
-                  // Strict Color-coding:
-                  // Red for sold
-                  // Green for available
-                  // Yellow for reserved
-                  // Distinct Royal Blue for processing
-                  // Indigo for operator selected
+                  // Calculate Due Amount for this seat
+                  const seatDue = seat.dueAmount !== undefined
+                    ? seat.dueAmount
+                    : (seat.paymentStatus === 'due' ? (seat.fare || baseFarePerSeat) : isReserved ? (seat.fare || baseFarePerSeat) : 0);
+
+                  // Color-coding:
+                  // Available: WHITE
+                  // Locked: BLACK
+                  // Sold: RED
+                  // Reserved: YELLOW
+                  // Selected: INDIGO
                   let seatColors = '';
                   if (isSelected) {
                     seatColors = 'bg-indigo-700 text-white shadow-md ring-3 ring-indigo-400 border-2 border-indigo-400';
                   } else if (isSold) {
                     seatColors = 'bg-[#dc2626] text-white border-2 border-red-800 opacity-95 cursor-not-allowed';
                   } else if (isLocked) {
-                    seatColors = 'bg-blue-600 text-white border-2 border-blue-800 animate-pulse cursor-not-allowed';
+                    // Locked: BLACK
+                    seatColors = 'bg-black text-white border-2 border-black cursor-not-allowed';
                   } else if (isReserved) {
                     seatColors = 'bg-[#eab308] hover:bg-[#ca8a04] text-slate-950 font-black border-2 border-yellow-600';
                   } else {
-                    // Available: GREEN
-                    seatColors = 'bg-[#16a34a] hover:bg-[#15803d] text-white border-2 border-emerald-700 shadow-xs cursor-pointer';
+                    // Available: WHITE
+                    seatColors = 'bg-white hover:bg-slate-50 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-xs cursor-pointer';
                   }
 
                   return (
-                    <button
-                      key={seat.seatNumber}
-                      type="button"
-                      disabled={isSold || isLocked}
-                      onClick={() => handleToggleSeat(seat.seatNumber)}
-                      title={`${seat.seatNumber} • ${seat.status.toUpperCase()} ${seat.passengerName ? `(${seat.passengerName})` : ''}`}
-                      className={`w-11 h-10 sm:w-13 sm:h-11 rounded-xl text-sm sm:text-base font-black transition-all flex items-center justify-center relative ${seatColors}`}
-                    >
-                      <span className="font-mono tracking-tight">{seat.seatNumber.replace(/^[LU]-/, '')}</span>
-                      {isSelected && (
-                        <Check className="w-3.5 h-3.5 absolute top-1 right-1 stroke-[3]" />
-                      )}
-                    </button>
+                    <div className="flex flex-col items-center">
+                      <button
+                        key={seat.seatNumber}
+                        type="button"
+                        disabled={isSold || isLocked}
+                        onClick={() => handleToggleSeat(seat.seatNumber)}
+                        title={`${seat.seatNumber} • ${seat.status.toUpperCase()} ${seat.passengerName ? `(${seat.passengerName})` : ''} • Due: ৳${seatDue}`}
+                        className={`w-11 h-10 sm:w-13 sm:h-11 rounded-xl text-sm sm:text-base font-black transition-all flex items-center justify-center relative ${seatColors}`}
+                      >
+                        <span className="font-mono tracking-tight">{seat.seatNumber.replace(/^[LU]-/, '')}</span>
+                        {isSelected && (
+                          <Check className="w-3.5 h-3.5 absolute top-1 right-1 stroke-[3]" />
+                        )}
+                      </button>
+                      {/* Due amount displayed next to / right below each seat */}
+                      <span 
+                        className={`text-[9px] font-mono tracking-tight mt-0.5 px-1 py-0.2 rounded leading-tight select-none ${
+                          seatDue > 0 
+                            ? 'bg-black text-white font-black shadow-2xs' 
+                            : isSold 
+                            ? 'bg-red-100 text-red-900 font-bold'
+                            : 'text-slate-600 bg-slate-100 border border-slate-200 font-semibold'
+                        }`}
+                        title={`Due Amount: ৳${seatDue}`}
+                      >
+                        {seatDue > 0 ? `৳${seatDue}` : '৳0'}
+                      </span>
+                    </div>
                   );
                 };
 
@@ -407,11 +428,15 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
               })}
             </div>
 
-            {/* Bottom Color Swatches Bar: Green=Available, Red=Sold, Yellow=Reserved, Blue=Processing */}
+            {/* Bottom Color Swatches Bar: White=Available, Black=Locked, Red=Sold, Yellow=Reserved, Indigo=Selected */}
             <div className="bg-slate-50 px-3.5 py-3 border-t border-slate-200 flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 text-xs sm:text-sm font-bold text-slate-800">
               <span className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-[#16a34a] border-2 border-emerald-700" />
+                <span className="w-4 h-4 rounded bg-white border-2 border-slate-400 shadow-2xs" />
                 <span>Available</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-4 h-4 rounded bg-black border-2 border-black" />
+                <span>Locked</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-4 h-4 rounded bg-[#dc2626] border-2 border-red-800" />
@@ -420,10 +445,6 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
               <span className="flex items-center gap-1.5">
                 <span className="w-4 h-4 rounded bg-[#eab308] border-2 border-yellow-600" />
                 <span>Reserved</span>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-blue-600 border-2 border-blue-800 animate-pulse" />
-                <span>Processing</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-4 h-4 rounded bg-indigo-700 border-2 border-indigo-400" />
