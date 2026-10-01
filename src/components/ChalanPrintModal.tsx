@@ -297,11 +297,11 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
           >
             {/* Header: Company Name & Document Title in Bold Black */}
             <div className="chalan-header border-b-2 border-black pb-2 mb-2 text-center">
-              <div className="flex items-start justify-between">
+              <div className="flex items-center justify-between">
                 
-                {/* Top Left: Clean High-Contrast Black & White Logo Neatly in the Designated Corner */}
-                <div className="text-left w-36 sm:w-40 flex flex-col items-start justify-center pt-0.5">
-                  <ChalanLogoBW className="chalan-logo w-24 sm:w-28 h-auto shrink-0" width={112} height={80} />
+                {/* Top Left: Prominent & Visually Large Lal Sabuj Black & White Logo */}
+                <div className="chalan-logo-col text-left flex items-center justify-start shrink-0 pr-2">
+                  <ChalanLogoBW className="chalan-logo w-32 sm:w-36 h-auto shrink-0" width={135} height={90} />
                 </div>
 
                 {/* Center: Brand Title, Trip Chalan Header, & Large Mirpur-10 */}
@@ -323,7 +323,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                 </div>
 
                 {/* Top Right Form Reference */}
-                <div className="chalan-form-ref text-right text-[9px] text-black w-32 font-sans font-bold pt-1">
+                <div className="chalan-form-ref text-right text-[9px] text-black w-28 shrink-0 font-sans font-bold pt-1">
                   <span className="font-black block text-black">FORM: LSP-CH-01</span>
                   <span className="text-[8.5px] text-black font-bold">Waybill Manifest</span>
                 </div>
