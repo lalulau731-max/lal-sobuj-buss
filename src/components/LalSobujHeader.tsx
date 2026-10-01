@@ -9,13 +9,17 @@ import {
   LogOut, 
   Database, 
   Smartphone,
-  ChevronDown
+  ChevronDown,
+  UserCheck,
+  ShieldAlert
 } from 'lucide-react';
 import { FirebaseConnectionConfig } from '../types/bus';
+import { AdminUser } from '../services/authService';
 
 interface LalSobujHeaderProps {
   connectionConfig: FirebaseConnectionConfig;
   currentView: 'home' | 'dashboard';
+  adminUser: AdminUser | null;
   onNavigate: (view: 'home' | 'dashboard') => void;
   onOpenHDeposit: () => void;
   onOpenFirebaseConfig: () => void;
@@ -26,6 +30,7 @@ interface LalSobujHeaderProps {
 export const LalSobujHeader: React.FC<LalSobujHeaderProps> = ({
   connectionConfig,
   currentView,
+  adminUser,
   onNavigate,
   onOpenHDeposit,
   onOpenFirebaseConfig,
@@ -124,10 +129,22 @@ export const LalSobujHeader: React.FC<LalSobujHeaderProps> = ({
             North
           </span>
 
-          {/* Operator Name */}
-          <span className="hidden sm:inline-block text-purple-100 text-[11px] sm:text-xs font-semibold px-1">
-            Mirpur-10
-          </span>
+          {/* Operator & Admin Role */}
+          {adminUser ? (
+            <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-purple-900/60 border border-purple-400/40 text-[11px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="font-bold text-white truncate max-w-[120px]">
+                {adminUser.displayName}
+              </span>
+              <span className="px-1.5 py-0.2 rounded text-[9.5px] font-black uppercase bg-purple-950 text-amber-300 border border-purple-700">
+                {adminUser.role === 'Super Admin' ? 'Admin' : 'Staff'}
+              </span>
+            </div>
+          ) : (
+            <span className="hidden sm:inline-block text-purple-100 text-[11px] sm:text-xs font-semibold px-1">
+              Mirpur-10
+            </span>
+          )}
 
           {/* Hamburger Menu Button (Three Horizontal Lines - Reference Image 1 & 3) */}
           <div className="relative" ref={menuRef}>
@@ -146,7 +163,29 @@ export const LalSobujHeader: React.FC<LalSobujHeaderProps> = ({
 
             {/* Hamburger Dropdown Menu (Exact Match to Image 3) */}
             {isMenuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-52 sm:w-56 bg-white text-slate-800 rounded-lg shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 top-full mt-1.5 w-60 sm:w-64 bg-white text-slate-800 rounded-xl shadow-2xl border border-slate-200 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                
+                {/* Admin Profile Overview */}
+                {adminUser && (
+                  <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-200 mb-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-purple-700 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                        {adminUser.displayName.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="overflow-hidden leading-tight">
+                        <p className="text-xs font-black text-slate-900 truncate">
+                          {adminUser.displayName}
+                        </p>
+                        <p className="text-[10px] text-slate-500 truncate font-mono">
+                          {adminUser.email}
+                        </p>
+                        <span className="inline-block mt-0.5 text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded bg-purple-100 text-purple-900 border border-purple-200">
+                          {adminUser.role} • {adminUser.branchOrCounter}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 {/* 🏠 Home */}
                 <button

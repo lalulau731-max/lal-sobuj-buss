@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getDatabase, Database } from 'firebase/database';
 import { getFirestore, Firestore } from 'firebase/firestore';
+import { getAuth, Auth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
 export const PRODUCTION_HOSTING_URL = 'https://lal-sobuj-bus.web.app';
@@ -40,6 +41,14 @@ export const app: FirebaseApp =
 
 // Export Firestore Database
 export const firestore: Firestore = getFirestore(app);
+
+// Export Firebase Authentication with browser local persistence
+export const auth: Auth = getAuth(app);
+if (typeof window !== 'undefined') {
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    console.warn('Firebase auth setPersistence warning:', err);
+  });
+}
 
 // Initialize Analytics conditionally
 if (typeof window !== 'undefined') {

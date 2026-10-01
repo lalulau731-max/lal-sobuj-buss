@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Trip, Seat, FirebaseConnectionConfig, ActivityLogItem } from './types/bus';
 import { isRealCoach } from './data/mockTrips';
 import { firebaseSync } from './services/firebaseSync';
+import { authService, AdminUser } from './services/authService';
+import { AdminLogin } from './components/AdminLogin';
 import { LalSobujHeader } from './components/LalSobujHeader';
 import { LalSobujFilterBar } from './components/LalSobujFilterBar';
 import { TripListCard } from './components/TripListCard';
@@ -17,6 +19,9 @@ import { Bus, Sparkles, AlertCircle } from 'lucide-react';
 export default function App() {
   // Navigation View: 'home' (Image 1 Coach List) or 'dashboard' (Fleet Calendar & Operations Analytics)
   const [currentView, setCurrentView] = useState<'home' | 'dashboard'>('home');
+
+  // Admin Authentication State with Persistent Session
+  const [currentAdmin, setCurrentAdmin] = useState<AdminUser | null>(() => authService.getStoredSession());
 
   // Core State
   const [allTrips, setAllTrips] = useState<Trip[]>(() => firebaseSync.getAllTrips());
@@ -56,8 +61,12 @@ export default function App() {
     }, 4000);
   };
 
-  // Subscribe to FirebaseSync service
+  // Subscribe to FirebaseSync service and persistent Admin Auth
   useEffect(() => {
+    const unsubAuth = authService.subscribe((admin) => {
+      setCurrentAdmin(admin);
+    });
+
     const unsubAllTrips = firebaseSync.subscribeAllTrips((trips) => {
       setAllTrips([...trips]);
     });
@@ -71,6 +80,7 @@ export default function App() {
     });
 
     return () => {
+      unsubAuth();
       unsubAllTrips();
       unsubConn();
       unsubDate();
@@ -269,6 +279,35 @@ export default function App() {
     showToast('Refreshed seat matrix from Firebase live database.', 'info');
   };
 
+  // If not authenticated, display the attractive modern Admin Panel Login Page
+  if (!currentAdmin) {
+    return (
+      <div className="relative">
+        {/* Toast Alert Banner */}
+        {toastMessage && (
+          <div className="no-print fixed top-5 right-5 z-50 animate-bounce">
+            <div className={`px-4 py-2.5 rounded-xl shadow-2xl border flex items-center gap-2 text-xs font-bold ${
+              toastMessage.type === 'success'
+                ? 'bg-blue-900 text-blue-100 border-blue-400'
+                : toastMessage.type === 'warning'
+                ? 'bg-amber-900 text-amber-100 border-amber-400'
+                : 'bg-slate-900 text-white border-slate-700'
+            }`}>
+              <Sparkles className="w-4 h-4 text-blue-300" />
+              <span>{toastMessage.text}</span>
+            </div>
+          </div>
+        )}
+        <AdminLogin 
+          onLoginSuccess={(admin) => {
+            setCurrentAdmin(admin);
+            showToast(`Authenticated as ${admin.displayName} (${admin.role})`, 'success');
+          }} 
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f4eff6] text-slate-800 flex flex-col font-sans">
       
@@ -292,12 +331,15 @@ export default function App() {
       <LalSobujHeader
         connectionConfig={connectionConfig}
         currentView={currentView}
+        adminUser={currentAdmin}
         onNavigate={(v) => setCurrentView(v)}
         onOpenHDeposit={() => setIsHDepositOpen(true)}
         onOpenFirebaseConfig={() => setIsFirebaseConfigOpen(true)}
         onOpenSimulator={() => setIsSimulatorOpen(true)}
-        onLogout={() => {
-          showToast('Counter terminal session secured. Logged out.', 'info');
+        onLogout={async () => {
+          await authService.logout();
+          setCurrentAdmin(null);
+          showToast('Administrative session secured. Logged out.', 'info');
         }}
       />
 
