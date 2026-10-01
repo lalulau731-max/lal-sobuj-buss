@@ -41,52 +41,82 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
   const reservedCount = manifestSeats.filter((s) => s.status === 'reserved').length;
   const lockedCount = manifestSeats.filter((s) => s.status === 'locked').length;
 
-  // Calculate total due amount
+  const getSeatDue = React.useCallback((s: Seat): number => {
+    if (s.dueAmount !== undefined) return s.dueAmount;
+    if (s.paymentStatus === 'due') return s.fare || trip.baseFare;
+    if (s.status === 'reserved') return s.fare || trip.baseFare;
+    return 0;
+  }, [trip.baseFare]);
+
+  // Calculate total due amount across all active seats
   const totalDueAmount = manifestSeats.reduce((sum, s) => {
-    const seatDue = s.dueAmount !== undefined 
-      ? s.dueAmount 
-      : (s.paymentStatus === 'due' ? (seatFare(s) || trip.baseFare) : s.status === 'reserved' ? (seatFare(s) || trip.baseFare) : 0);
-    return sum + (seatDue || 0);
+    return sum + getSeatDue(s);
   }, 0);
 
-  function seatFare(s: Seat) {
-    return s.fare;
+  // Group Details interface
+  interface GroupInfo {
+    groupId: string;
+    seatCount: number;
+    firstSeatNumber: string;
+    totalDue: number;
+    seats: string[];
   }
 
-  // Calculate Group sizes for multi-seat bookings
-  const seatGroupMap = React.useMemo(() => {
-    const groupIds = new Map<string, string>();
-    const groupCounts = new Map<string, number>();
+  // Calculate Group sizes and aggregate Due Amount for multi-seat bookings
+  const { seatGroupMap, seatGroupInfoMap } = React.useMemo(() => {
+    const seatToGroupId = new Map<string, string>();
+    const groups = new Map<string, { seats: string[]; totalDue: number }>();
 
     manifestSeats.forEach((seat) => {
       let gId = '';
 
       if (seat.bookingReference && seat.bookingReference.trim()) {
-        gId = `ref:${seat.bookingReference.trim()}`;
+        gId = `ref:${seat.bookingReference.trim().toLowerCase()}`;
       } else if (seat.ticketNumber && seat.ticketNumber.trim()) {
-        gId = `tkt:${seat.ticketNumber.trim()}`;
+        gId = `tkt:${seat.ticketNumber.trim().toLowerCase()}`;
       } else if (seat.phone && !isDummyPhone(seat.phone)) {
-        gId = `phn:${seat.phone.trim()}`;
+        gId = `phn:${seat.phone.trim().replace(/[-\s]/g, '')}`;
       } else if (seat.passengerName && !isDummyName(seat.passengerName)) {
         const baseName = seat.passengerName.trim().replace(/\s*\(\d+\)$/, '').replace(/\s*#\d+$/, '').toLowerCase();
-        const timeBucket = seat.bookedAt ? seat.bookedAt.substring(0, 16) : 'same';
-        gId = `pax:${baseName}:${timeBucket}`;
+        gId = `pax:${baseName}`;
       } else {
         gId = `seat:${seat.seatNumber}`;
       }
 
-      groupIds.set(seat.seatNumber, gId);
-      groupCounts.set(gId, (groupCounts.get(gId) || 0) + 1);
+      seatToGroupId.set(seat.seatNumber, gId);
+
+      const due = getSeatDue(seat);
+      const existing = groups.get(gId);
+      if (existing) {
+        existing.seats.push(seat.seatNumber);
+        existing.totalDue += due;
+      } else {
+        groups.set(gId, { seats: [seat.seatNumber], totalDue: due });
+      }
     });
 
-    const result: Record<string, number> = {};
+    const counts: Record<string, number> = {};
+    const infoMap: Record<string, GroupInfo> = {};
+
     manifestSeats.forEach((seat) => {
-      const gId = groupIds.get(seat.seatNumber) || '';
-      result[seat.seatNumber] = groupCounts.get(gId) || 1;
+      const gId = seatToGroupId.get(seat.seatNumber) || `seat:${seat.seatNumber}`;
+      const gData = groups.get(gId);
+      const count = gData ? gData.seats.length : 1;
+      const firstSeat = gData ? gData.seats[0] : seat.seatNumber;
+      const totalDue = gData ? gData.totalDue : getSeatDue(seat);
+
+      counts[seat.seatNumber] = count;
+      infoMap[seat.seatNumber] = {
+        groupId: gId,
+        seatCount: count,
+        firstSeatNumber: firstSeat,
+        totalDue,
+        seats: gData ? gData.seats : [seat.seatNumber],
+      };
     });
 
-    return result;
-  }, [manifestSeats]);
+    return { seatGroupMap: counts, seatGroupInfoMap: infoMap };
+  }, [manifestSeats, getSeatDue]);
 
   // Helper: Detect and remove dummy/placeholder names
   const isDummyName = (name?: string): boolean => {
@@ -152,17 +182,22 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
       const isLocked = s.status === 'locked';
       const cleanName = isLocked || isDummyName(s.passengerName) ? '' : s.passengerName;
       const cleanPhone = isLocked || isDummyPhone(s.phone) ? '' : s.phone;
-      const groupSize = seatGroupMap[s.seatNumber] || 1;
+      const groupInfo = seatGroupInfoMap[s.seatNumber];
+      const groupSize = groupInfo ? groupInfo.seatCount : 1;
+      const isFirstSeat = !groupInfo || groupInfo.firstSeatNumber === s.seatNumber;
 
-      const seatDue = s.dueAmount !== undefined 
-        ? s.dueAmount 
-        : (s.paymentStatus === 'due' ? (s.fare || trip.baseFare) : s.status === 'reserved' ? (s.fare || trip.baseFare) : 0);
+      // Group aggregated Due Amount displayed only on first seat
+      const seatDue = isFirstSeat ? (groupInfo ? groupInfo.totalDue : getSeatDue(s)) : 0;
       
       const statusLabel = s.status === 'sold' 
         ? 'SOLD' 
         : s.status === 'reserved' 
         ? 'RESERVATION' 
         : 'LOCKED';
+
+      const paymentStatus = isFirstSeat
+        ? (seatDue > 0 ? 'DUE' : 'PAID')
+        : (groupSize > 1 ? '-' : 'PAID');
 
       return [
         s.seatNumber,
@@ -172,8 +207,8 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
         `"${cleanName || ''}"`,
         groupSize > 1 ? groupSize : 1,
         `"${s.droppingPoint || trip.destination || ''}"`,
-        seatDue,
-        seatDue > 0 ? 'DUE' : 'PAID',
+        isFirstSeat ? seatDue : '',
+        paymentStatus,
         `"${s.counterName || ''}"`,
       ];
     });
@@ -191,11 +226,13 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
     document.body.removeChild(link);
   };
 
-  const densityClass = manifestSeats.length > 24 
-    ? 'chalan-ultra-dense' 
-    : manifestSeats.length > 14 
+  const densityClass = manifestSeats.length <= 8 
+    ? 'chalan-spacious' 
+    : manifestSeats.length <= 16 
+    ? 'chalan-normal' 
+    : manifestSeats.length <= 25 
     ? 'chalan-dense' 
-    : '';
+    : 'chalan-ultra-dense';
 
   return (
     <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
@@ -347,12 +384,13 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                       const isReserved = seat.status === 'reserved';
                       const isLocked = seat.status === 'locked';
 
-                      // Determine Due Amount
-                      const seatDue = seat.dueAmount !== undefined 
-                        ? seat.dueAmount 
-                        : (seat.paymentStatus === 'due' ? (seat.fare || trip.baseFare) : isReserved ? (seat.fare || trip.baseFare) : 0);
+                      const groupInfo = seatGroupInfoMap[seat.seatNumber];
+                      const groupSize = groupInfo ? groupInfo.seatCount : 1;
+                      const isFirstSeat = !groupInfo || groupInfo.firstSeatNumber === seat.seatNumber;
 
-                      const hasDue = seatDue > 0;
+                      // Aggregate group Due Amount for the first seat; subsequent seats show '-'
+                      const groupDue = groupInfo ? groupInfo.totalDue : getSeatDue(seat);
+                      const hasDue = isFirstSeat && groupDue > 0;
 
                       // For locked seats, leave mobile number and passenger name blank
                       // For other seats, remove dummy names and placeholder phones
@@ -363,8 +401,6 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                       const displayPhone = isLocked || isDummyPhone(seat.phone)
                         ? '' 
                         : seat.phone;
-
-                      const groupSize = seatGroupMap[seat.seatNumber] || 1;
 
                       return (
                         <tr 
@@ -418,14 +454,26 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                             {seat.droppingPoint || trip.destination || 'Sonapur'}
                           </td>
 
-                          {/* Due Amount: BACKGROUND IS BOLD BLACK */}
+                          {/* Due Amount: Aggregated total displayed only on the first seat of the group */}
                           <td className="p-0.5 px-1 text-center font-sans">
-                            {hasDue ? (
-                              <div className="chalan-due-badge inline-block px-2 py-0.5 text-[9px] font-black text-white bg-black border border-black rounded-xs tracking-tight whitespace-nowrap font-sans">
-                                ৳{seatDue} DUE
-                              </div>
+                            {isFirstSeat ? (
+                              hasDue ? (
+                                <div 
+                                  className="chalan-due-badge inline-block px-2 py-0.5 text-[9px] font-black text-white bg-black border border-black rounded-xs tracking-tight whitespace-nowrap font-sans"
+                                  title={groupSize > 1 ? `Total group due for ${groupSize} seats` : undefined}
+                                >
+                                  ৳{groupDue} DUE
+                                </div>
+                              ) : (
+                                <span className="text-[9px] text-black font-black font-sans">0</span>
+                              )
                             ) : (
-                              <span className="text-[9px] text-black font-black font-sans">0</span>
+                              <span 
+                                className="text-black font-bold text-[8.5px]"
+                                title={`Due included in first seat of group (${groupInfo?.firstSeatNumber})`}
+                              >
+                                -
+                              </span>
                             )}
                           </td>
                         </tr>
@@ -467,7 +515,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
             <div className="chalan-perforation mt-3 pt-1 border-t border-dashed border-black text-center text-[8.5px] text-black flex items-center justify-between font-sans font-bold">
               <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
               <span className="font-black text-black uppercase tracking-wider px-2 font-sans">
-                TOP HALF OF A4 SHEET (140MM SCALE)
+                OFFICIAL TRIP MANIFEST (8" × 5.8" SINGLE PAGE)
               </span>
               <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
             </div>
