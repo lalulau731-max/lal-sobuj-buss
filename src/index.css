@@ -23,24 +23,26 @@
 
 /* ============================================================= */
 /* CSS PRINT STYLESHEET FOR BUS TICKETING WEB APPLICATION        */
-/* Target Page Size: Half of an A4 Page (210mm × 148.5mm)        */
-/* Guaranteed Single Page with Responsive Dynamic Font Scaling   */
+/* Target Paper Size: Half of an A4 sheet + 0.5 inches           */
+/* Dimensions: 210mm (8.27in) width × 161.2mm (6.35in) height    */
+/* Guaranteed Single Page with Dynamically Scaled Seat Matrix    */
 /* ============================================================= */
 @media print {
   @page {
-    size: A4 portrait;
-    margin: 3.5mm 5mm 3.5mm 5mm;
+    /* Half of A4 (148.5mm) + 0.5 inches (12.7mm) = 161.2mm vertical height × 210mm width */
+    size: 210mm 161.2mm;
+    margin: 2.5mm 4mm 2.5mm 4mm;
   }
 
-  /* Reset all canvas to fit strictly within half of an A4 page on a single sheet */
+  /* Reset all canvas to fit strictly within half-A4 + 0.5in custom paper size */
   html, body {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
-    height: 144mm !important;
-    max-height: 144mm !important;
+    width: 210mm !important;
+    height: 161.2mm !important;
+    max-height: 161.2mm !important;
     overflow: hidden !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -54,7 +56,7 @@
     width: 100% !important;
     min-height: 0 !important;
     height: auto !important;
-    max-height: 144mm !important;
+    max-height: 161.2mm !important;
     overflow: hidden !important;
     background: transparent !important;
   }
@@ -151,14 +153,15 @@
   }
 
   /* ------------------------------------------------------------- */
-  /* PRINTABLE CHALAN CONTAINER - FIT HALF OF AN A4 PAGE           */
+  /* PRINTABLE CHALAN CONTAINER - FIT HALF OF A4 + 0.5 INCHES      */
+  /* Custom Paper Size: 210mm (8.27in) × 161.2mm (6.35in)          */
   /* ------------------------------------------------------------- */
   #printable-chalan {
     display: block !important;
     position: relative !important;
     width: 100% !important;
-    max-width: 198mm !important; /* Printable width within 5mm margins on 210mm A4 */
-    max-height: 138mm !important; /* Fits strictly within top half of 297mm A4 sheet */
+    max-width: 202mm !important; /* Printable width within 4mm margins on 210mm paper */
+    max-height: 155.5mm !important; /* Strictly fits within 161.2mm custom paper height */
     margin: 0 auto !important;
     padding: 1.5mm 3mm !important;
     box-sizing: border-box !important;
@@ -559,11 +562,137 @@
     padding: 1px 3px !important;
     font-size: 7.5px !important;
   }
+
+  /* ------------------------------------------------------------- */
+  /* DYNAMIC SEAT MATRIX IN MANIFEST (SCALES BY BUS CAPACITY)      */
+  /* ------------------------------------------------------------- */
+  #printable-chalan .manifest-seat-matrix {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #printable-chalan .manifest-seat-box {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    border: 1.5px solid #000000 !important;
+    border-radius: 2px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+  }
+
+  /* 43-Seat Bus Capacity: Scaled down proportionally to fit all seats in single printable area */
+  #printable-chalan .seat-matrix-43 .manifest-seat-box {
+    width: 34px !important;
+    height: 24px !important;
+    min-width: 34px !important;
+    min-height: 24px !important;
+    margin: 1px !important;
+    padding: 1px !important;
+  }
+  #printable-chalan .seat-matrix-43 .seat-box-number {
+    font-size: 8px !important;
+    font-weight: 900 !important;
+  }
+  #printable-chalan .seat-matrix-43 .seat-box-sub {
+    font-size: 6px !important;
+    font-weight: 800 !important;
+  }
+
+  /* 40-Seat Bus Capacity: Standard proportionality */
+  #printable-chalan .seat-matrix-40 .manifest-seat-box {
+    width: 40px !important;
+    height: 28px !important;
+    min-width: 40px !important;
+    min-height: 28px !important;
+    margin: 1.5px !important;
+    padding: 1.5px !important;
+  }
+  #printable-chalan .seat-matrix-40 .seat-box-number {
+    font-size: 8.5px !important;
+    font-weight: 900 !important;
+  }
+  #printable-chalan .seat-matrix-40 .seat-box-sub {
+    font-size: 6.5px !important;
+    font-weight: 800 !important;
+  }
+
+  /* 28-36 Seat Bus Capacity: Scaled up to effectively fill space */
+  #printable-chalan .seat-matrix-28 .manifest-seat-box {
+    width: 48px !important;
+    height: 32px !important;
+    min-width: 48px !important;
+    min-height: 32px !important;
+    margin: 2px !important;
+    padding: 2px !important;
+  }
+  #printable-chalan .seat-matrix-28 .seat-box-number {
+    font-size: 9.5px !important;
+    font-weight: 900 !important;
+  }
+  #printable-chalan .seat-matrix-28 .seat-box-sub {
+    font-size: 7.5px !important;
+    font-weight: 800 !important;
+  }
+
+  /* Fewer Seats (<28 seats): Maximum enlarged size to effectively fill space */
+  #printable-chalan .seat-matrix-spacious .manifest-seat-box {
+    width: 58px !important;
+    height: 40px !important;
+    min-width: 58px !important;
+    min-height: 40px !important;
+    margin: 2.5px !important;
+    padding: 2.5px !important;
+  }
+  #printable-chalan .seat-matrix-spacious .seat-box-number {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+  }
+  #printable-chalan .seat-matrix-spacious .seat-box-sub {
+    font-size: 8.5px !important;
+    font-weight: 800 !important;
+  }
 }
 
 /* Global rule for printable chalan modal preview */
 #printable-chalan,
 #printable-chalan * {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* On-screen Preview Styling for Dynamic Seat Matrix */
+#printable-chalan .seat-matrix-43 .manifest-seat-box {
+  width: 34px;
+  height: 24px;
+  min-width: 34px;
+  min-height: 24px;
+}
+#printable-chalan .seat-matrix-40 .manifest-seat-box {
+  width: 40px;
+  height: 28px;
+  min-width: 40px;
+  min-height: 28px;
+}
+#printable-chalan .seat-matrix-28 .manifest-seat-box {
+  width: 48px;
+  height: 32px;
+  min-width: 48px;
+  min-height: 32px;
+}
+#printable-chalan .seat-matrix-spacious .manifest-seat-box {
+  width: 58px;
+  height: 40px;
+  min-width: 58px;
+  min-height: 40px;
 }
 

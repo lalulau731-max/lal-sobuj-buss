@@ -10,8 +10,10 @@ import {
   Tag, 
   FileText, 
   CheckCircle2, 
-  Layers
+  Layers,
+  Info
 } from 'lucide-react';
+import { OccupiedSeatInfoModal } from './OccupiedSeatInfoModal';
 
 interface InlineSeatPlannerProps {
   trip: Trip;
@@ -27,6 +29,7 @@ interface InlineSeatPlannerProps {
     }
   ) => void;
   onOpenChalan: () => void;
+  onPrintTicket?: (seatNumber: string) => void;
   onRefresh: () => void;
 }
 
@@ -36,6 +39,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
   onClose,
   onConfirmBooking,
   onOpenChalan,
+  onPrintTicket,
   onRefresh,
 }) => {
   // Mode: Sell (Direct Sale) or Book (Reservation Hold)
@@ -43,6 +47,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
 
   // Multi-seat selection state
   const [selectedSeatNos, setSelectedSeatNos] = useState<string[]>([]);
+  const [selectedOccupiedSeat, setSelectedOccupiedSeat] = useState<Seat | null>(null);
 
   // Double decker switch (if coach is double decker)
   const isDoubleDeck = trip.deckConfig === 'DOUBLE_DECK';
@@ -77,16 +82,25 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [discountPerSeat, setDiscountPerSeat] = useState<number>(0);
 
-  // Seat toggle handler
+  // Seat toggle handler for available seats
   const handleToggleSeat = (seatNo: string) => {
     const seat = trip.seats[seatNo];
     if (!seat) return;
-    if (seat.status === 'sold' || seat.status === 'locked') return;
+    if (seat.status === 'sold' || seat.status === 'locked' || seat.status === 'reserved') return;
 
     if (selectedSeatNos.includes(seatNo)) {
       setSelectedSeatNos((prev) => prev.filter((s) => s !== seatNo));
     } else {
       setSelectedSeatNos((prev) => [...prev, seatNo]);
+    }
+  };
+
+  // Click handler: opens detailed passenger modal for occupied seats, toggles selection for available seats
+  const handleSeatClick = (seat: Seat) => {
+    if (seat.status === 'sold' || seat.status === 'reserved' || seat.status === 'locked') {
+      setSelectedOccupiedSeat(seat);
+    } else {
+      handleToggleSeat(seat.seatNumber);
     }
   };
 
@@ -327,6 +341,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                   const isReserved = seat.status === 'reserved';
                   const isSelected = selectedSeatNos.includes(seat.seatNumber);
                   const isAvailable = seat.status === 'available';
+                  const isOccupied = isSold || isReserved || isLocked;
 
                   // Calculate Due Amount for this seat
                   const seatDue = seat.dueAmount !== undefined
@@ -341,17 +356,17 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                   // Selected: INDIGO
                   let seatColors = '';
                   if (isSelected) {
-                    seatColors = 'bg-indigo-700 text-white shadow-md ring-3 ring-indigo-400 border-2 border-indigo-400';
+                    seatColors = 'bg-indigo-700 text-white shadow-md ring-3 ring-indigo-400 border-2 border-indigo-400 cursor-pointer';
                   } else if (isSold) {
-                    seatColors = 'bg-[#dc2626] text-white border-2 border-red-800 opacity-95 cursor-not-allowed';
+                    seatColors = 'bg-[#dc2626] hover:bg-[#b91c1c] text-white border-2 border-red-800 cursor-pointer shadow-xs active:scale-95';
                   } else if (isLocked) {
                     // Locked: BLACK
-                    seatColors = 'bg-black text-white border-2 border-black cursor-not-allowed';
+                    seatColors = 'bg-black hover:bg-slate-800 text-white border-2 border-black cursor-pointer shadow-xs active:scale-95';
                   } else if (isReserved) {
-                    seatColors = 'bg-[#eab308] hover:bg-[#ca8a04] text-slate-950 font-black border-2 border-yellow-600';
+                    seatColors = 'bg-[#eab308] hover:bg-[#ca8a04] text-slate-950 font-black border-2 border-yellow-600 cursor-pointer shadow-xs active:scale-95';
                   } else {
                     // Available: WHITE
-                    seatColors = 'bg-white hover:bg-slate-50 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-xs cursor-pointer';
+                    seatColors = 'bg-white hover:bg-slate-50 text-slate-900 border-2 border-slate-300 hover:border-slate-400 shadow-xs cursor-pointer active:scale-95';
                   }
 
                   return (
@@ -359,14 +374,23 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                       <button
                         key={seat.seatNumber}
                         type="button"
-                        disabled={isSold || isLocked}
-                        onClick={() => handleToggleSeat(seat.seatNumber)}
-                        title={`${seat.seatNumber} • ${seat.status.toUpperCase()} ${seat.passengerName ? `(${seat.passengerName})` : ''} • Due: ৳${seatDue}`}
-                        className={`w-11 h-10 sm:w-13 sm:h-11 rounded-xl text-sm sm:text-base font-black transition-all flex items-center justify-center relative ${seatColors}`}
+                        onClick={() => handleSeatClick(seat)}
+                        title={
+                          isOccupied
+                            ? `Seat ${seat.seatNumber} • ${seat.status.toUpperCase()} ${seat.passengerName ? `(${seat.passengerName})` : ''} • Click to view passenger & payment details`
+                            : `Seat ${seat.seatNumber} • Available (৳${baseFarePerSeat})`
+                        }
+                        className={`w-11 h-10 sm:w-13 sm:h-11 rounded-xl text-sm sm:text-base font-black transition-all flex items-center justify-center relative cursor-pointer ${seatColors}`}
                       >
                         <span className="font-mono tracking-tight">{seat.seatNumber.replace(/^[LU]-/, '')}</span>
                         {isSelected && (
                           <Check className="w-3.5 h-3.5 absolute top-1 right-1 stroke-[3]" />
+                        )}
+                        {isOccupied && (
+                          <span 
+                            className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-white shadow-xs" 
+                            title="Occupied - Click for details" 
+                          />
                         )}
                       </button>
                       {/* Due amount displayed next to / right below each seat */}
@@ -461,6 +485,12 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
             ) : (
               <span className="text-slate-500 font-sans">Click seats on cabin grid to select</span>
             )}
+          </div>
+
+          {/* Interactive Info Hint */}
+          <div className="mt-2 text-center text-[11px] text-purple-900 bg-purple-50 py-1.5 px-3 rounded-lg border border-purple-200/80 font-bold flex items-center justify-center gap-1.5 shadow-2xs max-w-sm">
+            <Info className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+            <span>Click any <strong>Sold</strong>, <strong>Reserved</strong>, or <strong>Locked</strong> seat to view passenger & transaction details.</span>
           </div>
 
         </div>
@@ -655,6 +685,15 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
 
       </div>
 
+      {/* Detailed Occupied Seat Passenger Information Modal */}
+      <OccupiedSeatInfoModal
+        isOpen={Boolean(selectedOccupiedSeat)}
+        onClose={() => setSelectedOccupiedSeat(null)}
+        seat={selectedOccupiedSeat}
+        trip={trip}
+        onPrintTicket={onPrintTicket}
+        onOpenChalan={onOpenChalan}
+      />
     </div>
   );
 };

@@ -19,6 +19,7 @@ interface TripListCardProps {
       counterOrUser: string;
     }
   ) => void;
+  onPrintTicket?: (seatNumber: string) => void;
   onRefresh: () => void;
 }
 
@@ -30,6 +31,7 @@ export const TripListCard: React.FC<TripListCardProps> = ({
   onOpenReport,
   onOpenInfo,
   onConfirmBooking,
+  onPrintTicket,
   onRefresh,
 }) => {
   // Compute available seats count
@@ -169,6 +171,7 @@ export const TripListCard: React.FC<TripListCardProps> = ({
           onClose={onToggleExpand}
           onConfirmBooking={onConfirmBooking}
           onOpenChalan={onOpenReport}
+          onPrintTicket={onPrintTicket}
           onRefresh={onRefresh}
         />
       )}

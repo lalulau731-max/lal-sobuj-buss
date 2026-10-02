@@ -14,6 +14,14 @@ import { Trip, Seat, CoachRecord, FirebaseConnectionConfig, ActivityLogItem, Sea
 import { FIREBASE_CONFIG, getFirebaseDatabase, firestore, app } from '../firebase/config';
 import { INITIAL_COACHES, generateSeatsForCoach, generate2x2Seats, generateDoubleDeckSeats, isRealCoach } from '../data/mockTrips';
 
+export function getTodayDateString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 const CONFIG_STORAGE_KEY = 'lsp_firebase_rtdb_config_v3';
 const BROADCAST_CHANNEL_NAME = 'lsp_rtdb_live_sync_v3';
 
@@ -23,12 +31,12 @@ class FirebaseSyncService {
   private config: FirebaseConnectionConfig;
   private broadcastChannel: BroadcastChannel | null = null;
   
-  // Real database state
+  // Real database state - populated directly from Firebase
   private rawCoaches: Record<string, CoachRecord> = {};
   private rawBookings: Record<string, any> = {};
   private tripsData: Record<string, Trip> = {};
   private activeTripId: string = '212';
-  private selectedJourneyDate: string = '2026-09-30'; // Today's operational date
+  private selectedJourneyDate: string = getTodayDateString(); // Automatically displays current real-time date
   private activeDeck: 'lower' | 'upper' = 'lower';
 
   // Listeners
@@ -49,7 +57,6 @@ class FirebaseSyncService {
   constructor() {
     this.config = this.loadConfig();
     this.setupBroadcastChannel();
-    this.initializeFromFallbackCoaches();
     this.initFirebase();
   }
 
@@ -76,163 +83,27 @@ class FirebaseSyncService {
     return defaultCfg;
   }
 
-  private initializeFromFallbackCoaches() {
-    INITIAL_COACHES.filter(isRealCoach).forEach((c) => {
-      this.rawCoaches[c.coachNumber] = c;
-    });
+  /**
+   * Sync verified official coaches directly into Firebase if the cloud collections are empty
+   */
+  public async seedRealCoachesToFirebase() {
+    try {
+      const realCoaches = INITIAL_COACHES.filter(isRealCoach);
+      for (const coach of realCoaches) {
+        // Save to Firestore
+        await setDoc(doc(this.fs, 'coaches', coach.coachNumber), {
+          ...coach,
+          updatedAt: Date.now(),
+        }, { merge: true });
 
-    // Provide realistic initial bookings if Firestore has not populated rawBookings yet
-    if (Object.keys(this.rawBookings).length === 0) {
-      const today = this.selectedJourneyDate;
-      this.rawBookings = {
-        'seed-212-01': {
-          id: 'BKG-212-01',
-          coachNumber: '212',
-          journeyDate: today,
-          seatNumber: 'L-A1',
-          passengerName: 'Md. Tariqul Islam',
-          passengerPhone: '01712-445566',
-          passengerGender: 'male',
-          boardingPoint: 'Mirpur-10',
-          droppingPoint: 'Maijdee',
-          bookingType: 'SOLD',
-          status: 'SOLD',
-          totalAmount: 700,
-          paidAmount: 700,
-          dueAmount: 0,
-          operatorId: 'Mirpur-10 Counter',
-          bookingReference: 'TKT-91021',
-        },
-        'seed-212-02': {
-          id: 'BKG-212-02',
-          coachNumber: '212',
-          journeyDate: today,
-          seatNumber: 'L-A2',
-          passengerName: 'Kazi Farhan Ahmed',
-          passengerPhone: '01819-332211',
-          passengerGender: 'male',
-          boardingPoint: 'Mirpur-10',
-          droppingPoint: 'Sonapur',
-          bookingType: 'SOLD',
-          status: 'SOLD',
-          totalAmount: 700,
-          paidAmount: 400,
-          dueAmount: 300,
-          operatorId: 'Mirpur-10 Counter',
-          bookingReference: 'TKT-91022',
-        },
-        'seed-212-03': {
-          id: 'BKG-212-03',
-          coachNumber: '212',
-          journeyDate: today,
-          seatNumber: 'L-A3',
-          passengerName: 'Mrs. Rokeya Begum',
-          passengerPhone: '01911-778899',
-          passengerGender: 'female',
-          boardingPoint: 'Arambagh Main Counter',
-          droppingPoint: 'Chowrasta',
-          bookingType: 'SOLD',
-          status: 'SOLD',
-          totalAmount: 700,
-          paidAmount: 700,
-          dueAmount: 0,
-          operatorId: 'Arambagh Central',
-          bookingReference: 'TKT-91023',
-        },
-        'seed-212-04': {
-          id: 'BKG-212-04',
-          coachNumber: '212',
-          journeyDate: today,
-          seatNumber: 'L-B1',
-          passengerName: 'VIP Protocol Office',
-          passengerPhone: '01711-002233',
-          passengerGender: 'male',
-          boardingPoint: 'Sayedabad Central Terminal',
-          droppingPoint: 'Sonapur',
-          bookingType: 'RESERVATION',
-          status: 'RESERVATION',
-          totalAmount: 700,
-          paidAmount: 0,
-          dueAmount: 700,
-          operatorId: 'Sayedabad #01',
-          bookingReference: 'RES-91024',
-        },
-        'seed-212-05': {
-          id: 'BKG-212-05',
-          coachNumber: '212',
-          journeyDate: today,
-          seatNumber: 'L-B2',
-          passengerName: 'Dr. Shahabuddin',
-          passengerPhone: '01612-998877',
-          passengerGender: 'male',
-          boardingPoint: 'Mirpur-10',
-          droppingPoint: 'Laksam',
-          bookingType: 'SOLD',
-          status: 'SOLD',
-          totalAmount: 700,
-          paidAmount: 700,
-          dueAmount: 0,
-          operatorId: 'Mirpur-10 Counter',
-          bookingReference: 'TKT-91025',
-        },
-        'seed-212-06': {
-          id: 'BKG-212-06',
-          coachNumber: '212',
-          journeyDate: today,
-          seatNumber: 'L-C1',
-          passengerName: 'Tanvir Hossain',
-          passengerPhone: '01733-445588',
-          passengerGender: 'male',
-          boardingPoint: 'Mirpur-10 Hub',
-          droppingPoint: 'Sonaimuri',
-          bookingType: 'SOLD',
-          status: 'SOLD',
-          totalAmount: 700,
-          paidAmount: 500,
-          dueAmount: 200,
-          operatorId: 'Online Mobile App',
-          bookingReference: 'TKT-91026',
-        },
-        'seed-212-07': {
-          id: 'BKG-212-07',
-          coachNumber: '212',
-          journeyDate: today,
-          seatNumber: 'L-C2',
-          passengerName: 'Govt. Executive Magistrate',
-          passengerPhone: '01815-667788',
-          passengerGender: 'male',
-          boardingPoint: 'Sayedabad Central Terminal',
-          droppingPoint: 'Maijdee',
-          bookingType: 'RESERVATION',
-          status: 'RESERVATION',
-          totalAmount: 700,
-          paidAmount: 0,
-          dueAmount: 700,
-          operatorId: 'Central Dispatch',
-          bookingReference: 'RES-91027',
-        },
-        'seed-212-08': {
-          id: 'BKG-212-08',
-          coachNumber: '212',
-          journeyDate: today,
-          seatNumber: 'L-J1',
-          passengerName: '',
-          passengerPhone: '',
-          passengerGender: 'male',
-          boardingPoint: 'Sayedabad Central Terminal',
-          droppingPoint: 'Sonapur',
-          bookingType: 'LOCKED',
-          status: 'LOCKED',
-          totalAmount: 700,
-          paidAmount: 0,
-          dueAmount: 0,
-          operatorId: 'Terminal Manager',
-          bookingReference: 'LCK-91028',
-        },
-      };
+        // Save to Realtime Database if connected
+        if (this.rtdb) {
+          await set(ref(this.rtdb, `coaches/${coach.coachNumber}`), coach);
+        }
+      }
+    } catch (err) {
+      console.warn('Note on seeding real coaches to Firebase:', err);
     }
-
-    this.rebuildTripsFromState();
   }
 
   private setupBroadcastChannel() {
@@ -342,6 +213,9 @@ class FirebaseSyncService {
 
             this.rebuildTripsFromState();
             this.notifyConnectionSubscribers();
+          } else if (snapshot.empty) {
+            // If the Firebase collection is currently empty, provision the verified coaches to Firebase
+            this.seedRealCoachesToFirebase();
           }
         },
         (error) => {
@@ -386,6 +260,30 @@ class FirebaseSyncService {
     // 3. Live listener to Firebase Realtime Database
     if (this.rtdb) {
       try {
+        const coachesRtdbRef = ref(this.rtdb, 'coaches');
+        onValue(
+          coachesRtdbRef,
+          (snapshot) => {
+            if (snapshot.exists()) {
+              const val = snapshot.val();
+              const rtdbCoaches: Record<string, CoachRecord> = {};
+              Object.values(val).forEach((item: any) => {
+                if (item && isRealCoach(item)) {
+                  rtdbCoaches[item.coachNumber] = item;
+                }
+              });
+              if (Object.keys(rtdbCoaches).length > 0) {
+                this.rawCoaches = { ...this.rawCoaches, ...rtdbCoaches };
+                this.config.totalLiveCoaches = Object.keys(this.rawCoaches).length;
+                this.config.isConnected = true;
+                this.rebuildTripsFromState();
+                this.notifyConnectionSubscribers();
+              }
+            }
+          },
+          (err) => {}
+        );
+
         const rootRef = ref(this.rtdb, 'trips');
         onValue(
           rootRef,
@@ -395,9 +293,7 @@ class FirebaseSyncService {
               this.notifyConnectionSubscribers();
             }
           },
-          (err) => {
-            // RTDB permission or network notice
-          }
+          (err) => {}
         );
       } catch (e) {}
     }
@@ -459,7 +355,8 @@ class FirebaseSyncService {
               bookingReference: b.bookingReference,
               paymentStatus: b.dueAmount > 0 ? 'due' : 'paid',
               dueAmount: b.dueAmount || 0,
-              paidAmount: b.paidAmount || b.totalAmount || coach.ticketFare,
+              paidAmount: b.paidAmount !== undefined ? b.paidAmount : (b.totalAmount || coach.ticketFare),
+              discount: b.discount || 0,
               remarks: b.note || '',
               counterName: b.operatorId ? `Counter: ${b.operatorId}` : 'Mirpur-10 Terminal',
               operatorId: b.operatorId,

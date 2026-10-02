@@ -33,6 +33,7 @@ export interface Seat {
   operatorId?: string;
   dueAmount?: number;
   paidAmount?: number;
+  discount?: number;
 }
 
 export interface CoachRecord {

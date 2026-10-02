@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Trip, Seat } from '../types/bus';
 import { 
   Printer, 
   X, 
   Download, 
-  FileText
+  FileText,
+  Ruler,
+  SlidersHorizontal,
+  Palette
 } from 'lucide-react';
 import { ChalanLogoBW } from './ChalanLogoBW';
+import { 
+  chalanConfigService, 
+  ChalanPrintConfig, 
+  EXACT_HALF_A4_HEIGHT_INCHES 
+} from '../services/chalanConfig';
+import { ChalanDimensionConfigModal } from './ChalanDimensionConfigModal';
+import { themeManager, ChalanTemplate, CHALAN_TEMPLATES } from '../services/themeManager';
+import { ThemeManagerModal } from './ThemeManagerModal';
 
 interface ChalanPrintModalProps {
   isOpen: boolean;
@@ -19,6 +30,25 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
   onClose,
   trip,
 }) => {
+  const [printConfig, setPrintConfig] = useState<ChalanPrintConfig>(() => chalanConfigService.getConfig());
+  const [chalanTemplate, setChalanTemplate] = useState<ChalanTemplate>(() => themeManager.getActiveTemplate());
+  const [isDimensionModalOpen, setIsDimensionModalOpen] = useState<boolean>(false);
+  const [isThemeModalOpen, setIsThemeModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const unsub = chalanConfigService.subscribe((cfg) => {
+      setPrintConfig(cfg);
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const unsubTheme = themeManager.subscribe(() => {
+      setChalanTemplate(themeManager.getActiveTemplate());
+    });
+    return () => unsubTheme();
+  }, []);
+
   if (!isOpen) return null;
 
   const seatsList = Object.values(trip.seats || {});
@@ -205,7 +235,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
         s.ticketNumber || s.bookingReference || '',
         cleanPhone || '',
         `"${cleanName || ''}"`,
-        groupSize > 1 ? groupSize : 1,
+        groupSize > 1 && isFirstSeat ? groupSize : '',
         `"${s.droppingPoint || trip.destination || ''}"`,
         isFirstSeat ? seatDue : '',
         paymentStatus,
@@ -234,6 +264,19 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
     ? 'chalan-dense' 
     : 'chalan-ultra-dense';
 
+  const templateBorderClass =
+    chalanTemplate.borderStyle === 'double-black' ? 'border-4 border-double border-black' :
+    chalanTemplate.borderStyle === 'heavy-bordered' ? 'border-4 border-black' :
+    chalanTemplate.borderStyle === 'dashed-vintage' ? 'border-2 border-dashed border-black' :
+    chalanTemplate.borderStyle === 'thin-slate' ? 'border border-black' :
+    'border-2 border-black';
+
+  const templateFontClass =
+    chalanTemplate.fontTheme === 'mono-dispatch' ? 'font-mono' :
+    chalanTemplate.fontTheme === 'serif-classic' ? 'font-serif' :
+    chalanTemplate.fontTheme === 'condensed-fast' ? 'font-sans tracking-tight' :
+    'font-sans font-bold';
+
   return (
     <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
       <div className="relative w-full max-w-5xl bg-white rounded-xl shadow-2xl border border-slate-300 overflow-hidden my-2 sm:my-4">
@@ -254,12 +297,35 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
               <p className="text-[11px] text-slate-300 flex items-center gap-2 mt-0.5">
                 <span>Active Manifest: <strong className="text-white font-bold">{manifestSeats.length} Seats</strong> (Sold: {soldCount}, Reserved: {reservedCount}, Locked: {lockedCount})</span>
                 <span className="text-slate-500">•</span>
-                <span className="text-white font-bold">Bold Black Format (No Boarding / No Fare)</span>
+                <span className="text-emerald-300 font-bold">{chalanTemplate.name}</span>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Quick Template Switcher Button */}
+            <button
+              type="button"
+              onClick={() => setIsThemeModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-700 hover:bg-purple-600 text-white border border-purple-500 shadow-xs transition-colors cursor-pointer"
+              title="Choose from 36 Chalan Manifest Templates"
+            >
+              <Palette className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Template:</span>
+              <span className="font-mono text-purple-200 truncate max-w-[110px]">{chalanTemplate.name.split('(')[0]}</span>
+            </button>
+
+            {/* Print Dimensions Button */}
+            <button
+              type="button"
+              onClick={() => setIsDimensionModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-700 hover:bg-blue-600 text-white border border-blue-500 shadow-xs transition-colors cursor-pointer"
+              title="Adjust printing dimensions (Half A4 & half-inch increments)"
+            >
+              <Ruler className="w-3.5 h-3.5" />
+              <span>Dimensions: {printConfig.heightInches}"</span>
+            </button>
+
             <button
               onClick={handleExportCSV}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition-colors cursor-pointer"
@@ -287,13 +353,30 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
           </div>
         </div>
 
+        {/* Dynamic Print Height Stylesheet Injection */}
+        <style>{`
+          @media print {
+            @page {
+              size: ${printConfig.widthInches}in ${printConfig.heightInches}in;
+              margin: ${printConfig.marginTopMm}mm ${printConfig.marginRightMm}mm ${printConfig.marginBottomMm}mm ${printConfig.marginLeftMm}mm;
+            }
+            #printable-chalan {
+              max-height: ${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm !important;
+              box-sizing: border-box !important;
+            }
+          }
+        `}</style>
+
         {/* Modal Scrollable Container for Preview */}
         <div className="chalan-preview-container p-3 sm:p-6 max-h-[88vh] overflow-y-auto bg-slate-100/50 flex flex-col items-center">
           
-          {/* Printable Chalan Sheet: ALL TEXT IN SMOOTH PROFESSIONAL SANS-SERIF, BOLD AND BLACK */}
+          {/* Printable Chalan Sheet: DYNAMIC TEMPLATE STYLING */}
           <div 
             id="printable-chalan"
-            className={`w-full max-w-[194mm] bg-white text-black border-2 border-black p-3 sm:p-4 text-[10.5px] leading-tight select-text shadow-sm font-bold font-sans ${densityClass}`}
+            style={{
+              maxHeight: `${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm`,
+            }}
+            className={`w-full max-w-[194mm] bg-white text-black p-3 sm:p-4 text-[10.5px] leading-tight select-text shadow-sm ${templateBorderClass} ${templateFontClass} ${densityClass} ${chalanTemplate.styleClass}`}
           >
             {/* Header: Company Name & Document Title in Bold Black */}
             <div className="chalan-header border-b-2 border-black pb-2 mb-2 text-center">
@@ -435,18 +518,16 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                             {displayPassengerName}
                           </td>
 
-                          {/* Group Column: Display total number of seats in the group as a small count for multi-seat bookings */}
+                          {/* Group Column: Display group identifier only in the row for the first passenger of a group booking. Subsequent rows for passengers in the same group must have an empty group column. */}
                           <td className="p-0.5 px-1 border-r border-black text-center font-sans">
-                            {groupSize > 1 ? (
+                            {groupSize > 1 && isFirstSeat ? (
                               <span 
                                 className="chalan-group-badge inline-block px-1.5 py-0.5 text-[8.5px] font-black text-white bg-black rounded-xs leading-none"
                                 title={`Group booking: ${groupSize} seats`}
                               >
                                 {groupSize}
                               </span>
-                            ) : (
-                              <span className="text-black font-bold text-[8.5px]">-</span>
-                            )}
+                            ) : null}
                           </td>
 
                           {/* Dropping Point */}
@@ -512,19 +593,36 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
             </div>
 
             {/* Bottom Scale & Perforation Line */}
-            <div className="chalan-perforation mt-3 pt-1 border-t border-dashed border-black text-center text-[8.5px] text-black flex items-center justify-between font-sans font-bold">
-              <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
-              <span className="font-black text-black uppercase tracking-wider px-2 font-sans">
-                OFFICIAL TRIP MANIFEST (8" × 5.8" SINGLE PAGE)
-              </span>
-              <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
-            </div>
+            {printConfig.showCutMark && (
+              <div className="chalan-perforation mt-3 pt-1 border-t border-dashed border-black text-center text-[8.5px] text-black flex items-center justify-between font-sans font-bold">
+                <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
+                <span className="font-black text-black uppercase tracking-wider px-2 font-sans">
+                  OFFICIAL TRIP MANIFEST ({printConfig.widthInches}" × {printConfig.heightInches}" • {Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm)
+                </span>
+                <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
+              </div>
+            )}
 
           </div>
 
         </div>
 
       </div>
+
+      {/* Chalan Print Dimension Configuration Modal */}
+      <ChalanDimensionConfigModal
+        isOpen={isDimensionModalOpen}
+        onClose={() => setIsDimensionModalOpen(false)}
+        onApplyAndPrint={handlePrint}
+      />
+
+      {/* Chalan Manifest Template Switcher Modal */}
+      <ThemeManagerModal
+        isOpen={isThemeModalOpen}
+        onClose={() => setIsThemeModalOpen(false)}
+        defaultTab="chalan"
+        onSelectChalanTemplate={(tpl) => setChalanTemplate(tpl)}
+      />
     </div>
   );
 };

@@ -11,10 +11,13 @@ import {
   Smartphone,
   ChevronDown,
   UserCheck,
-  ShieldAlert
+  ShieldAlert,
+  Ruler,
+  Palette
 } from 'lucide-react';
 import { FirebaseConnectionConfig } from '../types/bus';
 import { AdminUser } from '../services/authService';
+import { themeManager, HomepageTheme } from '../services/themeManager';
 
 interface LalSobujHeaderProps {
   connectionConfig: FirebaseConnectionConfig;
@@ -24,6 +27,8 @@ interface LalSobujHeaderProps {
   onOpenHDeposit: () => void;
   onOpenFirebaseConfig: () => void;
   onOpenSimulator: () => void;
+  onOpenChalanConfig?: () => void;
+  onOpenThemeManager?: () => void;
   onLogout: () => void;
 }
 
@@ -35,11 +40,21 @@ export const LalSobujHeader: React.FC<LalSobujHeaderProps> = ({
   onOpenHDeposit,
   onOpenFirebaseConfig,
   onOpenSimulator,
+  onOpenChalanConfig,
+  onOpenThemeManager,
   onLogout,
 }) => {
   const [timeStr, setTimeStr] = useState<string>('');
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [activeTheme, setActiveTheme] = useState<HomepageTheme>(() => themeManager.getActiveTheme());
   const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const unsub = themeManager.subscribe(() => {
+      setActiveTheme(themeManager.getActiveTheme());
+    });
+    return () => unsub();
+  }, []);
 
   // Live time updater matching "Tue, Sep 29, 2026, 4:42 PM"
   useEffect(() => {
@@ -77,7 +92,10 @@ export const LalSobujHeader: React.FC<LalSobujHeaderProps> = ({
   }, [isMenuOpen]);
 
   return (
-    <header className="no-print navbar navigation-bar bg-[#661d7a] text-white shadow-md select-none sticky top-0 z-40">
+    <header 
+      className="no-print navbar navigation-bar text-white shadow-md select-none sticky top-0 z-40 transition-colors duration-300"
+      style={{ backgroundColor: activeTheme.primaryColor }}
+    >
       <div className="w-full px-3 sm:px-4 py-2 flex items-center justify-between">
         
         {/* Left: Brand Title */}
@@ -99,6 +117,19 @@ export const LalSobujHeader: React.FC<LalSobujHeaderProps> = ({
         {/* Right Info & Hamburger Menu */}
         <div className="flex items-center gap-2 sm:gap-3 text-xs">
           
+          {/* Quick Theme Studio Launcher */}
+          {onOpenThemeManager && (
+            <button
+              type="button"
+              onClick={onOpenThemeManager}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold transition-all cursor-pointer border border-white/20 shadow-2xs"
+              title="Theme & Template Studio (12 Homepage Themes & 36 Chalan Templates)"
+            >
+              <Palette className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Theme Studio</span>
+            </button>
+          )}
+
           {/* Live Clock */}
           <span className="hidden lg:inline-block text-purple-100/90 font-medium text-[11px] sm:text-xs">
             {timeStr || 'Tue, Sep 29, 2026, 4:45 PM'}
@@ -225,6 +256,35 @@ export const LalSobujHeader: React.FC<LalSobujHeaderProps> = ({
                 >
                   <Banknote className="w-4 h-4 text-slate-700" />
                   <span>H Deposit</span>
+                </button>
+
+                {/* 📏 Chalan Print Settings */}
+                <button
+                  onClick={() => {
+                    if (onOpenChalanConfig) onOpenChalanConfig();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-xs sm:text-sm font-medium flex items-center gap-3 hover:bg-blue-50 text-slate-800 hover:text-blue-800 transition-colors cursor-pointer"
+                  title="Configure custom height & half-inch increments for chalan sheet"
+                >
+                  <Ruler className="w-4 h-4 text-blue-600" />
+                  <span>Chalan Dimensions</span>
+                </button>
+
+                {/* 🎨 Theme & Template Studio */}
+                <button
+                  onClick={() => {
+                    if (onOpenThemeManager) onOpenThemeManager();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-xs sm:text-sm font-medium flex items-center gap-3 hover:bg-purple-50 text-slate-800 hover:text-purple-900 transition-colors cursor-pointer"
+                  title="Choose from 12 homepage themes and 36 chalan templates"
+                >
+                  <Palette className="w-4 h-4 text-purple-600" />
+                  <div className="flex items-center justify-between flex-1">
+                    <span>Theme & Template Studio</span>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800 font-mono font-bold">12+36</span>
+                  </div>
                 </button>
 
                 {/* 🚪 Logout */}

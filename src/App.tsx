@@ -11,9 +11,12 @@ import { CalendarView } from './components/CalendarView';
 import { CoachInfoModal } from './components/CoachInfoModal';
 import { HDepositModal } from './components/HDepositModal';
 import { ChalanPrintModal } from './components/ChalanPrintModal';
+import { ChalanDimensionConfigModal } from './components/ChalanDimensionConfigModal';
 import { MobileSimulatorDrawer } from './components/MobileSimulatorDrawer';
 import { FirebaseConfigModal } from './components/FirebaseConfigModal';
 import { TicketPrintModal } from './components/TicketPrintModal';
+import { ThemeManagerModal } from './components/ThemeManagerModal';
+import { themeManager, HomepageTheme } from './services/themeManager';
 import { Bus, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function App() {
@@ -30,6 +33,10 @@ export default function App() {
   );
   const [journeyDate, setJourneyDate] = useState<string>(() => firebaseSync.getJourneyDate());
 
+  // Theme Management
+  const [activeTheme, setActiveTheme] = useState<HomepageTheme>(() => themeManager.getActiveTheme());
+  const [isThemeManagerOpen, setIsThemeManagerOpen] = useState<boolean>(false);
+
   // Filter Bar State (Image 1: From, To, Date, Search bar, NO PNR)
   const [fromLocation, setFromLocation] = useState<string>('North');
   const [toLocation, setToLocation] = useState<string>('');
@@ -44,6 +51,7 @@ export default function App() {
   const [isHDepositOpen, setIsHDepositOpen] = useState<boolean>(false);
   const [isSimulatorOpen, setIsSimulatorOpen] = useState<boolean>(false);
   const [isFirebaseConfigOpen, setIsFirebaseConfigOpen] = useState<boolean>(false);
+  const [isChalanConfigOpen, setIsChalanConfigOpen] = useState<boolean>(false);
   const [printTicketSeatNo, setPrintTicketSeatNo] = useState<string | null>(null);
 
   // Simulator State
@@ -79,11 +87,16 @@ export default function App() {
       setJourneyDate(d);
     });
 
+    const unsubTheme = themeManager.subscribe(() => {
+      setActiveTheme(themeManager.getActiveTheme());
+    });
+
     return () => {
       unsubAuth();
       unsubAllTrips();
       unsubConn();
       unsubDate();
+      unsubTheme();
     };
   }, []);
 
@@ -336,6 +349,8 @@ export default function App() {
         onOpenHDeposit={() => setIsHDepositOpen(true)}
         onOpenFirebaseConfig={() => setIsFirebaseConfigOpen(true)}
         onOpenSimulator={() => setIsSimulatorOpen(true)}
+        onOpenChalanConfig={() => setIsChalanConfigOpen(true)}
+        onOpenThemeManager={() => setIsThemeManagerOpen(true)}
         onLogout={async () => {
           await authService.logout();
           setCurrentAdmin(null);
@@ -402,6 +417,7 @@ export default function App() {
                     onConfirmBooking={(updates, meta) =>
                       handleConfirmInlineBooking(trip.id, updates, meta)
                     }
+                    onPrintTicket={(seatNo) => setPrintTicketSeatNo(seatNo)}
                     onRefresh={() => firebaseSync.refetchFromFirebase()}
                   />
                 );
@@ -500,6 +516,18 @@ export default function App() {
           trip={allTrips[0] || ({} as Trip)}
         />
       )}
+
+      {/* Chalan Print Dimension Settings Tool */}
+      <ChalanDimensionConfigModal
+        isOpen={isChalanConfigOpen}
+        onClose={() => setIsChalanConfigOpen(false)}
+      />
+
+      {/* Theme & Template Management Studio */}
+      <ThemeManagerModal
+        isOpen={isThemeManagerOpen}
+        onClose={() => setIsThemeManagerOpen(false)}
+      />
 
     </div>
   );
