@@ -233,7 +233,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                   <div>
                     <span className="text-[10px] font-bold text-slate-500 uppercase block">Fare & Status</span>
                     <p className="font-extrabold text-emerald-700">
-                      ৳{primarySeat.fare} <span className="text-[10px] font-normal text-slate-500 font-sans">({primarySeat.paymentStatus || 'Paid'})</span>
+                      BDT {primarySeat.fare} <span className="text-[10px] font-normal text-slate-500 font-sans">({primarySeat.paymentStatus || 'Paid'})</span>
                     </p>
                   </div>
                   {primarySeat.remarks && (
@@ -472,9 +472,9 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                     <div>
                       <span className="text-[10px] font-bold text-emerald-800 uppercase block">Total Net Payable</span>
                       <p className="text-lg font-black text-emerald-950 font-mono">
-                        ৳{totalPayable.toLocaleString()}{' '}
+                        BDT {totalPayable.toLocaleString()}{' '}
                         <span className="text-xs font-normal text-emerald-700 font-sans">
-                          ({totalSeats} seat{totalSeats > 1 ? 's' : ''} @ ৳{netFarePerSeat})
+                          ({totalSeats} seat{totalSeats > 1 ? 's' : ''} @ BDT {netFarePerSeat})
                         </span>
                       </p>
                     </div>

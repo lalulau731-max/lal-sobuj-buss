@@ -238,7 +238,7 @@ export const TripSelector: React.FC<TripSelectorProps> = ({
 
             <div className="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
               <span className="block text-[10px] uppercase font-bold text-slate-400">Standard Ticket Fare</span>
-              <span className="font-black text-emerald-700 font-mono text-sm">৳{activeTrip.baseFare}</span>
+              <span className="font-black text-emerald-700 font-mono text-sm">BDT {activeTrip.baseFare}</span>
             </div>
           </div>
 

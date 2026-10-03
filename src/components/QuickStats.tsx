@@ -90,11 +90,11 @@ export const QuickStats: React.FC<QuickStatsProps> = ({ trip }) => {
       <div className="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-sm flex items-center justify-between">
         <div>
           <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Collection</p>
-          <p className="text-2xl font-black text-slate-900 mt-0.5">৳{totalFareCollected.toLocaleString()}</p>
-          <span className="text-[11px] text-slate-500">Base: ৳{trip.baseFare}</span>
+          <p className="text-2xl font-black text-slate-900 mt-0.5">BDT {totalFareCollected.toLocaleString()}</p>
+          <span className="text-[11px] text-slate-500 font-semibold">Base: BDT {trip.baseFare}</span>
         </div>
-        <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-          <span className="font-extrabold text-base">৳</span>
+        <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs font-mono">
+          <span>BDT</span>
         </div>
       </div>
 

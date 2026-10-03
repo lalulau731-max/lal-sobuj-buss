@@ -543,7 +543,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                                   className="chalan-due-badge inline-block px-2 py-0.5 text-[9px] font-black text-white bg-black border border-black rounded-xs tracking-tight whitespace-nowrap font-sans"
                                   title={groupSize > 1 ? `Total group due for ${groupSize} seats` : undefined}
                                 >
-                                  ৳{groupDue} DUE
+                                  BDT {groupDue} DUE
                                 </div>
                               ) : (
                                 <span className="text-[9px] text-black font-black font-sans">0</span>
@@ -584,10 +584,10 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                 <span className="chalan-summary-label text-[8.5px] font-black text-black uppercase block">Total Due Amount:</span>
                 {totalDueAmount > 0 ? (
                   <span className="chalan-summary-badge inline-block px-2.5 py-0.5 bg-black text-white font-sans font-black text-[9.5px] rounded-xs mt-0.5">
-                    ৳{totalDueAmount.toLocaleString()} DUE
+                    BDT {totalDueAmount.toLocaleString()} DUE
                   </span>
                 ) : (
-                  <span className="chalan-summary-value font-sans font-black text-black">৳0 (Fully Paid)</span>
+                  <span className="chalan-summary-value font-sans font-black text-black">BDT 0 (Fully Paid)</span>
                 )}
               </div>
             </div>

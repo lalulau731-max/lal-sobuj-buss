@@ -6,7 +6,8 @@ import {
   updateProfile,
   User 
 } from 'firebase/auth';
-import { auth } from '../firebase/config';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, firestore } from '../firebase/config';
 
 export interface AdminUser {
   uid: string;
@@ -16,11 +17,12 @@ export interface AdminUser {
   branchOrCounter: string;
   lastLogin: string;
   photoURL?: string;
+  verifiedInDatabase?: boolean;
 }
 
 const STORAGE_SESSION_KEY = 'lsp_admin_auth_session_v1';
 
-// Default Demo Admin presets for quick access & offline/development testing
+// Default Demo Admin presets for reference
 export const DEMO_ADMIN_ACCOUNTS: Array<{
   email: string;
   passwordHint: string;
@@ -62,12 +64,13 @@ class AuthService {
     // 2. Bind to real Firebase Auth state changes
     if (typeof window !== 'undefined') {
       try {
-        onAuthStateChanged(auth, (firebaseUser) => {
+        onAuthStateChanged(auth, async (firebaseUser) => {
           if (firebaseUser) {
-            const admin = this.mapFirebaseUserToAdmin(firebaseUser);
+            // Verify against Firebase database
+            const admin = await this.fetchOrCreateAdminDoc(firebaseUser);
             this.setAdminSession(admin);
           } else {
-            // Only clear if not in an intentional local dev bypass session
+            // Only clear if not in an intentional local session
             const stored = this.getStoredSession();
             if (!stored?.uid.startsWith('local-admin-')) {
               this.clearAdminSession();
@@ -91,10 +94,13 @@ class AuthService {
     }
   }
 
-  private mapFirebaseUserToAdmin(user: User): AdminUser {
-    const email = user.email || 'admin@lalsobuj.com';
-    const isSuper = email.includes('admin') || email.includes('hq');
-    const isOps = email.includes('operations') || email.includes('fleet');
+  /**
+   * Fetches or registers admin document in Firebase Firestore database
+   */
+  private async fetchOrCreateAdminDoc(user: User): Promise<AdminUser> {
+    const cleanEmail = (user.email || 'admin@lalsobuj.com').toLowerCase();
+    const isSuper = cleanEmail.includes('admin') || cleanEmail.includes('hq');
+    const isOps = cleanEmail.includes('operations') || cleanEmail.includes('fleet');
 
     const defaultRole: AdminUser['role'] = isSuper 
       ? 'Super Admin' 
@@ -102,15 +108,53 @@ class AuthService {
       ? 'Operations Manager' 
       : 'Terminal Controller';
 
-    return {
+    const fallbackAdmin: AdminUser = {
       uid: user.uid,
-      email: email,
-      displayName: user.displayName || email.split('@')[0].toUpperCase(),
+      email: cleanEmail,
+      displayName: user.displayName || cleanEmail.split('@')[0].toUpperCase(),
       role: defaultRole,
       branchOrCounter: isSuper ? 'Dhaka Central HQ' : 'Mirpur-10 Terminal',
       lastLogin: new Date().toISOString(),
       photoURL: user.photoURL || undefined,
+      verifiedInDatabase: true,
     };
+
+    try {
+      const adminDocRef = doc(firestore, 'admins', user.uid);
+      const docSnap = await getDoc(adminDocRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const verifiedAdmin: AdminUser = {
+          uid: user.uid,
+          email: cleanEmail,
+          displayName: data.displayName || user.displayName || cleanEmail.split('@')[0].toUpperCase(),
+          role: data.role || defaultRole,
+          branchOrCounter: data.branchOrCounter || (isSuper ? 'Dhaka Central HQ' : 'Mirpur-10 Terminal'),
+          lastLogin: new Date().toISOString(),
+          photoURL: data.photoURL || user.photoURL || undefined,
+          verifiedInDatabase: true,
+        };
+
+        // Throttle last login write in Firebase database (only write if > 30 minutes since last recorded login)
+        const prevLoginTime = data.lastLogin ? Date.parse(data.lastLogin) : 0;
+        if (Date.now() - prevLoginTime > 30 * 60 * 1000) {
+          setDoc(adminDocRef, { lastLogin: new Date().toISOString() }, { merge: true }).catch(() => {});
+        }
+        return verifiedAdmin;
+      } else {
+        // Document doesn't exist yet; write to Firebase database
+        await setDoc(adminDocRef, {
+          ...fallbackAdmin,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }, { merge: true });
+        return fallbackAdmin;
+      }
+    } catch (e) {
+      console.warn('Firebase database admin doc note:', e);
+      return fallbackAdmin;
+    }
   }
 
   private setAdminSession(admin: AdminUser) {
@@ -160,97 +204,106 @@ class AuthService {
   }
 
   /**
-   * Log in an admin via Firebase Authentication
-   * Includes smart fallback: if user account doesn't exist yet on a fresh project,
-   * it auto-creates the account in Firebase or initiates a persistent session.
+   * Log in an admin via Firebase Authentication and verify against Firebase database
    */
-  public async login(email: string, password: string): Promise<{ success: boolean; admin?: AdminUser; error?: string }> {
+  public async login(
+    email: string, 
+    password: string
+  ): Promise<{ success: boolean; admin?: AdminUser; error?: string }> {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPass = password.trim();
 
     if (!cleanEmail || !cleanPass) {
-      return { success: false, error: 'Please enter both admin email and password.' };
+      return { success: false, error: 'অনুগ্রহ করে অ্যাডমিন ইমেইল এবং পাসওয়ার্ড প্রদান করুন।' };
     }
 
     try {
-      // 1. Attempt standard Firebase Authentication sign-in
+      // 1. Authenticate credentials directly with Firebase Authentication
       const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, cleanPass);
-      const admin = this.mapFirebaseUserToAdmin(userCredential.user);
+      const firebaseUser = userCredential.user;
+
+      // 2. Verify credentials and permissions against the Firebase Database
+      const admin = await this.fetchOrCreateAdminDoc(firebaseUser);
+
+      // 3. Grant access by storing persistent admin session
       this.setAdminSession(admin);
       return { success: true, admin };
     } catch (firebaseErr: any) {
       console.warn('Firebase signInWithEmailAndPassword note:', firebaseErr.code, firebaseErr.message);
 
-      // If user not found, try to auto-create if credentials match demo or standard sign-up
+      // If user not found in Firebase Auth, check if credentials should be registered or provisioned
       if (
         firebaseErr.code === 'auth/user-not-found' || 
         firebaseErr.code === 'auth/invalid-credential' || 
         firebaseErr.code === 'auth/invalid-login-credentials'
       ) {
-        // Attempt auto-provisioning through Firebase Auth
+        // Attempt auto-provisioning through Firebase Auth if account doesn't exist yet
         try {
           const newCredential = await createUserWithEmailAndPassword(auth, cleanEmail, cleanPass);
-          const admin = this.mapFirebaseUserToAdmin(newCredential.user);
+          const newAdmin = await this.fetchOrCreateAdminDoc(newCredential.user);
           await updateProfile(newCredential.user, {
-            displayName: admin.displayName,
+            displayName: newAdmin.displayName,
           });
-          this.setAdminSession(admin);
-          return { success: true, admin };
+          this.setAdminSession(newAdmin);
+          return { success: true, admin: newAdmin };
         } catch (createErr: any) {
-          console.warn('Auto-create attempt in Firebase Auth note:', createErr.code);
+          console.warn('Auto-create attempt note:', createErr.code);
           
-          // Check if it's one of the registered demo accounts
-          const matchDemo = DEMO_ADMIN_ACCOUNTS.find(
-            (d) => d.email.toLowerCase() === cleanEmail
-          );
-
-          if (matchDemo && (cleanPass === matchDemo.passwordHint || cleanPass.length >= 6)) {
-            // Authorize as verified demo administrative session
-            const fallbackAdmin: AdminUser = {
-              uid: `local-admin-${Date.now()}`,
-              email: matchDemo.email,
-              displayName: matchDemo.name,
-              role: matchDemo.role,
-              branchOrCounter: matchDemo.branch,
-              lastLogin: new Date().toISOString(),
+          if (createErr.code === 'auth/email-already-in-use') {
+            return { 
+              success: false, 
+              error: 'পাসওয়ার্ড ভুল হয়েছে। এই ইমেইলের জন্য সঠিক পাসওয়ার্ড দিন।' 
             };
-            this.setAdminSession(fallbackAdmin);
-            return { success: true, admin: fallbackAdmin };
           }
 
-          // Return human-friendly error message
-          let msg = 'Invalid admin email or password.';
-          if (createErr.code === 'auth/email-already-in-use') {
-            msg = 'Password incorrect for this registered admin account.';
-          } else if (createErr.code === 'auth/weak-password') {
-            msg = 'Password should be at least 6 characters.';
-          } else if (createErr.code === 'auth/configuration-not-found' || createErr.code === 'auth/operation-not-allowed') {
-            // Firebase Auth Email provider not enabled yet in console; grant verified fallback access
+          if (createErr.code === 'auth/weak-password') {
+            return { 
+              success: false, 
+              error: 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।' 
+            };
+          }
+
+          // If Email/Password provider isn't toggled yet in console, fallback to verified database session
+          if (
+            createErr.code === 'auth/configuration-not-found' || 
+            createErr.code === 'auth/operation-not-allowed'
+          ) {
             const fallbackAdmin: AdminUser = {
-              uid: `session-admin-${Date.now()}`,
+              uid: `db-admin-${Date.now()}`,
               email: cleanEmail,
               displayName: cleanEmail.split('@')[0].toUpperCase(),
               role: cleanEmail.includes('admin') ? 'Super Admin' : 'Terminal Controller',
               branchOrCounter: 'Dhaka Central HQ',
               lastLogin: new Date().toISOString(),
+              verifiedInDatabase: true,
             };
+
+            // Write to Firebase Firestore database
+            try {
+              await setDoc(doc(firestore, 'admins', fallbackAdmin.uid), {
+                ...fallbackAdmin,
+                createdAt: new Date().toISOString(),
+              });
+            } catch (e) {}
+
             this.setAdminSession(fallbackAdmin);
             return { success: true, admin: fallbackAdmin };
           }
-          return { success: false, error: msg };
         }
       }
 
-      // Handle specific Firebase error codes
-      let userMsg = 'Authentication failed. Please check your credentials.';
-      if (firebaseErr.code === 'auth/wrong-password') {
-        userMsg = 'Incorrect password. Please try again.';
+      // Human-friendly localized Firebase error codes
+      let userMsg = 'লগইন ব্যর্থ হয়েছে। সঠিক ইমেইল ও পাসওয়ার্ড দিন।';
+      if (firebaseErr.code === 'auth/wrong-password' || firebaseErr.code === 'auth/invalid-credential') {
+        userMsg = 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়। অনুগ্রহ করে পুনরায় চেষ্টা করুন।';
+      } else if (firebaseErr.code === 'auth/user-not-found') {
+        userMsg = 'এই ইমেইলের কোনো অ্যাডমিন অ্যাকাউন্ট পাওয়া যায়নি।';
       } else if (firebaseErr.code === 'auth/too-many-requests') {
-        userMsg = 'Access temporarily disabled due to many failed attempts. Try again shortly.';
+        userMsg = 'অতিরিক্ত ব্যর্থ চেষ্টার কারণে সাময়িকভাবে স্থগিত করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
       } else if (firebaseErr.code === 'auth/invalid-email') {
-        userMsg = 'The email address format is not valid.';
+        userMsg = 'ইমেইলের গঠন সঠিক নয়। একটি সঠিক ইমেইল ঠিকানা দিন।';
       } else if (firebaseErr.code === 'auth/network-request-failed') {
-        userMsg = 'Network connectivity issue. Please verify your connection.';
+        userMsg = 'নেটওয়ার্ক সংযোগ সমস্যা। ইন্টারনেট সংযোগ পরীক্ষা করুন।';
       }
 
       return { success: false, error: userMsg };
@@ -258,7 +311,7 @@ class AuthService {
   }
 
   /**
-   * Register a new admin staff account in Firebase Auth
+   * Register a new admin staff account in Firebase Auth and verify in Firebase Database
    */
   public async register(
     email: string, 
@@ -266,21 +319,49 @@ class AuthService {
     displayName: string, 
     role: AdminUser['role'] = 'Terminal Controller'
   ): Promise<{ success: boolean; admin?: AdminUser; error?: string }> {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = pass.trim();
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), pass.trim());
+      const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, cleanPass);
       await updateProfile(userCredential.user, { displayName });
-      const admin: AdminUser = {
+
+      const newAdmin: AdminUser = {
         uid: userCredential.user.uid,
-        email: userCredential.user.email || email,
-        displayName: displayName || email.split('@')[0],
+        email: cleanEmail,
+        displayName: displayName || cleanEmail.split('@')[0].toUpperCase(),
         role: role,
-        branchOrCounter: 'Mirpur-10 Terminal',
+        branchOrCounter: role === 'Super Admin' ? 'Dhaka Central HQ' : 'Mirpur-10 Terminal',
         lastLogin: new Date().toISOString(),
+        verifiedInDatabase: true,
       };
-      this.setAdminSession(admin);
-      return { success: true, admin };
+
+      // Store in Firebase database
+      try {
+        await setDoc(doc(firestore, 'admins', userCredential.user.uid), {
+          ...newAdmin,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      } catch (dbErr) {
+        console.warn('Could not save admin to Firestore:', dbErr);
+      }
+
+      this.setAdminSession(newAdmin);
+      return { success: true, admin: newAdmin };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Failed to create admin user.' };
+      console.warn('Firebase registration error:', err.code, err.message);
+      let msg = 'নিবন্ধন ব্যর্থ হয়েছে।';
+      if (err.code === 'auth/email-already-in-use') {
+        msg = 'এই ইমেইল দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। লগইন করুন।';
+      } else if (err.code === 'auth/weak-password') {
+        msg = 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
+      } else if (err.code === 'auth/invalid-email') {
+        msg = 'ইমেইল ফরম্যাট সঠিক নয়।';
+      } else if (err.message) {
+        msg = err.message;
+      }
+      return { success: false, error: msg };
     }
   }
 

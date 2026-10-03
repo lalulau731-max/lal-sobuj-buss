@@ -126,7 +126,7 @@ export const TicketPrintModal: React.FC<TicketPrintModalProps> = ({
               <div>
                 <span className="text-[10px] text-slate-500 block uppercase">Fare Paid</span>
                 <span className="text-base font-black text-emerald-800 font-mono">
-                  ৳{seat.fare || trip.baseFare}
+                  BDT {seat.fare || trip.baseFare}
                 </span>
               </div>
               <div className="text-right">

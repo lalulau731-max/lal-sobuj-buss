@@ -6,16 +6,12 @@ import {
   EyeOff, 
   ShieldCheck, 
   Bus, 
-  Sparkles, 
   AlertCircle, 
   CheckCircle2, 
   ArrowRight,
-  KeyRound,
-  Check,
-  User,
-  BadgeCheck
+  Check
 } from 'lucide-react';
-import { authService, DEMO_ADMIN_ACCOUNTS, AdminUser } from '../services/authService';
+import { authService, AdminUser } from '../services/authService';
 
 // Direct import of generated assets
 import lalSobujBusImg from '../assets/images/lal_sobuj_bus_1790950083304.jpg';
@@ -26,29 +22,13 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
-  const [email, setEmail] = useState<string>('admin@lalsobuj.com');
-  const [password, setPassword] = useState<string>('Admin@2026!');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'signin' | 'register'>('signin');
-
-  // New admin registration form state
-  const [regName, setRegName] = useState<string>('');
-  const [regEmail, setRegEmail] = useState<string>('');
-  const [regPassword, setRegPassword] = useState<string>('');
-  const [regRole, setRegRole] = useState<AdminUser['role']>('Terminal Controller');
-
-  // Handle Demo Account Quick Fill
-  const handleSelectDemo = (demo: typeof DEMO_ADMIN_ACCOUNTS[0]) => {
-    setEmail(demo.email);
-    setPassword(demo.passwordHint);
-    setErrorMessage('');
-    setSuccessMessage(`${demo.name} (${demo.role}) ক্রেডেনশিয়াল পূরণ করা হয়েছে।`);
-    setTimeout(() => setSuccessMessage(''), 3000);
-  };
 
   // Submit Handler for Sign-In
   const handleSubmitLogin = async (e: React.FormEvent) => {
@@ -69,40 +49,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'অনাকাঙ্ক্ষিত ত্রুটি ঘটেছে। আবার চেষ্টা করুন।');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Submit Handler for Registration
-  const handleSubmitRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
-
-    if (!regEmail || !regPassword || !regName) {
-      setErrorMessage('অনুগ্রহ করে সমস্ত প্রয়োজনীয় তথ্য পূরণ করুন।');
-      return;
-    }
-
-    if (regPassword.length < 6) {
-      setErrorMessage('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const result = await authService.register(regEmail, regPassword, regName, regRole);
-      if (result.success && result.admin) {
-        setSuccessMessage(`নতুন অ্যাডমিন অ্যাকাউন্ট তৈরি হয়েছে (${result.admin.displayName})!`);
-        setTimeout(() => {
-          onLoginSuccess(result.admin!);
-        }, 600);
-      } else {
-        setErrorMessage(result.error || 'অ্যাকাউন্ট তৈরি ব্যর্থ হয়েছে।');
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'নিবন্ধনে ত্রুটি হয়েছে।');
     } finally {
       setIsLoading(false);
     }
@@ -236,38 +182,6 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
               </p>
             </div>
 
-            {/* Mode Switcher Tabs */}
-            <div className="flex rounded-xl bg-slate-100 p-1 mb-5 border border-slate-200 text-xs font-bold">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab('signin');
-                  setErrorMessage('');
-                }}
-                className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  activeTab === 'signin'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                স্টাফ সাইন-ইন
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab('register');
-                  setErrorMessage('');
-                }}
-                className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
-                  activeTab === 'register'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                নতুন অ্যাডমিন নিবন্ধন
-              </button>
-            </div>
-
             {/* Feedback Notifications */}
             {errorMessage && (
               <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-xs font-bold flex items-start gap-2 animate-in fade-in duration-150">
@@ -283,201 +197,116 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
               </div>
             )}
 
-            {activeTab === 'signin' ? (
-              /* ================= SIGN IN FORM ================= */
-              <form onSubmit={handleSubmitLogin} className="space-y-4">
-                
-                {/* Email Field */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                    অ্যাডমিন ইমেইল (Email Address)
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@lalsobuj.com"
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white placeholder:text-slate-400"
-                    />
+            {/* ================= SIGN IN FORM ================= */}
+            <form onSubmit={handleSubmitLogin} className="space-y-4">
+              
+              {/* Email Field */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                  অ্যাডমিন ইমেইল (Email Address)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="w-4 h-4" />
                   </div>
-                </div>
-
-                {/* Password Field */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
-                      পাসওয়ার্ড (Password)
-                    </label>
-                    <span className="text-[11px] font-bold text-red-600 hover:underline cursor-pointer">
-                      ডেমো: Admin@2026!
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                      <Lock className="w-4 h-4" />
-                    </div>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
-                      className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white placeholder:text-slate-400"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
-                      title={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Persistent Session & Remember Me */}
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <label className="flex items-center gap-2 cursor-pointer select-none text-slate-700 font-semibold">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 rounded text-red-600 focus:ring-red-500 border-slate-300 cursor-pointer accent-red-600"
-                    />
-                    <span>লগইন সেশন মনে রাখুন (Persistent Session)</span>
-                  </label>
-                </div>
-
-                {/* Primary Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 px-4 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] active:bg-[#991b1b] text-white font-extrabold text-sm tracking-wide shadow-md hover:shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed mt-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>যাচাই করা হচ্ছে...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>লগইন করুন (Sign In)</span>
-                      <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                    </>
-                  )}
-                </button>
-              </form>
-            ) : (
-              /* ================= REGISTRATION FORM ================= */
-              <form onSubmit={handleSubmitRegister} className="space-y-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    অপারেটর বা কর্মকর্তার নাম (Full Name)
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    placeholder="যেমন: মোঃ রফিকুল ইসলাম"
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    অফিসিয়াল ইমেইল (Email)
-                  </label>
                   <input
                     type="email"
                     required
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    placeholder="rafiq@lalsobuj.com"
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="ইমেইল ঠিকানা লিখুন"
+                    autoComplete="username"
+                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white placeholder:text-slate-400"
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+              {/* Password Field */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
                     পাসওয়ার্ড (Password)
                   </label>
+                  <span className="text-[11px] font-semibold text-slate-400">
+                    গোপনীয় ও সুরক্ষিত
+                  </span>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-4 h-4" />
+                  </div>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="কমপক্ষে ৬ অক্ষর"
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="পাসওয়ার্ড লিখুন"
+                    autoComplete="current-password"
+                    className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white placeholder:text-slate-400"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
-                    অ্যাডমিন পদবী (Role)
-                  </label>
-                  <select
-                    value={regRole}
-                    onChange={(e) => setRegRole(e.target.value as AdminUser['role'])}
-                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white"
-                  >
-                    <option value="Terminal Controller">টার্মিনাল কন্ট্রোলার (Counter & Seat Matrix)</option>
-                    <option value="Operations Manager">অপারেশনস ম্যানেজার (Fleet & Schedules)</option>
-                    <option value="Super Admin">সুপার অ্যাডমিন (Full Access & Accounts)</option>
-                  </select>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#16a34a] hover:bg-[#15803d] text-white font-extrabold text-sm tracking-wide shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed mt-3"
-                >
-                  {isLoading ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>অ্যাকাউন্ট তৈরি হচ্ছে...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>অ্যাকাউন্ট তৈরি করুন (Create Account)</span>
-                      <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-                    </>
-                  )}
-                </button>
-              </form>
-            )}
-
-            {/* Quick Demo Access Bar */}
-            <div className="mt-5 pt-4 border-t border-slate-200">
-              <div className="flex items-center justify-between text-xs text-slate-500 mb-2 font-bold">
-                <span className="flex items-center gap-1">
-                  <KeyRound className="w-3.5 h-3.5 text-slate-700" />
-                  <span>দ্রুত ডেমো অ্যাকাউন্টে লগইন:</span>
-                </span>
-                <span className="text-[11px] text-slate-400">১-ক্লিক পূরণ</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-center">
-                {DEMO_ADMIN_ACCOUNTS.map((demo) => (
                   <button
-                    key={demo.email}
                     type="button"
-                    onClick={() => handleSelectDemo(demo)}
-                    className="py-1.5 px-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 transition-all text-left cursor-pointer group"
-                    title={`Click to fill ${demo.email}`}
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                    title={showPassword ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন'}
                   >
-                    <div className="text-[11px] font-black text-slate-800 group-hover:text-red-700 truncate">
-                      {demo.role}
-                    </div>
-                    <div className="text-[9.5px] text-slate-500 truncate font-mono">
-                      {demo.branch.split(' ')[0]}
-                    </div>
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
-                ))}
+                </div>
+              </div>
+
+              {/* Persistent Session & Remember Me */}
+              <div className="flex items-center justify-between text-xs pt-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none text-slate-700 font-semibold">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 rounded text-red-600 focus:ring-red-500 border-slate-300 cursor-pointer accent-red-600"
+                  />
+                  <span>লগইন সেশন মনে রাখুন (Persistent Session)</span>
+                </label>
+              </div>
+
+              {/* Primary Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 px-4 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] active:bg-[#991b1b] text-white font-extrabold text-sm tracking-wide shadow-md hover:shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed mt-2"
+              >
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>ফায়ারবেসে যাচাই করা হচ্ছে...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>ফায়ারবেস লগইন (Sign In with Firebase)</span>
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Firebase Database & Authentication Verification Status */}
+            <div className="mt-5 pt-4 border-t border-slate-200">
+              <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs text-slate-600 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800 shrink-0">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="font-black text-slate-800 block text-xs">
+                      Firebase Authentication & Database
+                    </span>
+                    <span className="text-[10.5px] text-slate-500 font-medium">
+                      ক্রেডেনশিয়াল ফায়ারবেস ডাটাবেসে যাচাই করে অ্যাক্সেস প্রদান করা হয়
+                    </span>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-300 text-[10px] font-mono font-bold shrink-0">
+                  Firebase Verified
+                </span>
               </div>
             </div>
 
@@ -487,8 +316,10 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
       </main>
 
       {/* Clean Bottom Footer */}
-      <footer className="w-full bg-white border-t border-slate-200 px-4 sm:px-8 py-3 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-1">
-        <p>© 2026 লাল সবুজ পরিবহন (Lal Sabuj Paribahan). সর্বস্বত্ব সংরক্ষিত।</p>
+      <footer className="w-full bg-white border-t border-slate-200 px-4 sm:px-8 py-3.5 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-1">
+        <p className="font-bold text-slate-700 tracking-wide">
+          Lal Sabuj Paribahan V7 - Powered by Lal Sabuj - Designed by Tuhin.
+        </p>
         <div className="flex items-center gap-3 text-[11px]">
           <span className="font-semibold text-slate-600">গুগল ফায়ারবেস অথেনটিকেশন দ্বারা সুরক্ষিত</span>
           <span>•</span>

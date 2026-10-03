@@ -1,6 +1,12 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getDatabase, Database } from 'firebase/database';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { 
+  getFirestore, 
+  initializeFirestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager,
+  Firestore 
+} from 'firebase/firestore';
 import { getAuth, Auth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
@@ -39,8 +45,22 @@ export const RTDB_URL_CANDIDATES = [
 export const app: FirebaseApp =
   getApps().length === 0 ? initializeApp(FIREBASE_CONFIG) : getApp();
 
-// Export Firestore Database
-export const firestore: Firestore = getFirestore(app);
+// Export Firestore Database with Multi-Tab IndexedDB Persistent Caching
+// Documents cached locally in IndexedDB are served without incurring billable reads
+export const firestore: Firestore = (() => {
+  try {
+    if (typeof window !== 'undefined') {
+      return initializeFirestore(app, {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        }),
+      });
+    }
+    return getFirestore(app);
+  } catch (e) {
+    return getFirestore(app);
+  }
+})();
 
 // Export Firebase Authentication with browser local persistence
 export const auth: Auth = getAuth(app);

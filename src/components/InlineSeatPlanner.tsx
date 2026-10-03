@@ -11,7 +11,9 @@ import {
   FileText, 
   CheckCircle2, 
   Layers,
-  Info
+  Info,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { OccupiedSeatInfoModal } from './OccupiedSeatInfoModal';
 
@@ -22,8 +24,8 @@ interface InlineSeatPlannerProps {
   onConfirmBooking: (
     updates: Record<string, Partial<Seat>>,
     meta: {
-      action: 'sold' | 'reserved';
-      source: 'counter';
+      action: 'sold' | 'reserved' | 'released';
+      source: 'counter' | 'mobile_app' | 'admin';
       passengerName: string;
       counterOrUser: string;
     }
@@ -42,8 +44,8 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
   onPrintTicket,
   onRefresh,
 }) => {
-  // Mode: Sell (Direct Sale) or Book (Reservation Hold)
-  const [activeMode, setActiveMode] = useState<'sell' | 'book'>('sell');
+  // Mode: Sell (Direct Sale), Book (Reservation Hold), or Lock (Management Hold)
+  const [activeMode, setActiveMode] = useState<'sell' | 'book' | 'lock'>('sell');
 
   // Multi-seat selection state
   const [selectedSeatNos, setSelectedSeatNos] = useState<string[]>([]);
@@ -151,13 +153,16 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
     }
 
     const updates: Record<string, Partial<Seat>> = {};
-    const pName = passengerName.trim() || 'Counter Passenger';
-    const pPhone = passengerPhone.trim() || '01711-000000';
+    const isLockMode = activeMode === 'lock';
+    const pName = isLockMode 
+      ? 'Management Hold' 
+      : passengerName.trim() || 'Counter Passenger';
+    const pPhone = isLockMode ? '' : passengerPhone.trim() || '01711-000000';
     const txnNumber = `TKT-${Math.floor(10000 + Math.random() * 90000)}`;
 
     selectedSeatNos.forEach((seatNo) => {
       updates[seatNo] = {
-        status: activeMode === 'sell' ? 'sold' : 'reserved',
+        status: isLockMode ? 'locked' : activeMode === 'sell' ? 'sold' : 'reserved',
         passengerName: pName,
         phone: pPhone,
         gender: passengerGender,
@@ -166,7 +171,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
         fare: baseFarePerSeat,
         ticketNumber: txnNumber,
         paymentStatus: activeMode === 'sell' ? 'paid' : 'due',
-        remarks: remarks || (activeMode === 'sell' ? 'Counter POS Sale' : 'Counter Hold Reservation'),
+        remarks: remarks || (isLockMode ? 'Management Seat Lock' : activeMode === 'sell' ? 'Counter POS Sale' : 'Counter Hold Reservation'),
         bookedVia: 'counter',
         bookedAt: new Date().toISOString(),
         counterName: 'Mirpur-10 Terminal',
@@ -174,7 +179,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
     });
 
     onConfirmBooking(updates, {
-      action: activeMode === 'sell' ? 'sold' : 'reserved',
+      action: isLockMode ? 'reserved' : activeMode === 'sell' ? 'sold' : 'reserved',
       source: 'counter',
       passengerName: pName,
       counterOrUser: 'Terminal Counter (Mirpur-10)',
@@ -185,6 +190,63 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
     setPassengerName('');
     setPassengerPhone('');
     setRemarks('');
+  };
+
+  // Immediate Unlock Handler for Locked or Released seats
+  const handleUnlockSeat = (seatNo: string) => {
+    onConfirmBooking(
+      {
+        [seatNo]: {
+          status: 'available',
+          passengerName: '',
+          phone: '',
+          fare: baseFarePerSeat,
+          dueAmount: 0,
+          paidAmount: 0,
+          paymentStatus: 'due',
+          remarks: undefined,
+          ticketNumber: undefined,
+          bookingReference: undefined,
+        },
+      },
+      {
+        action: 'released',
+        source: 'counter',
+        passengerName: 'Unlocked Seat',
+        counterOrUser: 'Terminal Counter (Mirpur-10)',
+      }
+    );
+    setSelectedOccupiedSeat(null);
+  };
+
+  // Confirm Reservation Handler: collects payment and marks ticket as SOLD
+  const handleConfirmReservation = (seatNo: string) => {
+    const existingSeat = trip.seats[seatNo];
+    const fare = existingSeat?.fare || baseFarePerSeat;
+    onConfirmBooking(
+      {
+        [seatNo]: {
+          status: 'sold',
+          paymentStatus: 'paid',
+          paidAmount: fare,
+          dueAmount: 0,
+          remarks: 'Reservation confirmed & fully paid at counter',
+          bookedVia: 'counter',
+          ticketNumber: existingSeat?.ticketNumber || `TKT-${seatNo}-${trip.coachNumber}`,
+        },
+      },
+      {
+        action: 'sold',
+        source: 'counter',
+        passengerName: existingSeat?.passengerName || 'Confirmed Passenger',
+        counterOrUser: 'Terminal Counter (Mirpur-10)',
+      }
+    );
+    setSelectedOccupiedSeat(null);
+  };
+
+  const handleCancelReservation = (seatNo: string) => {
+    handleUnlockSeat(seatNo);
   };
 
   return (
@@ -238,6 +300,18 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
             }`}
           >
             Book
+          </button>
+
+          <button
+            onClick={() => setActiveMode('lock')}
+            className={`px-3 py-1 text-xs font-semibold rounded transition-colors cursor-pointer flex items-center gap-1 ${
+              activeMode === 'lock'
+                ? 'bg-black text-white shadow-2xs'
+                : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            <Lock className="w-3 h-3" />
+            <span>Lock</span>
           </button>
 
           <button
@@ -377,8 +451,8 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                         onClick={() => handleSeatClick(seat)}
                         title={
                           isOccupied
-                            ? `Seat ${seat.seatNumber} • ${seat.status.toUpperCase()} ${seat.passengerName ? `(${seat.passengerName})` : ''} • Click to view passenger & payment details`
-                            : `Seat ${seat.seatNumber} • Available (৳${baseFarePerSeat})`
+                            ? `Seat ${seat.seatNumber} • ${seat.status.toUpperCase()} ${seat.passengerName ? `(${seat.passengerName})` : ''} • Click to manage or view details`
+                            : `Seat ${seat.seatNumber} • Available (BDT ${baseFarePerSeat})`
                         }
                         className={`w-11 h-10 sm:w-13 sm:h-11 rounded-xl text-sm sm:text-base font-black transition-all flex items-center justify-center relative cursor-pointer ${seatColors}`}
                       >
@@ -402,9 +476,9 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                             ? 'bg-red-100 text-red-900 font-bold'
                             : 'text-slate-600 bg-slate-100 border border-slate-200 font-semibold'
                         }`}
-                        title={`Due Amount: ৳${seatDue}`}
+                        title={`Due Amount: BDT ${seatDue}`}
                       >
-                        {seatDue > 0 ? `৳${seatDue}` : '৳0'}
+                        {seatDue > 0 ? `BDT ${seatDue}` : 'BDT 0'}
                       </span>
                     </div>
                   );
@@ -661,7 +735,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
               </div>
             </div>
 
-            {/* Confirm Selling Button (Large solid button matching Lal Sabuj style) */}
+            {/* Action Submit Button (Large solid button matching Lal Sabuj style) */}
             <div className="pt-1">
               <button
                 type="button"
@@ -671,11 +745,17 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                   selectedSeatNos.length > 0
                     ? activeMode === 'sell'
                       ? 'bg-[#006837] hover:bg-[#00522c] active:scale-[0.99] border-2 border-emerald-800'
+                      : activeMode === 'lock'
+                      ? 'bg-black hover:bg-slate-800 active:scale-[0.99] border-2 border-slate-900'
                       : 'bg-[#661d7a] hover:bg-[#521563] active:scale-[0.99] border-2 border-purple-800'
                     : 'bg-slate-300 border-2 border-slate-400 cursor-not-allowed text-slate-500'
                 }`}
               >
-                {activeMode === 'sell' ? 'Confirm Selling' : 'Confirm Hold / Reservation'}
+                {activeMode === 'sell' 
+                  ? 'Confirm Selling' 
+                  : activeMode === 'lock'
+                  ? 'Confirm Seat Lock (Management Hold)'
+                  : 'Confirm Hold / Reservation'}
               </button>
             </div>
 
@@ -685,7 +765,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
 
       </div>
 
-      {/* Detailed Occupied Seat Passenger Information Modal */}
+      {/* Detailed Occupied Seat Passenger Information & Action Modal */}
       <OccupiedSeatInfoModal
         isOpen={Boolean(selectedOccupiedSeat)}
         onClose={() => setSelectedOccupiedSeat(null)}
@@ -693,6 +773,10 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
         trip={trip}
         onPrintTicket={onPrintTicket}
         onOpenChalan={onOpenChalan}
+        onUnlockSeat={handleUnlockSeat}
+        onConfirmReservation={handleConfirmReservation}
+        onCancelReservation={handleCancelReservation}
+        onReleaseSeat={handleUnlockSeat}
       />
     </div>
   );

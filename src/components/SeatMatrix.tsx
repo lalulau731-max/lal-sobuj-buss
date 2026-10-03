@@ -178,7 +178,7 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
         } min-h-[105px]`}
         title={`Seat ${seatNo}: ${seat.status.toUpperCase()} ${
           seat.passengerName ? ` - ${seat.passengerName}` : ''
-        } • Due: ৳${seatDue}`}
+        } • Due: BDT ${seatDue}`}
       >
         {/* Top: Seat number & Due Amount displayed next to each seat */}
         <div className="flex items-start justify-between gap-1">
@@ -186,18 +186,18 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
             <span className="text-base sm:text-lg font-black tracking-tight font-mono">
               {seatNo}
             </span>
-            {/* Due Amount displayed prominently next to each seat */}
+            {/* Due Amount displayed prominently next to each seat in clean English */}
             {seatDue > 0 ? (
               <span className="px-1.5 py-0.5 text-[9.5px] font-black bg-black text-white rounded font-mono shadow-xs border border-slate-700 uppercase tracking-tight">
-                ৳{seatDue} DUE
+                BDT {seatDue} DUE
               </span>
             ) : seat.status === 'sold' ? (
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-black/20 text-white rounded font-mono">
-                ৳0 DUE
+                BDT 0 DUE
               </span>
             ) : seat.status === 'available' ? (
               <span className="px-1.5 py-0.5 text-[9px] font-semibold text-slate-500 bg-slate-100 border border-slate-200 rounded font-mono">
-                Due: ৳0
+                Due: BDT 0
               </span>
             ) : null}
             {isSelected && (

@@ -447,10 +447,11 @@ export default function App() {
         </main>
       )}
 
-      {/* Footer (Exact Match to Image 1 & Image 2) */}
-      <footer className="no-print bg-[#661d7a] text-white py-3 px-4 text-center text-xs mt-auto border-t border-purple-800">
-        <p className="font-bold text-xs tracking-tight">Lal sobuj paribahan V7</p>
-        <p className="text-[11px] text-purple-200 mt-0.5">Powerd By Lal Sobuj Paribahan</p>
+      {/* Footer */}
+      <footer className="no-print bg-[#661d7a] text-white py-3.5 px-4 text-center text-xs mt-auto border-t border-purple-800">
+        <p className="font-bold text-xs tracking-wide">
+          Lal Sabuj Paribahan V7 - Powered by Lal Sabuj - Designed by Tuhin.
+        </p>
       </footer>
 
       {/* Coach Info Modal */}

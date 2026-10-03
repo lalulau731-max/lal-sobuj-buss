@@ -93,13 +93,13 @@ export const HDepositModal: React.FC<HDepositModalProps> = ({
 
               <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
                 <span className="text-[10px] text-slate-500 uppercase block font-semibold">Gross Fare</span>
-                <span className="font-extrabold text-base text-slate-900 font-mono">৳{totalGrossCollection.toLocaleString()}</span>
+                <span className="font-extrabold text-base text-slate-900 font-mono">BDT {totalGrossCollection.toLocaleString()}</span>
                 <span className="text-[10px] text-slate-500 block">Total Revenue</span>
               </div>
 
               <div className="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
                 <span className="text-[10px] text-emerald-800 uppercase block font-semibold">Net H Deposit</span>
-                <span className="font-extrabold text-base text-emerald-950 font-mono">৳{netPayableToHeadOffice.toLocaleString()}</span>
+                <span className="font-extrabold text-base text-emerald-950 font-mono">BDT {netPayableToHeadOffice.toLocaleString()}</span>
                 <span className="text-[10px] text-emerald-700 block">Net in Hand</span>
               </div>
             </div>
@@ -163,7 +163,7 @@ export const HDepositModal: React.FC<HDepositModalProps> = ({
                 type="submit"
                 className="px-4 py-1.5 rounded bg-[#661d7a] hover:bg-[#521563] text-white text-xs font-bold transition-colors shadow-2xs cursor-pointer"
               >
-                Submit H Deposit (৳{netPayableToHeadOffice.toLocaleString()})
+                Submit H Deposit (BDT {netPayableToHeadOffice.toLocaleString()})
               </button>
             </div>
 

@@ -18,7 +18,11 @@ import {
   AlertCircle,
   Hash,
   Building,
-  Sparkles
+  Sparkles,
+  Unlock,
+  CheckCircle2,
+  XCircle,
+  RotateCcw
 } from 'lucide-react';
 
 interface OccupiedSeatInfoModalProps {
@@ -28,6 +32,10 @@ interface OccupiedSeatInfoModalProps {
   trip: Trip;
   onPrintTicket?: (seatNumber: string) => void;
   onOpenChalan?: () => void;
+  onUnlockSeat?: (seatNumber: string) => void;
+  onConfirmReservation?: (seatNumber: string) => void;
+  onCancelReservation?: (seatNumber: string) => void;
+  onReleaseSeat?: (seatNumber: string) => void;
 }
 
 export const OccupiedSeatInfoModal: React.FC<OccupiedSeatInfoModalProps> = ({
@@ -37,6 +45,10 @@ export const OccupiedSeatInfoModal: React.FC<OccupiedSeatInfoModalProps> = ({
   trip,
   onPrintTicket,
   onOpenChalan,
+  onUnlockSeat,
+  onConfirmReservation,
+  onCancelReservation,
+  onReleaseSeat,
 }) => {
   const [copiedPhone, setCopiedPhone] = useState<boolean>(false);
 
@@ -110,10 +122,10 @@ export const OccupiedSeatInfoModal: React.FC<OccupiedSeatInfoModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-base font-black text-white tracking-wide">
-                  Seat {seat.seatNumber} Details
+                  Seat {seat.seatNumber} Management
                 </h3>
                 <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-white text-slate-900 tracking-wider shadow-2xs">
-                  {isSold ? 'SOLD' : isReserved ? 'RESERVED' : 'LOCKED'}
+                  {isSold ? 'SOLD / CONFIRMED' : isReserved ? 'RESERVED / DUE' : 'LOCKED (HOLD)'}
                 </span>
               </div>
               <p className="text-xs text-white/90 font-medium mt-0.5">
@@ -133,7 +145,89 @@ export const OccupiedSeatInfoModal: React.FC<OccupiedSeatInfoModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto bg-slate-50">
+        <div className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto bg-slate-50">
+
+          {/* Quick Management Action Panel */}
+          <div className="p-3.5 rounded-xl bg-white border-2 border-purple-200 shadow-xs flex flex-wrap items-center justify-between gap-2.5">
+            <div className="leading-tight">
+              <span className="text-[10.5px] uppercase font-black tracking-wider text-purple-900 block">
+                Quick Action (Mobile & Web Sync)
+              </span>
+              <span className="text-xs text-slate-600 font-medium">
+                {isLocked
+                  ? 'This seat is currently locked. You can release it to available status.'
+                  : isReserved
+                  ? `Reservation has BDT ${dueAmount} due. Confirm payment to sell or cancel to unlock.`
+                  : 'Confirmed ticket. You can reprint or release if cancelled.'}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Unlock Action for Locked Seats */}
+              {isLocked && onUnlockSeat && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onUnlockSeat(seat.seatNumber);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                >
+                  <Unlock className="w-4 h-4 stroke-[2.5]" />
+                  <span>Unlock Seat (Make Available)</span>
+                </button>
+              )}
+
+              {/* Confirm Reservation Action */}
+              {isReserved && onConfirmReservation && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onConfirmReservation(seat.seatNumber);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                  <span>Confirm Reservation (Mark as Paid)</span>
+                </button>
+              )}
+
+              {/* Cancel Reservation Action */}
+              {isReserved && onCancelReservation && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(`Cancel reservation for Seat ${seat.seatNumber} and unlock back to available?`)) {
+                      onClose();
+                      onCancelReservation(seat.seatNumber);
+                    }
+                  }}
+                  className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <XCircle className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Cancel Reservation</span>
+                </button>
+              )}
+
+              {/* Release / Cancel Sold Ticket */}
+              {isSold && onReleaseSeat && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (window.confirm(`Release sold ticket for Seat ${seat.seatNumber}? This will mark the seat as available in the cloud database.`)) {
+                      onClose();
+                      onReleaseSeat(seat.seatNumber);
+                    }
+                  }}
+                  className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Cancel Ticket & Unlock</span>
+                </button>
+              )}
+            </div>
+          </div>
           
           {/* Passenger Identity Card */}
           <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-2xs space-y-3">
@@ -232,12 +326,12 @@ export const OccupiedSeatInfoModal: React.FC<OccupiedSeatInfoModalProps> = ({
                 <CreditCard className="w-3.5 h-3.5 text-blue-600" />
                 <span>Financial Transaction Breakdown</span>
               </span>
-              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded font-mono ${
+              <span className={`text-[10.5px] font-black uppercase px-2.5 py-0.5 rounded font-mono ${
                 dueAmount > 0 
                   ? 'bg-black text-white' 
                   : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
               }`}>
-                {dueAmount > 0 ? `৳${dueAmount} DUE` : 'FULLY PAID'}
+                {dueAmount > 0 ? `BDT ${dueAmount.toLocaleString()} DUE` : 'FULLY PAID'}
               </span>
             </div>
 
@@ -247,18 +341,18 @@ export const OccupiedSeatInfoModal: React.FC<OccupiedSeatInfoModalProps> = ({
               <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-500 uppercase block">Base Fare</span>
                 <span className="text-sm font-black text-slate-900 font-mono block mt-0.5">
-                  ৳{baseFare.toLocaleString()}
+                  BDT {baseFare.toLocaleString()}
                 </span>
               </div>
 
               {/* Applicable Discount */}
               <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-                <span className="text-[10px] font-bold text-slate-500 uppercase block flex items-center justify-center gap-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase flex items-center justify-center gap-1">
                   <Tag className="w-2.5 h-2.5 text-amber-600" />
                   <span>Discount</span>
                 </span>
                 <span className="text-sm font-black text-amber-700 font-mono block mt-0.5">
-                  {discount > 0 ? `-৳${discount.toLocaleString()}` : '৳0'}
+                  {discount > 0 ? `-BDT ${discount.toLocaleString()}` : 'BDT 0'}
                 </span>
               </div>
 
@@ -266,7 +360,7 @@ export const OccupiedSeatInfoModal: React.FC<OccupiedSeatInfoModalProps> = ({
               <div className="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200">
                 <span className="text-[10px] font-black text-emerald-800 uppercase block">Paid Amount</span>
                 <span className="text-base font-black text-emerald-700 font-mono block mt-0.5">
-                  ৳{paidAmount.toLocaleString()}
+                  BDT {paidAmount.toLocaleString()}
                 </span>
               </div>
 
@@ -280,7 +374,7 @@ export const OccupiedSeatInfoModal: React.FC<OccupiedSeatInfoModalProps> = ({
                   Due Amount
                 </span>
                 <span className={`text-base font-black font-mono block mt-0.5 ${dueAmount > 0 ? 'text-white' : 'text-slate-900'}`}>
-                  ৳{dueAmount.toLocaleString()}
+                  BDT {dueAmount.toLocaleString()}
                 </span>
               </div>
 

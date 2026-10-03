@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Admin staff profiles
+    match /admins/{adminId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Bus fleet coaches
+    match /coaches/{coachId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Bus seat bookings & reservations
+    match /bookings/{bookingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

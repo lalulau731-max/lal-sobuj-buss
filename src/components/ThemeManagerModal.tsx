@@ -102,7 +102,7 @@ export const ThemeManagerModal: React.FC<ThemeManagerModalProps> = ({
                   Theme & Template Studio
                 </h2>
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800">
-                  অ্যাডমিন স্টুডিও
+                  Admin Studio
                 </span>
               </div>
               <p className="text-xs text-slate-400">
@@ -277,7 +277,7 @@ export const ThemeManagerModal: React.FC<ThemeManagerModalProps> = ({
                               className="px-1.5 py-0.5 rounded text-[8px] font-black text-white"
                               style={{ backgroundColor: theme.primaryColor }}
                             >
-                              ৳700
+                              BDT 700
                             </span>
                           </div>
                         </div>

@@ -8,7 +8,9 @@ import {
   updateDoc, 
   getDocs,
   query,
-  where 
+  where,
+  limit,
+  writeBatch
 } from 'firebase/firestore';
 import { Trip, Seat, CoachRecord, FirebaseConnectionConfig, ActivityLogItem, SeatStatus, Gender, DayAnalytics, TripDaySummary } from '../types/bus';
 import { FIREBASE_CONFIG, getFirebaseDatabase, firestore, app } from '../firebase/config';
@@ -89,15 +91,19 @@ class FirebaseSyncService {
   public async seedRealCoachesToFirebase() {
     try {
       const realCoaches = INITIAL_COACHES.filter(isRealCoach);
+      const batch = writeBatch(this.fs);
       for (const coach of realCoaches) {
-        // Save to Firestore
-        await setDoc(doc(this.fs, 'coaches', coach.coachNumber), {
+        const coachDocRef = doc(this.fs, 'coaches', coach.coachNumber);
+        batch.set(coachDocRef, {
           ...coach,
           updatedAt: Date.now(),
         }, { merge: true });
+      }
+      await batch.commit();
 
-        // Save to Realtime Database if connected
-        if (this.rtdb) {
+      // Save to Realtime Database if connected
+      if (this.rtdb) {
+        for (const coach of realCoaches) {
           await set(ref(this.rtdb, `coaches/${coach.coachNumber}`), coach);
         }
       }
@@ -169,10 +175,11 @@ class FirebaseSyncService {
     if (this.unsubBookings) this.unsubBookings();
     if (this.unsubRtdb) this.unsubRtdb();
 
-    // 1. Live subscription to Firestore `coaches`
+    // 1. Live subscription to Firestore `coaches` with strict limit
     try {
+      const coachesQuery = query(collection(this.fs, 'coaches'), limit(50));
       this.unsubCoaches = onSnapshot(
-        collection(this.fs, 'coaches'),
+        coachesQuery,
         (snapshot) => {
           const loadedCoaches: Record<string, CoachRecord> = {};
           snapshot.forEach((docSnap) => {
@@ -228,34 +235,8 @@ class FirebaseSyncService {
       console.warn('Error setting up coaches listener', e);
     }
 
-    // 2. Live subscription to Firestore `bookings`
-    try {
-      this.unsubBookings = onSnapshot(
-        collection(this.fs, 'bookings'),
-        (snapshot) => {
-          const loadedBookings: Record<string, any> = {};
-          snapshot.forEach((docSnap) => {
-            loadedBookings[docSnap.id] = {
-              id: docSnap.id,
-              ...docSnap.data(),
-            };
-          });
-
-          this.rawBookings = loadedBookings;
-          this.config.totalLiveBookings = snapshot.size;
-          this.config.isConnected = true;
-
-          // Rebuild current trips overlaying the actual real bookings
-          this.rebuildTripsFromState();
-          this.notifyConnectionSubscribers();
-        },
-        (error) => {
-          console.warn('Firestore bookings listener error:', error.message);
-        }
-      );
-    } catch (e) {
-      console.warn('Error setting up bookings listener', e);
-    }
+    // 2. Live subscription to Firestore `bookings` scoped by active journeyDate
+    this.subscribeToBookingsForDate(this.selectedJourneyDate);
 
     // 3. Live listener to Firebase Realtime Database
     if (this.rtdb) {
@@ -296,6 +277,53 @@ class FirebaseSyncService {
           (err) => {}
         );
       } catch (e) {}
+    }
+  }
+
+  /**
+   * Scoped listener for bookings strictly on the active journeyDate with limit(250).
+   * Prevents full database collection scans and stays comfortably within 50,000 daily free tier reads.
+   */
+  public subscribeToBookingsForDate(date: string) {
+    if (this.unsubBookings) {
+      try {
+        this.unsubBookings();
+      } catch (e) {}
+      this.unsubBookings = null;
+    }
+
+    try {
+      const bookingsQuery = query(
+        collection(this.fs, 'bookings'),
+        where('journeyDate', '==', date),
+        limit(250)
+      );
+
+      this.unsubBookings = onSnapshot(
+        bookingsQuery,
+        (snapshot) => {
+          const loadedBookings: Record<string, any> = {};
+          snapshot.forEach((docSnap) => {
+            loadedBookings[docSnap.id] = {
+              id: docSnap.id,
+              ...docSnap.data(),
+            };
+          });
+
+          this.rawBookings = loadedBookings;
+          this.config.totalLiveBookings = snapshot.size;
+          this.config.isConnected = true;
+
+          // Rebuild current trips overlaying the scoped bookings
+          this.rebuildTripsFromState();
+          this.notifyConnectionSubscribers();
+        },
+        (error) => {
+          console.warn('Firestore bookings listener note:', error.message);
+        }
+      );
+    } catch (e) {
+      console.warn('Error setting up scoped bookings listener:', e);
     }
   }
 
@@ -421,8 +449,11 @@ class FirebaseSyncService {
   }
 
   public setJourneyDate(newDate: string) {
+    if (this.selectedJourneyDate === newDate) return;
     this.selectedJourneyDate = newDate;
     this.dateListeners.forEach((cb) => cb(newDate));
+    // Re-subscribe scoped listener to minimize billable document reads
+    this.subscribeToBookingsForDate(newDate);
     this.rebuildTripsFromState();
   }
 
@@ -680,16 +711,18 @@ class FirebaseSyncService {
     currentTrip.lastSyncedAt = Date.now();
     this.tripsData[tripId] = currentTrip;
 
-    // 1. Write directly to Firestore `bookings` collection
-    for (const seatNo of seatNumbers) {
-      const seat = currentTrip.seats[seatNo];
-      const docId = `${coachId}_${date}_${seatNo}`;
-      const isRelease = meta.action === 'released' || meta.action === 'cancelled';
-
-      try {
+    // 1. Write atomically using Firestore writeBatch
+    // Combines multi-seat updates into 1 atomic network write to stay within the 20,000 writes/day free tier
+    try {
+      const batch = writeBatch(this.fs);
+      for (const seatNo of seatNumbers) {
+        const seat = currentTrip.seats[seatNo];
+        const docId = `${coachId}_${date}_${seatNo}`;
+        const isRelease = meta.action === 'released' || meta.action === 'cancelled';
         const bookingDocRef = doc(this.fs, 'bookings', docId);
+
         if (isRelease) {
-          await setDoc(
+          batch.set(
             bookingDocRef,
             {
               coachId,
@@ -704,7 +737,7 @@ class FirebaseSyncService {
             { merge: true }
           );
         } else {
-          await setDoc(
+          batch.set(
             bookingDocRef,
             {
               coachId,
@@ -712,8 +745,8 @@ class FirebaseSyncService {
               journeyDate: date,
               seatNumber: seatNo,
               deckNumber: seatNo.startsWith('U-') ? 2 : 1,
-              status: seat.status === 'reserved' ? 'RESERVATION' : 'SOLD',
-              bookingType: seat.status === 'reserved' ? 'RESERVATION' : 'SOLD',
+              status: seat.status === 'locked' ? 'LOCKED' : seat.status === 'reserved' ? 'RESERVATION' : 'SOLD',
+              bookingType: seat.status === 'locked' ? 'LOCKED' : seat.status === 'reserved' ? 'RESERVATION' : 'SOLD',
               passengerName: seat.passengerName || meta.passengerName || 'Passenger',
               passengerPhone: seat.phone || '',
               passengerGender: seat.gender === 'female' ? 'FEMALE' : 'MALE',
@@ -722,6 +755,7 @@ class FirebaseSyncService {
               totalAmount: seat.fare || currentTrip.baseFare,
               paidAmount: seat.paymentStatus === 'paid' ? seat.fare || currentTrip.baseFare : 0,
               dueAmount: seat.paymentStatus === 'due' ? seat.fare || currentTrip.baseFare : 0,
+              discount: seat.discount || 0,
               bookingReference: seat.ticketNumber || `TXN-${coachId}-${Math.floor(10000 + Math.random() * 90000)}`,
               operatorId: meta.counterOrUser || 'Mirpur-10',
               userEmail: 'eqtiarwifi@gmail.com',
@@ -732,9 +766,10 @@ class FirebaseSyncService {
             { merge: true }
           );
         }
-      } catch (err: any) {
-        console.warn('Firestore write error:', err.message);
       }
+      await batch.commit();
+    } catch (err: any) {
+      console.warn('Firestore writeBatch error:', err.message);
     }
 
     // 2. Also sync to Firebase Realtime Database
@@ -786,10 +821,22 @@ class FirebaseSyncService {
     return true;
   }
 
-  // Force re-fetch from Firebase
-  public async refetchFromFirebase(): Promise<void> {
+  private lastManualFetchTimestamp: number = 0;
+
+  // Optimized re-fetch with query limits, date scoping, and click throttling to conserve daily reads
+  public async refetchFromFirebase(force = false): Promise<void> {
+    const now = Date.now();
+    // Throttle manual refreshes to avoid exceeding daily read quota (minimum 4 seconds)
+    if (!force && now - this.lastManualFetchTimestamp < 4000) {
+      this.rebuildTripsFromState();
+      return;
+    }
+    this.lastManualFetchTimestamp = now;
+
     try {
-      const coachesSnap = await getDocs(collection(this.fs, 'coaches'));
+      // 1. Fetch coaches with limit(50)
+      const coachesQuery = query(collection(this.fs, 'coaches'), limit(50));
+      const coachesSnap = await getDocs(coachesQuery);
       const loadedCoaches: Record<string, CoachRecord> = {};
       coachesSnap.forEach((docSnap) => {
         const data = docSnap.data() as any;
@@ -824,7 +871,13 @@ class FirebaseSyncService {
         this.rawCoaches = loadedCoaches;
       }
 
-      const bookingsSnap = await getDocs(collection(this.fs, 'bookings'));
+      // 2. Fetch bookings strictly scoped to the active journeyDate with limit(250)
+      const bookingsQuery = query(
+        collection(this.fs, 'bookings'),
+        where('journeyDate', '==', this.selectedJourneyDate),
+        limit(250)
+      );
+      const bookingsSnap = await getDocs(bookingsQuery);
       const loadedBookings: Record<string, any> = {};
       bookingsSnap.forEach((docSnap) => {
         loadedBookings[docSnap.id] = { id: docSnap.id, ...docSnap.data() };
@@ -833,7 +886,7 @@ class FirebaseSyncService {
 
       this.rebuildTripsFromState();
     } catch (e: any) {
-      console.warn('Manual refetch failed:', e);
+      console.warn('Manual refetch note:', e);
     }
   }
 
