@@ -38,7 +38,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'lal-sobuj-royal',
     name: 'Lal Sobuj Royal Signature',
-    banglaName: 'লাল সবুজ সিগনেচার (অরিজিনাল)',
+    banglaName: 'Lal Sabuj Signature (Original)',
     inspiredBy: 'Lal Sabuj Paribahan (Flagship)',
     primaryColor: '#661d7a',
     primaryHover: '#521563',
@@ -56,7 +56,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'green-line-emerald',
     name: 'Green Line Prestige Gold',
-    banglaName: 'গ্রিন লাইন প্রস্টিজ এমারেল্ড',
+    banglaName: 'Green Line Prestige Emerald',
     inspiredBy: 'Green Line Paribahan (Scania Multi-Axle)',
     primaryColor: '#004d25',
     primaryHover: '#00361a',
@@ -74,7 +74,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'shohagh-maroon',
     name: 'Shohagh Scania Maroon',
-    banglaName: 'সোহাগ স্ক্যানিয়া মেরুন',
+    banglaName: 'Shohagh Scania Maroon',
     inspiredBy: 'Shohagh Paribahan (Comfort Class)',
     primaryColor: '#800020',
     primaryHover: '#600018',
@@ -92,7 +92,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'hanif-navy-flame',
     name: 'Hanif Enterprise Flame',
-    banglaName: 'হানিফ এন্টারপ্রাইজ ফ্লেম',
+    banglaName: 'Hanif Enterprise Flame',
     inspiredBy: 'Hanif Enterprise (Nationwide Fleet)',
     primaryColor: '#0f2b5c',
     primaryHover: '#0a1d40',
@@ -110,7 +110,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'shyamoli-nr-indigo',
     name: 'Shyamoli NR Cross-Border',
-    banglaName: 'শ্যামলী এন.আর ক্রস-বর্ডার',
+    banglaName: 'Shyamoli N.R Cross-Border',
     inspiredBy: 'Shyamoli NR Travels (International Route)',
     primaryColor: '#1e3a8a',
     primaryHover: '#172554',
@@ -128,7 +128,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'ena-crimson-express',
     name: 'Ena Express Crimson',
-    banglaName: 'এনা এক্সপ্রেস ক্রিমসন',
+    banglaName: 'Ena Express Crimson',
     inspiredBy: 'Ena Transport (Highway Speed Fleet)',
     primaryColor: '#991b1b',
     primaryHover: '#7f1d1d',
@@ -146,7 +146,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'saintmartin-cyan',
     name: 'Saintmartin Coastal Aqua',
-    banglaName: 'সেন্টমার্টিন ট্রাভেলস কোস্টাল অ্যাকুয়া',
+    banglaName: 'Saintmartin Travels Coastal Aqua',
     inspiredBy: 'Saintmartin Paribahan (Hyundai Universe AC)',
     primaryColor: '#0e7490',
     primaryHover: '#155e75',
@@ -164,7 +164,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'desh-travels-slate',
     name: 'Desh Platinum Executive',
-    banglaName: 'দেশ ট্রাভেলস প্ল্যাটিনাম',
+    banglaName: 'Desh Travels Platinum',
     inspiredBy: 'Desh Travels (VIP Business Class)',
     primaryColor: '#0f172a',
     primaryHover: '#1e293b',
@@ -182,7 +182,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'london-express-racing',
     name: 'London Express Racing Green',
-    banglaName: 'লন্ডন এক্সপ্রেস রেসিং গ্রিন',
+    banglaName: 'London Express Racing Green',
     inspiredBy: 'London Express (MAN Sleeper Coaches)',
     primaryColor: '#064e3b',
     primaryHover: '#022c22',
@@ -200,7 +200,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'saudia-arabian-gold',
     name: 'Saudia Gold Heritage',
-    banglaName: 'সৌদিয়া গোল্ড হেরিটেজ',
+    banglaName: 'Saudia Gold Heritage',
     inspiredBy: 'Saudia Coach Service (Chittagong Corridor)',
     primaryColor: '#78350f',
     primaryHover: '#451a03',
@@ -218,7 +218,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 'royal-express-violet',
     name: 'Royal Express Deep Electric',
-    banglaName: 'রয়্যাল এক্সপ্রেস ডিপ ভায়োলেট',
+    banglaName: 'Royal Express Deep Violet',
     inspiredBy: 'Royal Express (Kushtia - Dhaka Corridor)',
     primaryColor: '#4c1d95',
     primaryHover: '#3b0764',
@@ -236,7 +236,7 @@ export const HOMEPAGE_THEMES: HomepageTheme[] = [
   {
     id: 's-alam-steel-blue',
     name: 'S. Alam Coastal Steel',
-    banglaName: 'এস. আলম সার্ভিস স্টিল ব্লু',
+    banglaName: 'S. Alam Service Steel Blue',
     inspiredBy: 'S. Alam Service (High-Frequency Lines)',
     primaryColor: '#1e40af',
     primaryHover: '#1e3a8a',
@@ -261,7 +261,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'lsp-standard-half-a4',
     name: 'Lal Sabuj Official Half-A4 (Standard)',
-    banglaName: 'লাল সবুজ অফিসিয়াল হাফ-এ৪ (স্ট্যান্ডার্ড)',
+    banglaName: 'Lal Sabuj Official Half-A4 (Standard)',
     operatorGroup: 'Lal Sabuj Paribahan',
     styleClass: 'template-lsp-standard',
     borderStyle: 'solid-black',
@@ -274,7 +274,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'lsp-compact-express',
     name: 'Lal Sabuj Compact Turnaround',
-    banglaName: 'লাল সবুজ কমপ্যাক্ট টার্নঅ্যারাউন্ড',
+    banglaName: 'Lal Sabuj Compact Turnaround',
     operatorGroup: 'Lal Sabuj Paribahan',
     styleClass: 'template-lsp-compact',
     borderStyle: 'solid-black',
@@ -287,7 +287,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'lsp-executive-double-deck',
     name: 'Lal Sabuj Double-Deck VIP Roster',
-    banglaName: 'লাল সবুজ ডাবল-ডেক ভিআইপি রোস্টার',
+    banglaName: 'Lal Sabuj Double-Deck VIP Roster',
     operatorGroup: 'Lal Sabuj Paribahan',
     styleClass: 'template-lsp-double-deck',
     borderStyle: 'double-black',
@@ -300,7 +300,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'lsp-night-coach-chalan',
     name: 'Lal Sabuj Night Long-Haul Roster',
-    banglaName: 'লাল সবুজ নাইট লং-হল রোস্টার',
+    banglaName: 'Lal Sabuj Night Long-Haul Roster',
     operatorGroup: 'Lal Sabuj Paribahan',
     styleClass: 'template-lsp-night',
     borderStyle: 'heavy-bordered',
@@ -313,7 +313,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'lsp-minimal-ledger',
     name: 'Lal Sabuj Clean Monolithic Ledger',
-    banglaName: 'লাল সবুজ ক্লিন মোনোলিথিক লেজার',
+    banglaName: 'Lal Sabuj Clean Monolithic Ledger',
     operatorGroup: 'Lal Sabuj Paribahan',
     styleClass: 'template-lsp-minimal',
     borderStyle: 'thin-slate',
@@ -328,7 +328,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'gl-double-decker-suite',
     name: 'Green Line Scania Suite Format',
-    banglaName: 'গ্রিন লাইন স্ক্যানিয়া সুইট ফরম্যাট',
+    banglaName: 'Green Line Scania Suite Format',
     operatorGroup: 'Green Line Style',
     styleClass: 'template-gl-scania',
     borderStyle: 'double-black',
@@ -341,7 +341,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'gl-dhaka-ctg-corridor',
     name: 'Green Line Expressway Express',
-    banglaName: 'গ্রিন লাইন এক্সপ্রেসওয়ে এক্সপ্রেস',
+    banglaName: 'Green Line Expressway Express',
     operatorGroup: 'Green Line Style',
     styleClass: 'template-gl-expressway',
     borderStyle: 'solid-black',
@@ -354,7 +354,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'gl-international-benapole',
     name: 'Green Line Transit Manifest',
-    banglaName: 'গ্রিন লাইন ট্রানজিট ম্যানিফেস্ট',
+    banglaName: 'Green Line Transit Manifest',
     operatorGroup: 'Green Line Style',
     styleClass: 'template-gl-transit',
     borderStyle: 'heavy-bordered',
@@ -367,7 +367,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'gl-terminal-counter-summary',
     name: 'Green Line Central Accounts Reconciled',
-    banglaName: 'গ্রিন লাইন অ্যাকাউন্টস রিকনসাইল্ড',
+    banglaName: 'Green Line Accounts Reconciled',
     operatorGroup: 'Green Line Style',
     styleClass: 'template-gl-accounts',
     borderStyle: 'solid-black',
@@ -382,7 +382,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'shohagh-comfort-class',
     name: 'Shohagh Scania Comfort Roster',
-    banglaName: 'সোহাগ স্ক্যানিয়া কমফোর্ট রোস্টার',
+    banglaName: 'Shohagh Scania Comfort Roster',
     operatorGroup: 'Shohagh Style',
     styleClass: 'template-shohagh-comfort',
     borderStyle: 'solid-black',
@@ -395,7 +395,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'shohagh-benapole-sleeper',
     name: 'Shohagh Sleeper Coach Roster',
-    banglaName: 'সোহাগ স্লিপার কোচ রোস্টার',
+    banglaName: 'Shohagh Sleeper Coach Roster',
     operatorGroup: 'Shohagh Style',
     styleClass: 'template-shohagh-sleeper',
     borderStyle: 'double-black',
@@ -408,7 +408,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'shohagh-counter-collection',
     name: 'Shohagh Station Master Manifest',
-    banglaName: 'সোহাগ স্টেশন মাস্টার ম্যানিফেস্ট',
+    banglaName: 'Shohagh Station Master Manifest',
     operatorGroup: 'Shohagh Style',
     styleClass: 'template-shohagh-master',
     borderStyle: 'heavy-bordered',
@@ -421,7 +421,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'shohagh-vintage-typewriter',
     name: 'Shohagh Heritage Typewriter Ledger',
-    banglaName: 'সোহাগ হেরিটেজ টাইপরাইটার লেজার',
+    banglaName: 'Shohagh Heritage Typewriter Ledger',
     operatorGroup: 'Shohagh Style',
     styleClass: 'template-shohagh-vintage',
     borderStyle: 'dashed-vintage',
@@ -436,7 +436,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'hanif-fleet-master',
     name: 'Hanif High-Density Fleet Master',
-    banglaName: 'হানিফ হাই-ডেনসিটি ফ্লিট মাস্টার',
+    banglaName: 'Hanif High-Density Fleet Master',
     operatorGroup: 'Hanif Style',
     styleClass: 'template-hanif-master',
     borderStyle: 'solid-black',
@@ -449,7 +449,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'hanif-sayedabad-division',
     name: 'Hanif Sayedabad Terminal Dispatch',
-    banglaName: 'হানিফ সায়েদাবাদ টার্মিনাল ডিসপ্যাচ',
+    banglaName: 'Hanif Sayedabad Terminal Dispatch',
     operatorGroup: 'Hanif Style',
     styleClass: 'template-hanif-sayedabad',
     borderStyle: 'heavy-bordered',
@@ -462,7 +462,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'hanif-north-bengal',
     name: 'Hanif North Bengal Corridor Waybill',
-    banglaName: 'হানিফ নর্থ বেঙ্গল করিডোর ওয়েবিল',
+    banglaName: 'Hanif North Bengal Corridor Waybill',
     operatorGroup: 'Hanif Style',
     styleClass: 'template-hanif-north',
     borderStyle: 'solid-black',
@@ -475,7 +475,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'hanif-economy-fast',
     name: 'Hanif Economy Fast Chalan',
-    banglaName: 'হানিফ ইকোনমি ফাস্ট চালান',
+    banglaName: 'Hanif Economy Fast Chalan',
     operatorGroup: 'Hanif Style',
     styleClass: 'template-hanif-fast',
     borderStyle: 'thin-slate',
@@ -490,7 +490,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'shyamoli-interstate-manifest',
     name: 'Shyamoli NR Cross-District Waybill',
-    banglaName: 'শ্যামলী এন.আর ক্রস-ডিস্ট্রিক্ট ওয়েবিল',
+    banglaName: 'Shyamoli N.R Cross-District Waybill',
     operatorGroup: 'Shyamoli Style',
     styleClass: 'template-shyamoli-waybill',
     borderStyle: 'double-black',
@@ -503,7 +503,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'shyamoli-arambagh-central',
     name: 'Shyamoli Arambagh Main Counter Sheet',
-    banglaName: 'শ্যামলী আরামবাগ মেইন কাউন্টার শিট',
+    banglaName: 'Shyamoli Arambagh Main Counter Sheet',
     operatorGroup: 'Shyamoli Style',
     styleClass: 'template-shyamoli-arambagh',
     borderStyle: 'solid-black',
@@ -516,7 +516,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'shyamoli-sylhet-line',
     name: 'Shyamoli Highway Passenger Roster',
-    banglaName: 'শ্যামলী হাইওয়ে প্যাসেঞ্জার রোস্টার',
+    banglaName: 'Shyamoli Highway Passenger Roster',
     operatorGroup: 'Shyamoli Style',
     styleClass: 'template-shyamoli-highway',
     borderStyle: 'heavy-bordered',
@@ -529,7 +529,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'shyamoli-courier-combo',
     name: 'Shyamoli Passenger & Courier Combined',
-    banglaName: 'শ্যামলী যাত্রী ও পার্সেল সমন্বিত চালান',
+    banglaName: 'Shyamoli Combined Passenger & Parcel Manifest',
     operatorGroup: 'Shyamoli Style',
     styleClass: 'template-shyamoli-parcel',
     borderStyle: 'solid-black',
@@ -544,7 +544,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'ena-sylhet-turnaround',
     name: 'Ena Mohakhali Rapid Turnaround',
-    banglaName: 'এনা মহাখালী র‍্যাপিড টার্নঅ্যারাউন্ড',
+    banglaName: 'Ena Mohakhali Rapid Turnaround',
     operatorGroup: 'Ena Transport Style',
     styleClass: 'template-ena-rapid',
     borderStyle: 'solid-black',
@@ -557,7 +557,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'ena-expressway-chalan',
     name: 'Ena Express Dhaka-Noakhali Chalan',
-    banglaName: 'এনা এক্সপ্রেস ঢাকা-নোয়াখালী চালান',
+    banglaName: 'Ena Express Dhaka-Noakhali Chalan',
     operatorGroup: 'Ena Transport Style',
     styleClass: 'template-ena-express',
     borderStyle: 'heavy-bordered',
@@ -570,7 +570,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'ena-fuel-audit-sheet',
     name: 'Ena Fleet Operations & Fuel Audit',
-    banglaName: 'এনা ফ্লিট অপারেশনস ও ফুয়েল অডিট',
+    banglaName: 'Ena Fleet Operations & Fuel Audit',
     operatorGroup: 'Ena Transport Style',
     styleClass: 'template-ena-fuel',
     borderStyle: 'double-black',
@@ -585,7 +585,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'saintmartin-hyundai-universe',
     name: 'Saintmartin Hyundai Universe VIP Roster',
-    banglaName: 'সেন্টমার্টিন হুন্দাই ইউনিভার্স ভিআইপি',
+    banglaName: 'Saintmartin Hyundai Universe VIP',
     operatorGroup: 'Saintmartin Style',
     styleClass: 'template-sm-hyundai',
     borderStyle: 'double-black',
@@ -598,7 +598,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'saintmartin-sleeper-suite',
     name: 'Saintmartin Executive Sleeper Roster',
-    banglaName: 'সেন্টমার্টিন এক্সিকিউটিভ স্লিপার রোস্টার',
+    banglaName: 'Saintmartin Executive Sleeper Roster',
     operatorGroup: 'Saintmartin Style',
     styleClass: 'template-sm-sleeper',
     borderStyle: 'solid-black',
@@ -611,7 +611,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'saintmartin-marine-drive',
     name: 'Saintmartin Marine Drive Express',
-    banglaName: 'সেন্টমার্টিন মেরিন ড্রাইভ এক্সপ্রেস',
+    banglaName: 'Saintmartin Marine Drive Express',
     operatorGroup: 'Saintmartin Style',
     styleClass: 'template-sm-marine',
     borderStyle: 'heavy-bordered',
@@ -626,7 +626,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'desh-platinum-suite',
     name: 'Desh Travels 1+2 Platinum Suite',
-    banglaName: 'দেশ ট্রাভেলস ১+২ প্ল্যাটিনাম সুইট',
+    banglaName: 'Desh Travels 1+2 Platinum Suite',
     operatorGroup: 'Desh Travels Style',
     styleClass: 'template-desh-platinum',
     borderStyle: 'double-black',
@@ -639,7 +639,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'london-express-man',
     name: 'London Express MAN Luxury Sleeper',
-    banglaName: 'লন্ডন এক্সপ্রেস এমএএন স্লিপার চালান',
+    banglaName: 'London Express MAN Sleeper Chalan',
     operatorGroup: 'London Express Style',
     styleClass: 'template-london-sleeper',
     borderStyle: 'heavy-bordered',
@@ -652,7 +652,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'desh-rajshahi-corridor',
     name: 'Desh Silk Route Fast Manifest',
-    banglaName: 'দেশ সিল্ক রুট ফাস্ট ম্যানিফেস্ট',
+    banglaName: 'Desh Silk Route Fast Manifest',
     operatorGroup: 'Desh Travels Style',
     styleClass: 'template-desh-silk',
     borderStyle: 'solid-black',
@@ -667,7 +667,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'saudia-ctg-traditional',
     name: 'Saudia Coach Traditional Ledger',
-    banglaName: 'সৌদিয়া কোচ ট্র্যাডিশনাল লেজার',
+    banglaName: 'Saudia Coach Traditional Ledger',
     operatorGroup: 'Saudia Style',
     styleClass: 'template-saudia-traditional',
     borderStyle: 'solid-black',
@@ -680,7 +680,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'salam-high-frequency',
     name: 'S. Alam High-Volume Station Sheet',
-    banglaName: 'এস. আলম হাই-ভলিউম স্টেশন শিট',
+    banglaName: 'S. Alam High-Volume Station Sheet',
     operatorGroup: 'S. Alam Style',
     styleClass: 'template-salam-volume',
     borderStyle: 'heavy-bordered',
@@ -693,7 +693,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'unique-service-chalan',
     name: 'Unique Service Operational Chalan',
-    banglaName: 'ইউনিক সার্ভিস অপারেশনাল চালান',
+    banglaName: 'Unique Service Operational Chalan',
     operatorGroup: 'Unique Service Style',
     styleClass: 'template-unique-standard',
     borderStyle: 'solid-black',
@@ -708,7 +708,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'special-thermal-slip',
     name: 'Thermal Receipt Mini Manifest (4-Inch)',
-    banglaName: 'থার্মাল স্লিপ মিনি ম্যানিফেস্ট (৪-ইঞ্চি)',
+    banglaName: 'Thermal Slip Mini Manifest (4-inch)',
     operatorGroup: 'Specialized Formats',
     styleClass: 'template-thermal-mini',
     borderStyle: 'dashed-vintage',
@@ -721,7 +721,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'special-landscape-wide',
     name: 'Landscape Half-A4 Wide-Spread',
-    banglaName: 'ল্যান্ডস্কেপ হাফ-এ৪ ওয়াইড-স্প্রেড',
+    banglaName: 'Landscape Half-A4 Wide-Spread',
     operatorGroup: 'Specialized Formats',
     styleClass: 'template-landscape-wide',
     borderStyle: 'double-black',
@@ -734,7 +734,7 @@ export const CHALAN_TEMPLATES: ChalanTemplate[] = [
   {
     id: 'special-government-protocol',
     name: 'Official Executive Protocol Chalan',
-    banglaName: 'সরকারি এক্সিকিউটিভ প্রোটোকল চালান',
+    banglaName: 'Official Executive Protocol Chalan',
     operatorGroup: 'Specialized Formats',
     styleClass: 'template-gov-protocol',
     borderStyle: 'heavy-bordered',

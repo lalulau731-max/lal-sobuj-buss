@@ -95,11 +95,11 @@ export const ChalanDimensionConfigModal: React.FC<ChalanDimensionConfigModalProp
               <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
                 <span>Chalan Print Dimension Settings</span>
                 <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
-                  Half-A4 Base Engine
+                  Single A4 Portrait (Top Half)
                 </span>
               </h2>
               <p className="text-xs text-slate-400">
-                Adjust custom printing height starting from half A4 sheet in half-inch increments
+                Configured for a single A4 page in portrait mode, automatically scaled to fit strictly within the top half.
               </p>
             </div>
           </div>

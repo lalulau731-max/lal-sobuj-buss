@@ -25,7 +25,7 @@ interface InlineSeatPlannerProps {
     updates: Record<string, Partial<Seat>>,
     meta: {
       action: 'sold' | 'reserved' | 'released';
-      source: 'counter' | 'mobile_app' | 'admin';
+      source: 'counter' | 'mobile_app' | 'online_web' | 'phone_call';
       passengerName: string;
       counterOrUser: string;
     }

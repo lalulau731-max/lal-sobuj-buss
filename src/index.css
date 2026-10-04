@@ -28,32 +28,36 @@
 
 /* ============================================================= */
 /* CSS PRINT STYLESHEET FOR BUS TICKETING WEB APPLICATION        */
-/* Target Paper Size: Half of an A4 sheet + 0.5 inches           */
-/* Dimensions: 210mm (8.27in) width × 161.2mm (6.35in) height    */
-/* Guaranteed Single Page with Dynamically Scaled Seat Matrix    */
+/* Target Paper Size: Single A4 Sheet in Portrait Mode           */
+/* Dimensions: 210mm (8.27in) width × 297mm (11.69in) height     */
+/* Strictly contained within top half (< 144mm height)           */
+/* Automatic scaling based on active seat count                  */
 /* ============================================================= */
 @media print {
   @page {
-    /* Half of A4 (148.5mm) + 0.5 inches (12.7mm) = 161.2mm vertical height × 210mm width */
-    size: 210mm 161.2mm;
-    margin: 2.5mm 4mm 2.5mm 4mm;
+    /* Single A4 page in portrait mode */
+    size: A4 portrait;
+    margin: 3.5mm 5mm 3.5mm 5mm;
   }
 
-  /* Reset all canvas to fit strictly within half-A4 + 0.5in custom paper size */
+  /* Reset all canvas to fit on a single A4 portrait page */
   html, body {
     background: #ffffff !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
     width: 210mm !important;
-    height: 161.2mm !important;
-    max-height: 161.2mm !important;
+    height: 297mm !important;
+    max-height: 297mm !important;
     overflow: hidden !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    page-break-inside: avoid !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Reset root containers to avoid 100vh forcing unwanted page breaks */
+  /* Reset root containers to avoid unwanted page breaks */
   #root,
   #root > div {
     margin: 0 !important;
@@ -61,9 +65,10 @@
     width: 100% !important;
     min-height: 0 !important;
     height: auto !important;
-    max-height: 161.2mm !important;
+    max-height: 297mm !important;
     overflow: hidden !important;
     background: transparent !important;
+    page-break-after: avoid !important;
   }
 
   /* ------------------------------------------------------------- */
@@ -158,15 +163,16 @@
   }
 
   /* ------------------------------------------------------------- */
-  /* PRINTABLE CHALAN CONTAINER - FIT HALF OF A4 + 0.5 INCHES      */
-  /* Custom Paper Size: 210mm (8.27in) × 161.2mm (6.35in)          */
+  /* PRINTABLE CHALAN CONTAINER - FIT WITHIN TOP HALF OF A4 PAGE   */
+  /* Paper Size: Single A4 Portrait (210mm × 297mm)                */
+  /* Top Half Height: < 144mm (148.5mm half-A4 minus margins)      */
   /* ------------------------------------------------------------- */
   #printable-chalan {
     display: block !important;
     position: relative !important;
     width: 100% !important;
-    max-width: 202mm !important; /* Printable width within 4mm margins on 210mm paper */
-    max-height: 155.5mm !important; /* Strictly fits within 161.2mm custom paper height */
+    max-width: 200mm !important; /* Printable width within 5mm margins on 210mm paper */
+    max-height: 142mm !important; /* Strictly fits within top half (under 144mm limit) */
     margin: 0 auto !important;
     padding: 1.5mm 3mm !important;
     box-sizing: border-box !important;
@@ -181,13 +187,13 @@
     break-after: avoid !important;
     break-before: avoid !important;
     overflow: hidden !important;
-    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
   }
 
   #printable-chalan * {
-    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     color: #000000 !important;
     border-color: #000000 !important;
     box-shadow: none !important;
@@ -399,13 +405,14 @@
 
   /* ------------------------------------------------------------- */
   /* RESPONSIVE DYNAMIC FONT SIZING & ROW EXPANSION                */
-  /* Expands to fill available half-page space based on seat load  */
+  /* Automatically scales larger or smaller based on seat count     */
+  /* to fill and cover the top half of the A4 page (< 142mm height) */
   /* ------------------------------------------------------------- */
 
-  /* 1. SPACIOUS MODE (Low content: <= 10 seats) */
-  /* Significantly expands fonts and row heights to fill half-A4 cleanly */
+  /* 1. SPACIOUS MODE (Low content: 1 - 8 seats) */
+  /* Significantly expands fonts and row heights to fill top half cleanly */
   #printable-chalan.chalan-spacious {
-    padding: 3mm 4.5mm !important;
+    padding: 3mm 4mm !important;
   }
   #printable-chalan.chalan-spacious .chalan-header {
     padding-bottom: 3.5px !important;
@@ -415,12 +422,12 @@
   #printable-chalan.chalan-spacious .chalan-logo-img,
   #printable-chalan.chalan-spacious .chalan-logo img,
   #printable-chalan.chalan-spacious .chalan-logo svg {
-    max-height: 58px !important;
-    min-height: 44px !important;
+    max-height: 54px !important;
+    min-height: 42px !important;
     max-width: 68mm !important;
   }
   #printable-chalan.chalan-spacious .chalan-brand-title {
-    font-size: 18px !important;
+    font-size: 19px !important;
   }
   #printable-chalan.chalan-spacious .chalan-subtitle-badge {
     font-size: 9.5px !important;
@@ -440,16 +447,16 @@
   }
   #printable-chalan.chalan-spacious table th {
     font-size: 10px !important;
-    padding: 3.5px 4.5px !important;
+    padding: 3.5px 5px !important;
   }
   #printable-chalan.chalan-spacious table td {
     font-size: 10px !important;
-    padding: 3.5px 4.5px !important;
+    padding: 3.5px 5px !important;
     line-height: 1.35 !important;
   }
   #printable-chalan.chalan-spacious .chalan-due-badge {
-    font-size: 9px !important;
-    padding: 1.5px 4.5px !important;
+    font-size: 9.5px !important;
+    padding: 1.5px 5px !important;
   }
   #printable-chalan.chalan-spacious .chalan-summary-box {
     padding: 3.5px 6px !important;
@@ -462,17 +469,20 @@
     font-size: 10.5px !important;
   }
 
-  /* 2. NORMAL MODE (Moderate content: 11 - 18 seats) */
+  /* 2. NORMAL MODE (Moderate content: 9 - 16 seats) */
+  #printable-chalan.chalan-normal {
+    padding: 2.5mm 3.5mm !important;
+  }
   #printable-chalan.chalan-normal .chalan-logo,
   #printable-chalan.chalan-normal .chalan-logo-img,
   #printable-chalan.chalan-normal .chalan-logo img,
   #printable-chalan.chalan-normal .chalan-logo svg {
-    max-height: 50px !important;
+    max-height: 46px !important;
     min-height: 36px !important;
     max-width: 60mm !important;
   }
   #printable-chalan.chalan-normal .chalan-brand-title {
-    font-size: 16px !important;
+    font-size: 17px !important;
   }
   #printable-chalan.chalan-normal .chalan-counter-location {
     font-size: 13.5px !important;
@@ -484,42 +494,109 @@
     font-size: 10.5px !important;
   }
   #printable-chalan.chalan-normal table th {
-    font-size: 9.5px !important;
+    font-size: 9.2px !important;
     padding: 2.5px 4px !important;
   }
   #printable-chalan.chalan-normal table td {
-    font-size: 9.2px !important;
-    padding: 2.2px 4px !important;
+    font-size: 9px !important;
+    padding: 2.5px 4px !important;
     line-height: 1.25 !important;
   }
+  #printable-chalan.chalan-normal .chalan-due-badge {
+    font-size: 8.8px !important;
+    padding: 1px 4px !important;
+  }
+  #printable-chalan.chalan-normal .chalan-summary-box {
+    padding: 2.5px 5px !important;
+    font-size: 9.5px !important;
+  }
 
-  /* 3. DENSE MODE (High content: 19 - 26 seats) */
+  /* 3. COMPACT MODE (Medium-High content: 17 - 24 seats) */
+  #printable-chalan.chalan-compact {
+    padding: 2mm 3mm !important;
+  }
+  #printable-chalan.chalan-compact .chalan-logo,
+  #printable-chalan.chalan-compact .chalan-logo-img,
+  #printable-chalan.chalan-compact .chalan-logo img,
+  #printable-chalan.chalan-compact .chalan-logo svg {
+    max-height: 40px !important;
+    min-height: 32px !important;
+    max-width: 54mm !important;
+  }
+  #printable-chalan.chalan-compact .chalan-brand-title {
+    font-size: 15px !important;
+  }
+  #printable-chalan.chalan-compact .chalan-counter-location {
+    font-size: 12px !important;
+  }
+  #printable-chalan.chalan-compact .chalan-meta-cell {
+    padding: 1.8px 3.5px !important;
+  }
+  #printable-chalan.chalan-compact .chalan-meta-value {
+    font-size: 9.5px !important;
+  }
+  #printable-chalan.chalan-compact table th {
+    font-size: 8.5px !important;
+    padding: 2px 3.5px !important;
+  }
+  #printable-chalan.chalan-compact table td {
+    font-size: 8.2px !important;
+    padding: 1.8px 3.5px !important;
+    line-height: 1.18 !important;
+  }
+  #printable-chalan.chalan-compact .chalan-due-badge {
+    font-size: 8px !important;
+    padding: 0.8px 3.5px !important;
+  }
+  #printable-chalan.chalan-compact .chalan-summary-box {
+    padding: 2px 4.5px !important;
+    font-size: 8.8px !important;
+  }
+
+  /* 4. DENSE MODE (High content: 25 - 32 seats) */
+  #printable-chalan.chalan-dense {
+    padding: 1.5mm 2.5mm !important;
+  }
   #printable-chalan.chalan-dense .chalan-logo,
   #printable-chalan.chalan-dense .chalan-logo-img,
   #printable-chalan.chalan-dense .chalan-logo img,
   #printable-chalan.chalan-dense .chalan-logo svg {
-    max-height: 42px !important;
-    min-height: 32px !important;
+    max-height: 34px !important;
+    min-height: 26px !important;
   }
   #printable-chalan.chalan-dense .chalan-brand-title {
-    font-size: 14px !important;
+    font-size: 13.5px !important;
+  }
+  #printable-chalan.chalan-dense .chalan-counter-location {
+    font-size: 11px !important;
+  }
+  #printable-chalan.chalan-dense .chalan-meta-cell {
+    padding: 1.2px 2.5px !important;
   }
   #printable-chalan.chalan-dense .chalan-meta-value {
-    font-size: 9px !important;
+    font-size: 8.5px !important;
   }
   #printable-chalan.chalan-dense table th {
-    font-size: 8px !important;
-    padding: 1.5px 3px !important;
-    line-height: 1.15 !important;
+    font-size: 7.5px !important;
+    padding: 1.2px 2.5px !important;
+    line-height: 1.1 !important;
   }
   #printable-chalan.chalan-dense table td {
-    font-size: 7.8px !important;
-    padding: 1.2px 3px !important;
-    line-height: 1.18 !important;
+    font-size: 7.2px !important;
+    padding: 1px 2.5px !important;
+    line-height: 1.1 !important;
+  }
+  #printable-chalan.chalan-dense .chalan-due-badge {
+    font-size: 7px !important;
+    padding: 0.5px 2.5px !important;
+  }
+  #printable-chalan.chalan-dense .chalan-summary-box {
+    padding: 1.5px 3.5px !important;
+    font-size: 8px !important;
   }
 
-  /* 4. ULTRA-DENSE MODE (Full bus capacity: 27 - 43+ seats) */
-  /* Keeps full coach manifests contained within half of an A4 page without spillover */
+  /* 5. ULTRA-DENSE MODE (Full bus capacity: 33 - 45+ seats) */
+  /* Keeps full coach manifests contained within top half of single A4 page without spillover */
   #printable-chalan.chalan-ultra-dense {
     padding: 1mm 2mm !important;
   }
@@ -527,27 +604,27 @@
   #printable-chalan.chalan-ultra-dense .chalan-logo-img,
   #printable-chalan.chalan-ultra-dense .chalan-logo img,
   #printable-chalan.chalan-ultra-dense .chalan-logo svg {
-    max-height: 36px !important;
-    min-height: 28px !important;
+    max-height: 28px !important;
+    min-height: 22px !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-brand-title {
-    font-size: 12.5px !important;
+    font-size: 12px !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-subtitle-badge {
-    font-size: 7px !important;
+    font-size: 6.8px !important;
     padding: 0 3px !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-counter-location {
-    font-size: 10px !important;
+    font-size: 9.5px !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-meta-cell {
-    padding: 1px 2px !important;
+    padding: 0.8px 2px !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-meta-label {
-    font-size: 6px !important;
+    font-size: 5.8px !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-meta-value {
-    font-size: 8px !important;
+    font-size: 7.8px !important;
   }
   #printable-chalan.chalan-ultra-dense table th {
     font-size: 6.8px !important;
@@ -557,15 +634,15 @@
   #printable-chalan.chalan-ultra-dense table td {
     font-size: 6.5px !important;
     padding: 0.4px 2px !important;
-    line-height: 1.08 !important;
+    line-height: 1.05 !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-due-badge {
-    font-size: 6.2px !important;
+    font-size: 6px !important;
     padding: 0 2px !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-summary-box {
     padding: 1px 3px !important;
-    font-size: 7.5px !important;
+    font-size: 7.2px !important;
   }
 
   /* ------------------------------------------------------------- */

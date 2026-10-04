@@ -256,11 +256,15 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
     document.body.removeChild(link);
   };
 
-  const densityClass = manifestSeats.length <= 10 
+  // Automatic scaling density based on seat count
+  // Scales content larger or smaller to ensure everything covers and aligns within top half of A4 page
+  const densityClass = manifestSeats.length <= 8 
     ? 'chalan-spacious' 
-    : manifestSeats.length <= 18 
+    : manifestSeats.length <= 16 
     ? 'chalan-normal' 
-    : manifestSeats.length <= 26 
+    : manifestSeats.length <= 24 
+    ? 'chalan-compact' 
+    : manifestSeats.length <= 32 
     ? 'chalan-dense' 
     : 'chalan-ultra-dense';
 
@@ -353,16 +357,30 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
           </div>
         </div>
 
-        {/* Dynamic Print Height Stylesheet Injection */}
+        {/* Dynamic Print Stylesheet: Single A4 Page in Portrait Mode, Content within Top Half */}
         <style>{`
           @media print {
             @page {
-              size: ${printConfig.widthInches}in ${printConfig.heightInches}in;
-              margin: ${printConfig.marginTopMm}mm ${printConfig.marginRightMm}mm ${printConfig.marginBottomMm}mm ${printConfig.marginLeftMm}mm;
+              size: A4 portrait;
+              margin: ${printConfig.marginTopMm || 3.5}mm ${printConfig.marginRightMm || 5}mm ${printConfig.marginBottomMm || 3.5}mm ${printConfig.marginLeftMm || 5}mm;
+            }
+            html, body {
+              width: 210mm !important;
+              height: 297mm !important;
+              max-height: 297mm !important;
+              overflow: hidden !important;
+              page-break-after: avoid !important;
+              page-break-before: avoid !important;
+              page-break-inside: avoid !important;
             }
             #printable-chalan {
-              max-height: ${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm !important;
+              max-width: 200mm !important;
+              max-height: 142mm !important; /* Strictly top half of single A4 portrait page */
               box-sizing: border-box !important;
+              overflow: hidden !important;
+              page-break-inside: avoid !important;
+              page-break-after: avoid !important;
+              break-inside: avoid !important;
             }
           }
         `}</style>
@@ -597,7 +615,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
               <div className="chalan-perforation mt-3 pt-1 border-t border-dashed border-black text-center text-[8.5px] text-black flex items-center justify-between font-sans font-bold">
                 <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
                 <span className="font-black text-black uppercase tracking-wider px-2 font-sans">
-                  OFFICIAL TRIP MANIFEST ({printConfig.widthInches}" × {printConfig.heightInches}" • {Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm)
+                  TOP HALF MANIFEST (A4 PORTRAIT • 210mm × 148.5mm)
                 </span>
                 <span>✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</span>
               </div>

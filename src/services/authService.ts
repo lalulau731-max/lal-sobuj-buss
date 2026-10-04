@@ -214,7 +214,7 @@ class AuthService {
     const cleanPass = password.trim();
 
     if (!cleanEmail || !cleanPass) {
-      return { success: false, error: 'অনুগ্রহ করে অ্যাডমিন ইমেইল এবং পাসওয়ার্ড প্রদান করুন।' };
+      return { success: false, error: 'Please enter both admin email and password.' };
     }
 
     try {
@@ -252,14 +252,14 @@ class AuthService {
           if (createErr.code === 'auth/email-already-in-use') {
             return { 
               success: false, 
-              error: 'পাসওয়ার্ড ভুল হয়েছে। এই ইমেইলের জন্য সঠিক পাসওয়ার্ড দিন।' 
+              error: 'Incorrect password for this email. Please check your credentials.' 
             };
           }
 
           if (createErr.code === 'auth/weak-password') {
             return { 
               success: false, 
-              error: 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।' 
+              error: 'Password must be at least 6 characters long.' 
             };
           }
 
@@ -292,18 +292,18 @@ class AuthService {
         }
       }
 
-      // Human-friendly localized Firebase error codes
-      let userMsg = 'লগইন ব্যর্থ হয়েছে। সঠিক ইমেইল ও পাসওয়ার্ড দিন।';
+      // Human-friendly clear English Firebase error codes
+      let userMsg = 'Login failed. Please enter a valid email and password.';
       if (firebaseErr.code === 'auth/wrong-password' || firebaseErr.code === 'auth/invalid-credential') {
-        userMsg = 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়। অনুগ্রহ করে পুনরায় চেষ্টা করুন।';
+        userMsg = 'Incorrect email or password. Please verify your credentials and try again.';
       } else if (firebaseErr.code === 'auth/user-not-found') {
-        userMsg = 'এই ইমেইলের কোনো অ্যাডমিন অ্যাকাউন্ট পাওয়া যায়নি।';
+        userMsg = 'No admin account found with this email.';
       } else if (firebaseErr.code === 'auth/too-many-requests') {
-        userMsg = 'অতিরিক্ত ব্যর্থ চেষ্টার কারণে সাময়িকভাবে স্থগিত করা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।';
+        userMsg = 'Access temporarily suspended due to multiple failed attempts. Please try again shortly.';
       } else if (firebaseErr.code === 'auth/invalid-email') {
-        userMsg = 'ইমেইলের গঠন সঠিক নয়। একটি সঠিক ইমেইল ঠিকানা দিন।';
+        userMsg = 'Invalid email address format. Please enter a valid email address.';
       } else if (firebaseErr.code === 'auth/network-request-failed') {
-        userMsg = 'নেটওয়ার্ক সংযোগ সমস্যা। ইন্টারনেট সংযোগ পরীক্ষা করুন।';
+        userMsg = 'Network connection failed. Please check your internet connectivity.';
       }
 
       return { success: false, error: userMsg };
@@ -351,13 +351,13 @@ class AuthService {
       return { success: true, admin: newAdmin };
     } catch (err: any) {
       console.warn('Firebase registration error:', err.code, err.message);
-      let msg = 'নিবন্ধন ব্যর্থ হয়েছে।';
+      let msg = 'Registration failed.';
       if (err.code === 'auth/email-already-in-use') {
-        msg = 'এই ইমেইল দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। লগইন করুন।';
+        msg = 'An account already exists with this email address. Please sign in instead.';
       } else if (err.code === 'auth/weak-password') {
-        msg = 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।';
+        msg = 'Password must be at least 6 characters long.';
       } else if (err.code === 'auth/invalid-email') {
-        msg = 'ইমেইল ফরম্যাট সঠিক নয়।';
+        msg = 'Invalid email address format.';
       } else if (err.message) {
         msg = err.message;
       }

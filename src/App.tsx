@@ -176,15 +176,21 @@ export default function App() {
     tripId: string,
     updates: Record<string, Partial<Seat>>,
     meta: {
-      action: 'sold' | 'reserved';
-      source: 'counter';
-      passengerName: string;
+      action: 'sold' | 'reserved' | 'released';
+      source: 'counter' | 'mobile_app' | 'online_web' | 'phone_call';
+      passengerName?: string;
       counterOrUser: string;
     }
   ) => {
     firebaseSync.updateSeats(tripId, updates, meta);
     const count = Object.keys(updates).length;
-    showToast(`Successfully confirmed ${count} seat(s) for Coach ${tripId}!`, 'success');
+    const isRelease = meta.action === 'released';
+    showToast(
+      isRelease
+        ? `Successfully unlocked/released ${count} seat(s) for Coach ${tripId}!`
+        : `Successfully confirmed ${count} seat(s) for Coach ${tripId}!`,
+      'success'
+    );
   };
 
   // Simulator helper: Book 1 or 2 seats from mobile app

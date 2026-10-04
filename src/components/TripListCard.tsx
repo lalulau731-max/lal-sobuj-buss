@@ -13,8 +13,8 @@ interface TripListCardProps {
   onConfirmBooking: (
     updates: Record<string, Partial<Seat>>,
     meta: {
-      action: 'sold' | 'reserved';
-      source: 'counter';
+      action: 'sold' | 'reserved' | 'released';
+      source: 'counter' | 'mobile_app' | 'online_web' | 'phone_call';
       passengerName: string;
       counterOrUser: string;
     }

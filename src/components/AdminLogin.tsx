@@ -1,36 +1,33 @@
 import React, { useState } from 'react';
 import { 
+  Bus, 
   Lock, 
   Mail, 
-  Eye, 
-  EyeOff, 
   ShieldCheck, 
-  Bus, 
   AlertCircle, 
   CheckCircle2, 
   ArrowRight,
+  Eye,
+  EyeOff,
   Check
 } from 'lucide-react';
 import { authService, AdminUser } from '../services/authService';
-
-// Direct import of generated assets
-import lalSobujBusImg from '../assets/images/lal_sobuj_bus_1790950083304.jpg';
 import lalSobujLogoImg from '../assets/images/lal_sobuj_logo_1790950102649.jpg';
+import lalSobujBusImg from '../assets/images/lal_sobuj_bus_1790950083304.jpg';
 
 interface AdminLoginProps {
   onLoginSuccess: (admin: AdminUser) => void;
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string>('eqtiarwifi@gmail.com');
+  const [password, setPassword] = useState<string>('lal123456');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [rememberMe, setRememberMe] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Submit Handler for Sign-In
   const handleSubmitLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
@@ -40,15 +37,15 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     try {
       const result = await authService.login(email, password);
       if (result.success && result.admin) {
-        setSuccessMessage(`সফলভাবে লগইন হয়েছে! স্বাগতম, ${result.admin.displayName}।`);
+        setSuccessMessage(`Login successful! Welcome, ${result.admin.displayName}.`);
         setTimeout(() => {
           onLoginSuccess(result.admin!);
         }, 500);
       } else {
-        setErrorMessage(result.error || 'লগইন ব্যর্থ হয়েছে। সঠিক ইমেইল ও পাসওয়ার্ড প্রদান করুন।');
+        setErrorMessage(result.error || 'Login failed. Please enter a valid email and password.');
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'অনাকাঙ্ক্ষিত ত্রুটি ঘটেছে। আবার চেষ্টা করুন।');
+      setErrorMessage(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -62,19 +59,18 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
         <div className="flex items-center gap-3">
           <img 
             src={lalSobujLogoImg} 
-            alt="লাল সবুজ পরিবহন লোগো" 
+            alt="Lal Sabuj Paribahan Logo" 
             className="h-10 w-auto object-contain"
             onError={(e) => {
-              // Fallback to public route if needed
               (e.currentTarget as HTMLImageElement).src = '/lal_sobuj_logo.jpg';
             }}
           />
           <div className="hidden sm:block border-l border-slate-300 pl-3">
             <h1 className="text-sm font-black text-slate-900 leading-tight">
-              লাল সবুজ পরিবহন
+              Lal Sabuj Paribahan
             </h1>
             <p className="text-[11px] font-semibold text-slate-500">
-              সেন্ট্রাল বাস ট্র্যাকিং ও অ্যাডমিন পোর্টাল
+              Central Fleet Tracking & Admin Portal
             </p>
           </div>
         </div>
@@ -84,11 +80,11 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="hidden md:inline font-mono">Firebase Online</span>
-            <span>লাইভ সিস্টেম</span>
+            <span>Live System</span>
           </div>
           <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold">
             <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-            <span>নিরাপদ সেশন সক্রিয়</span>
+            <span>Secure Session Active</span>
           </div>
         </div>
       </header>
@@ -97,27 +93,27 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl border border-slate-200/90 overflow-hidden grid grid-cols-1 lg:grid-cols-12 transition-all">
           
-          {/* Left Column: Realistic Bus Showcase & Bengali Identity */}
+          {/* Left Column: Realistic Bus Showcase & Identity */}
           <div className="lg:col-span-5 bg-gradient-to-b from-slate-50 via-white to-slate-100 border-b lg:border-b-0 lg:border-r border-slate-200 p-6 sm:p-7 flex flex-col justify-between">
             
             {/* Top Brand Banner */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-[10px] uppercase font-black tracking-widest px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
-                  অফিসিয়াল অ্যাডমিন
+                  Official Admin
                 </span>
                 <span className="text-[10px] uppercase font-black tracking-widest px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  ২০২৬ সংস্করণ
+                  2026 Edition
                 </span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                <span className="text-[#dc2626]">লাল </span>
-                <span className="text-[#16a34a]">সবুজ </span>
-                <span className="text-black">পরিবহন</span>
+                <span className="text-[#dc2626]">Lal </span>
+                <span className="text-[#16a34a]">Sabuj </span>
+                <span className="text-black">Paribahan</span>
               </h2>
               <p className="text-xs text-slate-600 font-medium mt-1 leading-relaxed">
-                আন্তর্জাতিক মানের অত্যাধুনিক আরামদায়ক কোচ নেটওয়ার্ক ও অনলাইন টিকিট সংরক্ষণ ব্যবস্থাপনা।
+                Modern inter-district luxury coach network and real-time cloud ticketing management.
               </p>
             </div>
 
@@ -125,7 +121,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             <div className="my-5 relative rounded-2xl overflow-hidden shadow-md border-2 border-slate-200 group bg-slate-900">
               <img 
                 src={lalSobujBusImg} 
-                alt="লাল সবুজ পরিবহন রিয়েল বাস" 
+                alt="Lal Sabuj Paribahan Coach" 
                 className="w-full h-48 sm:h-52 object-cover object-center group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = '/lal_sobuj_bus.jpg';
@@ -135,7 +131,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
               <div className="absolute bottom-2 left-2 right-2 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 flex items-center justify-between text-white text-[11px]">
                 <div className="flex items-center gap-1.5 font-bold">
                   <Bus className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-amber-300 font-black">ঢাকা মেট্রো-ব ১১-৪৩০১</span>
+                  <span className="text-amber-300 font-black font-mono">DHAKA METRO-BA 11-4301</span>
                 </div>
                 <span className="text-[10px] text-slate-300 font-mono">Scania Multi-Axle</span>
               </div>
@@ -145,15 +141,15 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             <div className="space-y-2 text-xs text-slate-600 font-medium">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-emerald-600 shrink-0 stroke-[3]" />
-                <span>রিয়েল-টাইম আসন বুকিং ও পেমেন্ট হিসেব</span>
+                <span>Real-time seat booking, lock & due payment tracking</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-emerald-600 shrink-0 stroke-[3]" />
-                <span>স্বয়ংক্রিয় হাফ-পেজ এ৪ চালান ও যাত্রী তালিকা</span>
+                <span>Automated half-page A4 trip chalan manifest</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-emerald-600 shrink-0 stroke-[3]" />
-                <span>পারসিস্টেন্ট ফায়ারবেস লগইন সেশন</span>
+                <span>Persistent Firebase authentication session</span>
               </div>
             </div>
 
@@ -175,7 +171,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                 />
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                অ্যাডমিন প্যানেলে লগইন করুন
+                Admin Portal Sign-In
               </h3>
               <p className="text-xs text-slate-500 font-semibold mt-0.5">
                 Lal Sabuj Paribahan Secure Staff Portal
@@ -203,7 +199,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
               {/* Email Field */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                  অ্যাডমিন ইমেইল (Email Address)
+                  Admin Email Address
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -214,7 +210,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ইমেইল ঠিকানা লিখুন"
+                    placeholder="Enter admin email address"
                     autoComplete="username"
                     className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white placeholder:text-slate-400"
                   />
@@ -225,10 +221,10 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
-                    পাসওয়ার্ড (Password)
+                    Password
                   </label>
                   <span className="text-[11px] font-semibold text-slate-400">
-                    গোপনীয় ও সুরক্ষিত
+                    Encrypted & Secure
                   </span>
                 </div>
                 <div className="relative">
@@ -240,7 +236,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="পাসওয়ার্ড লিখুন"
+                    placeholder="Enter password"
                     autoComplete="current-password"
                     className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:border-red-600 focus:ring-3 focus:ring-red-100 text-slate-900 text-sm font-semibold transition-all bg-white placeholder:text-slate-400"
                   />
@@ -248,7 +244,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
-                    title={showPassword ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন'}
+                    title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -264,7 +260,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-4 h-4 rounded text-red-600 focus:ring-red-500 border-slate-300 cursor-pointer accent-red-600"
                   />
-                  <span>লগইন সেশন মনে রাখুন (Persistent Session)</span>
+                  <span>Keep me logged in (Persistent Session)</span>
                 </label>
               </div>
 
@@ -277,11 +273,11 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                 {isLoading ? (
                   <>
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>ফায়ারবেসে যাচাই করা হচ্ছে...</span>
+                    <span>Authenticating with Firebase...</span>
                   </>
                 ) : (
                   <>
-                    <span>ফায়ারবেস লগইন (Sign In with Firebase)</span>
+                    <span>Sign In with Firebase</span>
                     <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                   </>
                 )}
@@ -300,7 +296,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                       Firebase Authentication & Database
                     </span>
                     <span className="text-[10.5px] text-slate-500 font-medium">
-                      ক্রেডেনশিয়াল ফায়ারবেস ডাটাবেসে যাচাই করে অ্যাক্সেস প্রদান করা হয়
+                      Credentials authenticated directly against Cloud Firestore & Firebase Auth
                     </span>
                   </div>
                 </div>
@@ -321,9 +317,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
           Lal Sabuj Paribahan V7 - Powered by Lal Sabuj - Designed by Tuhin.
         </p>
         <div className="flex items-center gap-3 text-[11px]">
-          <span className="font-semibold text-slate-600">গুগল ফায়ারবেস অথেনটিকেশন দ্বারা সুরক্ষিত</span>
+          <span className="font-semibold text-slate-600">Secured by Google Firebase Authentication</span>
           <span>•</span>
-          <span className="text-emerald-700 font-bold">সেশন পারসিস্টেন্স সক্রিয়</span>
+          <span className="text-emerald-700 font-bold">Cloud Persistence Active</span>
         </div>
       </footer>
 
