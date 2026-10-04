@@ -7,9 +7,9 @@ interface ChalanLogoBWProps {
 }
 
 export const ChalanLogoBW: React.FC<ChalanLogoBWProps> = ({
-  className = 'w-36 sm:w-44 h-auto',
-  width = 160,
-  height = 110,
+  className = 'w-48 sm:w-60 h-auto',
+  width = 220,
+  height = 140,
 }) => {
   const [imageError, setImageError] = useState(false);
 
@@ -23,7 +23,7 @@ export const ChalanLogoBW: React.FC<ChalanLogoBWProps> = ({
           height={height}
           onError={() => setImageError(true)}
           className="chalan-logo-img w-full h-auto object-contain filter contrast-125 grayscale"
-          style={{ maxHeight: '90px' }}
+          style={{ maxHeight: '115px' }}
         />
       ) : (
         /* Pristine High-Contrast Vector Fallback: 100% Solid Black on White */

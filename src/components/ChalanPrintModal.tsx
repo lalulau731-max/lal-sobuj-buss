@@ -398,11 +398,11 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
           >
             {/* Header: Company Name & Document Title in Bold Black */}
             <div className="chalan-header border-b-2 border-black pb-2 mb-2 text-center">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 
                 {/* Top Left: Significantly Increased Size and Prominence Lal Sabuj Logo */}
-                <div className="chalan-logo-col text-left flex items-center justify-start shrink-0 pr-3">
-                  <ChalanLogoBW className="chalan-logo w-40 sm:w-48 h-auto shrink-0" width={180} height={120} />
+                <div className="chalan-logo-col text-left flex items-center justify-start shrink-0 pr-2">
+                  <ChalanLogoBW className="chalan-logo w-48 sm:w-60 h-auto shrink-0" width={220} height={140} />
                 </div>
 
                 {/* Center: Brand Title, Trip Chalan Header, & Large Mirpur-10 */}
@@ -423,10 +423,11 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                   </div>
                 </div>
 
-                {/* Top Right Form Reference */}
-                <div className="chalan-form-ref text-right text-[9px] text-black w-28 shrink-0 font-sans font-bold pt-1">
-                  <span className="font-black block text-black">FORM: LSP-CH-01</span>
-                  <span className="text-[8.5px] text-black font-bold">Waybill Manifest</span>
+                {/* Top Right: Mirpur 10 Exclusive Software Notice Box (Replacing form label) */}
+                <div className="chalan-location-notice-box shrink-0 border-2 border-black bg-white p-1.5 sm:p-2 max-w-[170px] sm:max-w-[210px] text-center rounded-xs shadow-none">
+                  <p className="font-bangla text-[9.5px] sm:text-[10.5px] font-bold text-black leading-snug tracking-normal">
+                    এই সফটওয়্যারটা শুধুমাত্র মিরপুর ১০ এর জন্য বানানো হয়েছে.
+                  </p>
                 </div>
               </div>
             </div>

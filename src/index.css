@@ -213,7 +213,7 @@
     align-items: center !important;
     justify-content: flex-start !important;
     flex-shrink: 0 !important;
-    max-width: 65mm !important;
+    max-width: 78mm !important;
   }
 
   /* Logo: Significantly increased size and prominence */
@@ -221,10 +221,10 @@
   #printable-chalan .chalan-logo-img,
   #printable-chalan .chalan-logo img,
   #printable-chalan .chalan-logo svg {
-    max-height: 52px !important;
-    min-height: 38px !important;
+    max-height: 64px !important;
+    min-height: 46px !important;
     width: auto !important;
-    max-width: 62mm !important;
+    max-width: 74mm !important;
     object-fit: contain !important;
     display: block !important;
     filter: contrast(140%) grayscale(100%) !important;
@@ -255,9 +255,27 @@
     letter-spacing: 0.5px !important;
   }
 
-  #printable-chalan .chalan-form-ref {
-    font-size: 8px !important;
-    line-height: 1.2 !important;
+  /* Mirpur 10 exclusive software boxed notice (replaces form label in top right corner) */
+  #printable-chalan .chalan-location-notice-box {
+    border: 1.5px solid #000000 !important;
+    background: #ffffff !important;
+    padding: 2.5px 5px !important;
+    max-width: 52mm !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    border-radius: 2px !important;
+  }
+
+  #printable-chalan .chalan-location-notice-box p {
+    margin: 0 !important;
+    font-size: 8.5px !important;
+    line-height: 1.25 !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    font-family: 'Hind Siliguri', 'Kalpurush', 'SolaimanLipi', system-ui, -apple-system, sans-serif !important;
   }
 
   /* Metadata Grid: Expanded with larger fonts and solid black borders */
@@ -422,9 +440,12 @@
   #printable-chalan.chalan-spacious .chalan-logo-img,
   #printable-chalan.chalan-spacious .chalan-logo img,
   #printable-chalan.chalan-spacious .chalan-logo svg {
-    max-height: 54px !important;
-    min-height: 42px !important;
-    max-width: 68mm !important;
+    max-height: 66px !important;
+    min-height: 48px !important;
+    max-width: 78mm !important;
+  }
+  #printable-chalan.chalan-spacious .chalan-location-notice-box p {
+    font-size: 9.5px !important;
   }
   #printable-chalan.chalan-spacious .chalan-brand-title {
     font-size: 19px !important;
@@ -477,9 +498,12 @@
   #printable-chalan.chalan-normal .chalan-logo-img,
   #printable-chalan.chalan-normal .chalan-logo img,
   #printable-chalan.chalan-normal .chalan-logo svg {
-    max-height: 46px !important;
-    min-height: 36px !important;
-    max-width: 60mm !important;
+    max-height: 58px !important;
+    min-height: 42px !important;
+    max-width: 72mm !important;
+  }
+  #printable-chalan.chalan-normal .chalan-location-notice-box p {
+    font-size: 8.8px !important;
   }
   #printable-chalan.chalan-normal .chalan-brand-title {
     font-size: 17px !important;
@@ -519,9 +543,12 @@
   #printable-chalan.chalan-compact .chalan-logo-img,
   #printable-chalan.chalan-compact .chalan-logo img,
   #printable-chalan.chalan-compact .chalan-logo svg {
-    max-height: 40px !important;
-    min-height: 32px !important;
-    max-width: 54mm !important;
+    max-height: 52px !important;
+    min-height: 38px !important;
+    max-width: 66mm !important;
+  }
+  #printable-chalan.chalan-compact .chalan-location-notice-box p {
+    font-size: 8.2px !important;
   }
   #printable-chalan.chalan-compact .chalan-brand-title {
     font-size: 15px !important;
@@ -561,8 +588,12 @@
   #printable-chalan.chalan-dense .chalan-logo-img,
   #printable-chalan.chalan-dense .chalan-logo img,
   #printable-chalan.chalan-dense .chalan-logo svg {
-    max-height: 34px !important;
-    min-height: 26px !important;
+    max-height: 46px !important;
+    min-height: 34px !important;
+    max-width: 60mm !important;
+  }
+  #printable-chalan.chalan-dense .chalan-location-notice-box p {
+    font-size: 7.6px !important;
   }
   #printable-chalan.chalan-dense .chalan-brand-title {
     font-size: 13.5px !important;
@@ -604,8 +635,12 @@
   #printable-chalan.chalan-ultra-dense .chalan-logo-img,
   #printable-chalan.chalan-ultra-dense .chalan-logo img,
   #printable-chalan.chalan-ultra-dense .chalan-logo svg {
-    max-height: 28px !important;
-    min-height: 22px !important;
+    max-height: 38px !important;
+    min-height: 28px !important;
+    max-width: 54mm !important;
+  }
+  #printable-chalan.chalan-ultra-dense .chalan-location-notice-box p {
+    font-size: 7px !important;
   }
   #printable-chalan.chalan-ultra-dense .chalan-brand-title {
     font-size: 12px !important;
