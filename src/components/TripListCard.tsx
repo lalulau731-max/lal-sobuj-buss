@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Trip, Seat } from '../types/bus';
 import { Clock, Info, FileText, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { InlineSeatPlanner } from './InlineSeatPlanner';
+import { formatDateDMY } from '../utils/dateUtils';
 
 interface TripListCardProps {
   trip: Trip;
@@ -21,6 +22,7 @@ interface TripListCardProps {
   ) => void;
   onPrintTicket?: (seatNumber: string) => void;
   onRefresh: () => void;
+  showCoachNumber?: boolean; // Admin toggle option to turn coach numbers on or off on the main page
 }
 
 export const TripListCard: React.FC<TripListCardProps> = ({
@@ -33,20 +35,16 @@ export const TripListCard: React.FC<TripListCardProps> = ({
   onConfirmBooking,
   onPrintTicket,
   onRefresh,
+  showCoachNumber = true,
 }) => {
   // Compute available seats count
   const availableCount = useMemo(() => {
     return Object.values(trip.seats || {}).filter((s) => s.status === 'available').length;
   }, [trip.seats]);
 
-  // Format short date for row (e.g. "29-09-26")
-  const shortDate = useMemo(() => {
-    try {
-      const [y, m, d] = journeyDate.split('-');
-      return `${d}-${m}-${y.slice(-2)}`;
-    } catch (e) {
-      return journeyDate;
-    }
+  // Strictly format date as Date-Month-Year (DD-MM-YYYY)
+  const formattedDate = useMemo(() => {
+    return formatDateDMY(journeyDate);
   }, [journeyDate]);
 
   // Compute travel duration based on destination
@@ -64,25 +62,27 @@ export const TripListCard: React.FC<TripListCardProps> = ({
       {/* Main Row Matching Reference Image 1 with Increased Font Size and Readability */}
       <div className="p-3.5 sm:p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-sm">
         
-        {/* Left Column: Coach Code, Time & Date, Reg No, Coach Class */}
+        {/* Left Column: Coach Code (Toggleable), Time & Date, Reg No, Coach Class */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:items-center gap-3 lg:gap-6 flex-1">
           
-          {/* Coach Code */}
-          <div className="min-w-[75px]">
-            <span className="text-[11px] font-black uppercase text-slate-500 block tracking-wider">Coach</span>
-            <span className="font-black text-base sm:text-lg text-slate-950 font-mono tracking-tight block">
-              {trip.coachNumber}
-            </span>
-          </div>
+          {/* Coach Code: Only displayed if showCoachNumber is enabled */}
+          {showCoachNumber && (
+            <div className="min-w-[75px]">
+              <span className="text-[11px] font-black uppercase text-slate-500 block tracking-wider">Coach</span>
+              <span className="font-black text-base sm:text-lg text-slate-950 font-mono tracking-tight block">
+                {trip.coachNumber}
+              </span>
+            </div>
+          )}
 
-          {/* Departure Time & Date */}
+          {/* Departure Time & Date (Always Date-Month-Year) */}
           <div className="min-w-[95px] leading-tight">
             <span className="text-[11px] font-black uppercase text-slate-500 block tracking-wider">Time</span>
             <span className="font-extrabold text-sm sm:text-base text-slate-900 font-mono block">
               {trip.departureTime}
             </span>
-            <span className="text-xs text-slate-600 font-mono font-semibold">
-              {shortDate}
+            <span className="text-xs text-slate-600 font-mono font-semibold" title="Format: Date-Month-Year">
+              {formattedDate}
             </span>
           </div>
 

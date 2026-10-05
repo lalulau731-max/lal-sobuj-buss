@@ -171,8 +171,9 @@
     display: block !important;
     position: relative !important;
     width: 100% !important;
-    max-width: 200mm !important; /* Printable width within 5mm margins on 210mm paper */
-    max-height: 142mm !important; /* Strictly fits within top half (under 144mm limit) */
+    max-width: var(--chalan-max-width, 200mm) !important; /* Printable width within margins on 210mm paper */
+    max-height: var(--chalan-height, var(--chalan-max-height, 148.5mm)) !important; /* Dynamic height configured by user */
+    height: var(--chalan-height, auto) !important;
     margin: 0 auto !important;
     padding: 1.5mm 3mm !important;
     box-sizing: border-box !important;

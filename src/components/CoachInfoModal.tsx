@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trip } from '../types/bus';
-import { X, Bus, User, Phone, Clock, MapPin, ShieldCheck } from 'lucide-react';
+import { X, Bus, User, Phone, Clock, MapPin, ShieldCheck, Lock } from 'lucide-react';
 
 interface CoachInfoModalProps {
   trip: Trip | null;
@@ -78,7 +78,13 @@ export const CoachInfoModal: React.FC<CoachInfoModalProps> = ({ trip, onClose })
                 <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
                 <span>Starting Counter:</span>
               </span>
-              <span className="font-semibold text-slate-800">{trip.startingCounter || 'Mirpur-10'}</span>
+              <span className="font-semibold text-slate-800 flex items-center gap-1">
+                <span>Mirpur-10</span>
+                <span className="text-[10px] text-amber-700 font-bold bg-amber-100 px-1 py-0.2 rounded border border-amber-300 flex items-center gap-0.5">
+                  <Lock className="w-2.5 h-2.5" />
+                  <span>Locked</span>
+                </span>
+              </span>
             </div>
           </div>
 

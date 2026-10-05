@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Trip, DeckConfig } from '../types/bus';
 import { generate2x2Seats, BOARDING_POINTS, DROPPING_POINTS, COUNTERS } from '../data/mockTrips';
-import { X, Plus, Bus, Calendar, Clock, MapPin, DollarSign, User } from 'lucide-react';
+import { X, Plus, Bus, Calendar, Clock, MapPin, DollarSign, User, Lock } from 'lucide-react';
 
 interface CreateTripModalProps {
   isOpen: boolean;
@@ -224,15 +224,20 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                Boarding Location
+              <label className="flex items-center justify-between text-[11px] font-bold text-slate-700 mb-1">
+                <span>Starting Counter</span>
+                <span className="text-[10px] text-amber-700 font-bold flex items-center gap-1">
+                  <Lock className="w-2.5 h-2.5" />
+                  <span>Locked</span>
+                </span>
               </label>
-              <input
-                type="text"
-                value={startingCounter}
-                onChange={(e) => setStartingCounter(e.target.value)}
-                className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl"
-              />
+              <div 
+                className="w-full px-2.5 py-1.5 bg-slate-100 border border-slate-300 rounded-xl text-slate-800 font-bold flex items-center justify-between text-xs select-none cursor-not-allowed"
+                title="Starting counter is permanently locked to Mirpur-10."
+              >
+                <span>Mirpur-10</span>
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+              </div>
             </div>
           </div>
 

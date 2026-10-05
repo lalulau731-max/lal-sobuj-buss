@@ -18,6 +18,7 @@ import {
 import { ChalanDimensionConfigModal } from './ChalanDimensionConfigModal';
 import { themeManager, ChalanTemplate, CHALAN_TEMPLATES } from '../services/themeManager';
 import { ThemeManagerModal } from './ThemeManagerModal';
+import { formatDateDMY, formatDateDMYWithDay } from '../utils/dateUtils';
 
 interface ChalanPrintModalProps {
   isOpen: boolean;
@@ -250,7 +251,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Chalan_${trip.coachNumber}_${trip.departureDate}.csv`);
+    link.setAttribute('download', `Chalan_${trip.coachNumber}_${formatDateDMY(trip.departureDate)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -295,7 +296,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
                   Chalan Sheet (Passenger Manifest)
                 </h2>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-emerald-300 border border-slate-700 font-bold">
-                  Coach #{trip.coachNumber} • {trip.departureDate}
+                  Coach #{trip.coachNumber} • {formatDateDMY(trip.departureDate)}
                 </span>
               </div>
               <p className="text-[11px] text-slate-300 flex items-center gap-2 mt-0.5">
@@ -357,12 +358,12 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
           </div>
         </div>
 
-        {/* Dynamic Print Stylesheet: Single A4 Page in Portrait Mode, Content within Top Half */}
+        {/* Dynamic Print Stylesheet: Single A4 Page in Portrait Mode, Content configured to exact dimensions */}
         <style>{`
           @media print {
             @page {
               size: A4 portrait;
-              margin: ${printConfig.marginTopMm || 3.5}mm ${printConfig.marginRightMm || 5}mm ${printConfig.marginBottomMm || 3.5}mm ${printConfig.marginLeftMm || 5}mm;
+              margin: ${printConfig.marginTopMm ?? 3.5}mm ${printConfig.marginRightMm ?? 4.5}mm ${printConfig.marginBottomMm ?? 3.5}mm ${printConfig.marginLeftMm ?? 4.5}mm;
             }
             html, body {
               width: 210mm !important;
@@ -374,8 +375,12 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
               page-break-inside: avoid !important;
             }
             #printable-chalan {
-              max-width: 200mm !important;
-              max-height: 142mm !important; /* Strictly top half of single A4 portrait page */
+              --chalan-height: ${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm !important;
+              --chalan-max-height: ${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm !important;
+              max-width: ${Math.round((printConfig.widthInches || 8.27) * 25.4 * 10) / 10}mm !important;
+              max-height: ${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm !important;
+              height: ${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm !important;
+              zoom: ${(printConfig.scalePercent || 100) / 100} !important;
               box-sizing: border-box !important;
               overflow: hidden !important;
               page-break-inside: avoid !important;
@@ -388,13 +393,16 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
         {/* Modal Scrollable Container for Preview */}
         <div className="chalan-preview-container p-3 sm:p-6 max-h-[88vh] overflow-y-auto bg-slate-100/50 flex flex-col items-center">
           
-          {/* Printable Chalan Sheet: DYNAMIC TEMPLATE STYLING */}
+          {/* Printable Chalan Sheet: DYNAMIC TEMPLATE & DIMENSION STYLING */}
           <div 
             id="printable-chalan"
             style={{
               maxHeight: `${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm`,
+              height: `${Math.round(printConfig.heightInches * 25.4 * 10) / 10}mm`,
+              maxWidth: `${Math.min(200, Math.round((printConfig.widthInches || 8.27) * 25.4 * 10) / 10)}mm`,
+              zoom: `${(printConfig.scalePercent || 100) / 100}`,
             }}
-            className={`w-full max-w-[194mm] bg-white text-black p-3 sm:p-4 text-[10.5px] leading-tight select-text shadow-sm ${templateBorderClass} ${templateFontClass} ${densityClass} ${chalanTemplate.styleClass}`}
+            className={`w-full bg-white text-black p-3 sm:p-4 text-[10.5px] leading-tight select-text shadow-sm ${templateBorderClass} ${templateFontClass} ${densityClass} ${chalanTemplate.styleClass}`}
           >
             {/* Header: Company Name & Document Title in Bold Black */}
             <div className="chalan-header border-b-2 border-black pb-2 mb-2 text-center">
@@ -442,7 +450,7 @@ export const ChalanPrintModal: React.FC<ChalanPrintModalProps> = ({
 
               <div className="chalan-meta-cell p-1 px-1.5">
                 <span className="chalan-meta-label text-[8.5px] font-black text-black uppercase block">Date & Day</span>
-                <span className="chalan-meta-value font-black text-black block">{trip.departureDate}</span>
+                <span className="chalan-meta-value font-black text-black block">{formatDateDMYWithDay(trip.departureDate)}</span>
               </div>
 
               <div className="chalan-meta-cell p-1 px-1.5">

@@ -13,7 +13,8 @@ import {
   Layers,
   Info,
   Lock,
-  Unlock
+  Unlock,
+  AlertCircle
 } from 'lucide-react';
 import { OccupiedSeatInfoModal } from './OccupiedSeatInfoModal';
 
@@ -83,6 +84,8 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
   const baseFarePerSeat = trip.baseFare || 650;
   const [discountPercent, setDiscountPercent] = useState<number>(0);
   const [discountPerSeat, setDiscountPerSeat] = useState<number>(0);
+  const [dueAmountInput, setDueAmountInput] = useState<number>(0);
+  const [seatSelectionError, setSeatSelectionError] = useState<string | null>(null);
 
   // Seat toggle handler for available seats
   const handleToggleSeat = (seatNo: string) => {
@@ -90,6 +93,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
     if (!seat) return;
     if (seat.status === 'sold' || seat.status === 'locked' || seat.status === 'reserved') return;
 
+    setSeatSelectionError(null);
     if (selectedSeatNos.includes(seatNo)) {
       setSelectedSeatNos((prev) => prev.filter((s) => s !== seatNo));
     } else {
@@ -120,6 +124,12 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
     : discountPerSeat * seatCount;
   const totalPayable = Math.max(0, subtotal - totalDiscount);
 
+  // Due calculation in ticket sale process (Fourth requirement: Due payment option)
+  const effectiveDueAmount = activeMode === 'book'
+    ? totalPayable
+    : Math.min(totalPayable, Math.max(0, dueAmountInput));
+  const cashToCollect = Math.max(0, totalPayable - effectiveDueAmount);
+
   // Group seats by row for 2+2 layout or Double Deck
   const rows = useMemo(() => {
     const seatMap: Record<string, Seat> = trip.seats || {};
@@ -148,9 +158,10 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
   // Submission handler
   const handleConfirmAction = () => {
     if (selectedSeatNos.length === 0) {
-      alert('Please click on at least one available seat to select it.');
+      setSeatSelectionError('Please click on at least one available seat to select it before proceeding.');
       return;
     }
+    setSeatSelectionError(null);
 
     const updates: Record<string, Partial<Seat>> = {};
     const isLockMode = activeMode === 'lock';
@@ -159,6 +170,11 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
       : passengerName.trim() || 'Counter Passenger';
     const pPhone = isLockMode ? '' : passengerPhone.trim() || '01711-000000';
     const txnNumber = `TKT-${Math.floor(10000 + Math.random() * 90000)}`;
+
+    const perSeatDiscount = seatCount > 0 ? Math.round(totalDiscount / seatCount) : 0;
+    const perSeatDue = isLockMode ? 0 : (seatCount > 0 ? Math.round(effectiveDueAmount / seatCount) : 0);
+    const perSeatPaid = isLockMode ? 0 : (seatCount > 0 ? Math.max(0, (baseFarePerSeat - perSeatDiscount) - perSeatDue) : 0);
+    const paymentStatus: PaymentStatus = isLockMode ? 'due' : effectiveDueAmount > 0 ? 'due' : 'paid';
 
     selectedSeatNos.forEach((seatNo) => {
       updates[seatNo] = {
@@ -169,9 +185,18 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
         boardingPoint,
         droppingPoint,
         fare: baseFarePerSeat,
+        discount: isLockMode ? 0 : perSeatDiscount,
+        dueAmount: perSeatDue,
+        paidAmount: perSeatPaid,
         ticketNumber: txnNumber,
-        paymentStatus: activeMode === 'sell' ? 'paid' : 'due',
-        remarks: remarks || (isLockMode ? 'Management Seat Lock' : activeMode === 'sell' ? 'Counter POS Sale' : 'Counter Hold Reservation'),
+        paymentStatus,
+        remarks: remarks || (
+          isLockMode 
+            ? 'Management Seat Lock' 
+            : activeMode === 'sell' 
+            ? (effectiveDueAmount > 0 ? `Counter POS Sale (Due: BDT ${effectiveDueAmount})` : 'Counter POS Sale') 
+            : 'Counter Hold Reservation'
+        ),
         bookedVia: 'counter',
         bookedAt: new Date().toISOString(),
         counterName: 'Mirpur-10 Terminal',
@@ -190,6 +215,9 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
     setPassengerName('');
     setPassengerPhone('');
     setRemarks('');
+    setDueAmountInput(0);
+    setDiscountPercent(0);
+    setDiscountPerSeat(0);
   };
 
   // Immediate Unlock Handler for Locked or Released seats
@@ -203,6 +231,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
           fare: baseFarePerSeat,
           dueAmount: 0,
           paidAmount: 0,
+          discount: 0,
           paymentStatus: 'due',
           remarks: undefined,
           ticketNumber: undefined,
@@ -216,6 +245,88 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
         counterOrUser: 'Terminal Counter (Mirpur-10)',
       }
     );
+    setSelectedOccupiedSeat(null);
+  };
+
+  // Requirement 1: Full Group Cancellation
+  const handleReleaseMultipleSeats = (seatNumbers: string[]) => {
+    const updates: Record<string, Partial<Seat>> = {};
+    seatNumbers.forEach((sn) => {
+      updates[sn] = {
+        status: 'available',
+        passengerName: '',
+        phone: '',
+        fare: baseFarePerSeat,
+        dueAmount: 0,
+        paidAmount: 0,
+        discount: 0,
+        paymentStatus: 'due',
+        remarks: undefined,
+        ticketNumber: undefined,
+        bookingReference: undefined,
+      };
+    });
+    onConfirmBooking(updates, {
+      action: 'released',
+      source: 'counter',
+      passengerName: `Group Cancel (${seatNumbers.length} seats)`,
+      counterOrUser: 'Terminal Counter (Mirpur-10)',
+    });
+    setSelectedOccupiedSeat(null);
+  };
+
+  // Requirement 2: Edit Function for Seats (Sold / Reserved / Locked)
+  const handleUpdateSeatStatus = (
+    seatNumbers: string[],
+    updates: Partial<Seat>,
+    metaAction: 'sold' | 'reserved' | 'released'
+  ) => {
+    const batchUpdates: Record<string, Partial<Seat>> = {};
+    seatNumbers.forEach((sn) => {
+      batchUpdates[sn] = { ...updates };
+    });
+    onConfirmBooking(batchUpdates, {
+      action: metaAction,
+      source: 'counter',
+      passengerName: updates.passengerName || 'Updated Status',
+      counterOrUser: 'Terminal Counter (Mirpur-10)',
+    });
+    setSelectedOccupiedSeat(null);
+  };
+
+  // Requirement 3: Settlement Option for Due Payments
+  const handleSettleDuePayment = (
+    seatNumbers: string[],
+    settledAmount: number,
+    paymentMethod: string
+  ) => {
+    const batchUpdates: Record<string, Partial<Seat>> = {};
+    const count = seatNumbers.length;
+    const perSeatSettle = count > 0 ? Math.round(settledAmount / count) : settledAmount;
+
+    seatNumbers.forEach((sn) => {
+      const existing = trip.seats[sn];
+      const prevPaid = existing?.paidAmount || 0;
+      const currentDue = existing?.dueAmount !== undefined ? existing.dueAmount : (existing?.fare || baseFarePerSeat);
+      const newDue = Math.max(0, currentDue - perSeatSettle);
+      const newPaid = prevPaid + perSeatSettle;
+
+      batchUpdates[sn] = {
+        dueAmount: newDue,
+        paidAmount: newPaid,
+        paymentStatus: newDue === 0 ? 'paid' : 'due',
+        status: 'sold', // Once payment is settled, seat status becomes confirmed sold
+        remarks: `Due settled BDT ${perSeatSettle} via ${paymentMethod} at Mirpur-10`,
+        lastUpdated: Date.now(),
+      };
+    });
+
+    onConfirmBooking(batchUpdates, {
+      action: 'sold',
+      source: 'counter',
+      passengerName: `Due Settle (${paymentMethod})`,
+      counterOrUser: 'Terminal Counter (Mirpur-10)',
+    });
     setSelectedOccupiedSeat(null);
   };
 
@@ -278,7 +389,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
           </div>
         </div>
 
-        {/* Right: Sell / Book / Passenger List Tabs */}
+        {/* Right: Sell / Reservation / Passenger List Tabs */}
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setActiveMode('sell')}
@@ -299,7 +410,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                 : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
             }`}
           >
-            Book
+            Reservation
           </button>
 
           <button
@@ -336,7 +447,7 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
             Sold {soldCount}
           </span>
           <span className="bg-cyan-50 border border-cyan-200 text-cyan-800 text-xs font-bold px-2.5 py-1 rounded">
-            Booked {bookedCount}
+            Reserved {bookedCount}
           </span>
         </div>
 
@@ -688,8 +799,8 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
               </div>
             </div>
 
-            {/* Per Seat & Discount Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs sm:text-sm">
+            {/* Per Seat & Discount Grid (Requirement 4: Include 'Due' next to discount option) */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs sm:text-sm">
               <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
                 <span className="text-[11px] font-bold text-slate-500 block uppercase">Per Seat</span>
                 <span className="font-mono font-black text-slate-900 text-sm sm:text-base">
@@ -713,6 +824,35 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                 />
               </div>
 
+              {/* Requirement 4: 'Due' payment option placed right next to Discount */}
+              <div className="bg-amber-50/70 p-2 rounded-lg border-2 border-amber-300">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-[11px] font-black text-amber-900 block uppercase">Due (BDT)</span>
+                  {totalPayable > 0 && activeMode === 'sell' && (
+                    <button
+                      type="button"
+                      onClick={() => setDueAmountInput(dueAmountInput > 0 ? 0 : totalPayable)}
+                      className="text-[9.5px] font-extrabold text-amber-800 hover:text-amber-950 underline cursor-pointer"
+                    >
+                      {dueAmountInput > 0 ? 'Clear' : 'Full Due'}
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  max={totalPayable}
+                  value={activeMode === 'book' ? totalPayable : (dueAmountInput || '')}
+                  onChange={(e) => {
+                    const val = Number(e.target.value) || 0;
+                    setDueAmountInput(Math.min(totalPayable, Math.max(0, val)));
+                  }}
+                  disabled={activeMode === 'book'}
+                  placeholder="0"
+                  className="w-full bg-white border border-amber-400 rounded px-2 py-1 font-mono font-black text-xs sm:text-sm text-amber-950 focus:outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-300 disabled:bg-amber-100/60"
+                />
+              </div>
+
               <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">
                 <span className="text-[11px] font-bold text-slate-500 block uppercase">Total Discount</span>
                 <span className="font-mono font-black text-red-600 text-sm sm:text-base">
@@ -728,12 +868,37 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
               </div>
             </div>
 
-            {/* Total Payable Banner (Large Bold Text matching Lal Sabuj website) */}
-            <div className="pt-2 text-center bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
-              <div className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
-                Total Payable: <span className="text-[#006837] font-mono text-xl sm:text-2xl font-black ml-1">BDT {totalPayable.toFixed(2)}</span>
+            {/* Total Payable / Due Breakdown Banner */}
+            {effectiveDueAmount > 0 ? (
+              <div className="pt-2 bg-amber-50/90 p-3 rounded-xl border-2 border-amber-300 flex flex-wrap items-center justify-around gap-2 text-center">
+                <div>
+                  <span className="text-[11px] uppercase font-bold text-slate-500 block">Total Net Fare</span>
+                  <span className="font-mono font-black text-slate-900 text-sm sm:text-base">BDT {totalPayable.toFixed(2)}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] uppercase font-black text-amber-900 block">Due Payment</span>
+                  <span className="font-mono font-black text-amber-700 text-base sm:text-lg">BDT {effectiveDueAmount.toFixed(2)}</span>
+                </div>
+                <div>
+                  <span className="text-[11px] uppercase font-black text-emerald-900 block">Cash to Collect Now</span>
+                  <span className="text-[#006837] font-mono text-lg sm:text-2xl font-black">BDT {cashToCollect.toFixed(2)}</span>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="pt-2 text-center bg-emerald-50/60 p-3 rounded-xl border border-emerald-200">
+                <div className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
+                  Total Payable: <span className="text-[#006837] font-mono text-xl sm:text-2xl font-black ml-1">BDT {totalPayable.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Selection Error Alert Banner */}
+            {seatSelectionError && (
+              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-xs font-bold text-amber-900 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>{seatSelectionError}</span>
+              </div>
+            )}
 
             {/* Action Submit Button (Large solid button matching Lal Sabuj style) */}
             <div className="pt-1">
@@ -752,10 +917,12 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
                 }`}
               >
                 {activeMode === 'sell' 
-                  ? 'Confirm Selling' 
+                  ? effectiveDueAmount > 0 
+                    ? `Confirm Selling (Due BDT ${effectiveDueAmount.toFixed(0)})`
+                    : 'Confirm Selling' 
                   : activeMode === 'lock'
                   ? 'Confirm Seat Lock (Management Hold)'
-                  : 'Confirm Hold / Reservation'}
+                  : 'Confirm Reservation'}
               </button>
             </div>
 
@@ -777,6 +944,9 @@ export const InlineSeatPlanner: React.FC<InlineSeatPlannerProps> = ({
         onConfirmReservation={handleConfirmReservation}
         onCancelReservation={handleCancelReservation}
         onReleaseSeat={handleUnlockSeat}
+        onReleaseMultipleSeats={handleReleaseMultipleSeats}
+        onUpdateSeatStatus={handleUpdateSeatStatus}
+        onSettleDuePayment={handleSettleDuePayment}
       />
     </div>
   );

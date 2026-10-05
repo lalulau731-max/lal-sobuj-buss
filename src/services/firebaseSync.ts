@@ -498,6 +498,43 @@ class FirebaseSyncService {
     return Object.values(this.rawCoaches);
   }
 
+  public addTrip(newTrip: Trip) {
+    const id = newTrip.id || newTrip.coachNumber || `trip-${Date.now()}`;
+    const tripWithLockedCounter: Trip = {
+      ...newTrip,
+      id,
+      startingCounter: 'Mirpur-10',
+    };
+    this.tripsData[id] = tripWithLockedCounter;
+    if (newTrip.rawCoach) {
+      this.rawCoaches[newTrip.rawCoach.id || id] = {
+        ...newTrip.rawCoach,
+        counterLocation: 'Mirpur-10',
+      };
+    }
+    this.notifyAllTripsSubscribers();
+    this.notifySubscribers(tripWithLockedCounter, {
+      seatNumbers: [],
+      action: 'state_rebuilt',
+      source: 'local',
+    });
+  }
+
+  public updateTrip(tripId: string, updates: Partial<Trip>) {
+    const existing = this.getTrip(tripId);
+    if (!existing) return;
+    const safeUpdates = { ...updates };
+    safeUpdates.startingCounter = 'Mirpur-10';
+
+    this.tripsData[tripId] = {
+      ...existing,
+      ...safeUpdates,
+      lastSyncedAt: Date.now(),
+    };
+    this.notifyAllTripsSubscribers();
+    this.notifySubscribers(this.tripsData[tripId]);
+  }
+
   // Generate realistic & live seats for a coach on any target date
   private getSeatsForCoachAndDate(coach: CoachRecord, date: string): Record<string, Seat> {
     const seats = generateSeatsForCoach(coach);

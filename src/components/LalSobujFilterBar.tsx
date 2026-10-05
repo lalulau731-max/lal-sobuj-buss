@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Search as SearchIcon, X, Calendar, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search as SearchIcon, X, Calendar, Sparkles, Lock, MapPin } from 'lucide-react';
+import { formatDateDMY } from '../utils/dateUtils';
 
 interface LalSobujFilterBarProps {
   fromLocation: string;
@@ -30,7 +31,7 @@ export const LalSobujFilterBar: React.FC<LalSobujFilterBarProps> = ({
   onNextDay,
   onToday,
 }) => {
-  // Format date for the center purple banner, e.g. "Tuesday, 29th September, 2026"
+  // Format date for the center purple banner strictly in Date-Month-Year format
   const formattedBannerDate = React.useMemo(() => {
     try {
       const [y, m, d] = journeyDate.split('-').map(Number);
@@ -47,9 +48,9 @@ export const LalSobujFilterBar: React.FC<LalSobujFilterBarProps> = ({
       else if (day % 10 === 2 && day !== 12) suffix = 'nd';
       else if (day % 10 === 3 && day !== 13) suffix = 'rd';
 
-      return `${weekday}, ${day}${suffix} ${month}, ${year}`;
+      return `${weekday}, ${day}${suffix} ${month}, ${year} (${formatDateDMY(journeyDate)})`;
     } catch (e) {
-      return journeyDate;
+      return formatDateDMY(journeyDate);
     }
   }, [journeyDate]);
 
@@ -60,24 +61,30 @@ export const LalSobujFilterBar: React.FC<LalSobujFilterBarProps> = ({
       <div className="max-w-7xl mx-auto px-3 sm:px-5 py-3.5">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-end">
           
-          {/* 1. From Field */}
+          {/* 1. From Field: Permanently Locked to Mirpur-10 */}
           <div className="lg:col-span-3 space-y-1.5 dropdown-container">
-            <label className="block text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wide">
-              From (Starting Counter)
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="block text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wide">
+                From (Starting Counter)
+              </label>
+              <span className="flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded-full border border-amber-300">
+                <Lock className="w-2.5 h-2.5 text-amber-700" />
+                <span>Locked</span>
+              </span>
+            </div>
             <div className="relative">
-              <select
-                value={fromLocation}
-                onChange={(e) => onChangeFrom(e.target.value)}
-                className="dropdown-select w-full bg-white border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-sm sm:text-base text-slate-900 font-bold focus:outline-none focus:border-[#006837] focus:ring-2 focus:ring-emerald-200 shadow-xs transition-all"
+              <div 
+                className="w-full bg-slate-100 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-sm sm:text-base text-slate-900 font-extrabold flex items-center justify-between shadow-xs select-none cursor-not-allowed"
+                title="Starting counter is permanently locked to Mirpur-10."
               >
-                <option value="North">North Counter</option>
-                <option value="Mirpur-10">Mirpur-10 Counter</option>
-                <option value="Savar">Savar Counter</option>
-                <option value="Jigatola">Jigatola Counter</option>
-                <option value="Sayedabad">Sayedabad Central</option>
-                <option value="All">All Counters (Fleet Wide)</option>
-              </select>
+                <div className="flex items-center gap-2">
+                  <div className="p-1 rounded bg-emerald-100 text-emerald-800">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                  </div>
+                  <span>Mirpur-10</span>
+                </div>
+                <Lock className="w-4 h-4 text-slate-400" />
+              </div>
             </div>
           </div>
 
@@ -105,21 +112,26 @@ export const LalSobujFilterBar: React.FC<LalSobujFilterBarProps> = ({
             </div>
           </div>
 
-          {/* 3. Journey Date Field with Quick Today Button */}
+          {/* 3. Journey Date Field with Quick Today Button & Date-Month-Year Display */}
           <div className="lg:col-span-3 space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="block text-xs sm:text-sm font-extrabold text-slate-900 uppercase tracking-wide">
                 Journey Date
               </label>
-              <button
-                type="button"
-                onClick={onToday}
-                className="text-[11px] sm:text-xs font-black text-[#006837] hover:text-[#00522c] hover:underline flex items-center gap-1 cursor-pointer"
-                title="Set date to Today"
-              >
-                <Calendar className="w-3.5 h-3.5 text-[#006837]" />
-                <span>Today</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold text-purple-800 bg-purple-100 px-1.5 py-0.5 rounded border border-purple-200" title="Format: Date-Month-Year">
+                  {formatDateDMY(journeyDate)}
+                </span>
+                <button
+                  type="button"
+                  onClick={onToday}
+                  className="text-[11px] sm:text-xs font-black text-[#006837] hover:text-[#00522c] hover:underline flex items-center gap-1 cursor-pointer"
+                  title="Set date to Today"
+                >
+                  <Calendar className="w-3.5 h-3.5 text-[#006837]" />
+                  <span>Today</span>
+                </button>
+              </div>
             </div>
             <input
               type="date"

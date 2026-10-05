@@ -86,6 +86,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('paid');
   const [counterName, setCounterName] = useState<string>(COUNTERS[0]);
   const [remarks, setRemarks] = useState<string>('');
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Reservation Form State
   const [reservedFor, setReservedFor] = useState<string>('VIP / Counter Hold');
@@ -124,9 +125,10 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!passengerName.trim()) {
-      alert('Please enter passenger name');
+      setFormError('Please enter passenger name');
       return;
     }
+    setFormError(null);
     onConfirmBooking(seatNumbers, {
       passengerName: passengerName.trim(),
       phone: phone.trim(),
@@ -288,7 +290,7 @@ export const SeatDetailsModal: React.FC<SeatDetailsModalProps> = ({
                       : 'border-transparent text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  Sell / Book Now ({isMulti ? `${totalSeats} Seats` : primarySeatNo})
+                  Sell / Reservation ({isMulti ? `${totalSeats} Seats` : primarySeatNo})
                 </button>
                 <button
                   type="button"

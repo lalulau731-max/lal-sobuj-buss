@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { formatDateDMY } from '../utils/dateUtils';
 import { 
   Calendar as CalendarIcon, 
   ChevronLeft, 
@@ -207,20 +208,16 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
   const currentMonthName = monthNames[viewMonth - 1];
 
-  // Format date helper for Bengali and English
+  // Format date helper: strictly Date-Month-Year
   const formatFriendlyDate = (dateStr: string) => {
     try {
       const [y, m, d] = dateStr.split('-').map(Number);
       const dt = new Date(y, m - 1, d);
-      const en = dt.toLocaleDateString('en-US', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
-      return en;
+      const weekday = dt.toLocaleDateString('en-US', { weekday: 'long' });
+      const month = dt.toLocaleDateString('en-US', { month: 'long' });
+      return `${weekday}, ${d} ${month} ${y} (${formatDateDMY(dateStr)})`;
     } catch (e) {
-      return dateStr;
+      return formatDateDMY(dateStr);
     }
   };
 

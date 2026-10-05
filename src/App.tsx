@@ -17,6 +17,9 @@ import { FirebaseConfigModal } from './components/FirebaseConfigModal';
 import { TicketPrintModal } from './components/TicketPrintModal';
 import { ThemeManagerModal } from './components/ThemeManagerModal';
 import { themeManager, HomepageTheme } from './services/themeManager';
+import { AdminPanelModal } from './components/AdminPanelModal';
+import { CreateTripModal } from './components/CreateTripModal';
+import { appSettingsService, AppSettings } from './services/appSettings';
 import { Bus, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function App() {
@@ -33,12 +36,17 @@ export default function App() {
   );
   const [journeyDate, setJourneyDate] = useState<string>(() => firebaseSync.getJourneyDate());
 
+  // App Settings (Coach numbers display toggle, locked Mirpur-10 counter, Date-Month-Year)
+  const [appSettings, setAppSettings] = useState<AppSettings>(() => appSettingsService.getSettings());
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState<boolean>(false);
+  const [isCreateTripOpen, setIsCreateTripOpen] = useState<boolean>(false);
+
   // Theme Management
   const [activeTheme, setActiveTheme] = useState<HomepageTheme>(() => themeManager.getActiveTheme());
   const [isThemeManagerOpen, setIsThemeManagerOpen] = useState<boolean>(false);
 
-  // Filter Bar State (Image 1: From, To, Date, Search bar, NO PNR)
-  const [fromLocation, setFromLocation] = useState<string>('North');
+  // Filter Bar State (Starting counter locked to Mirpur-10)
+  const [fromLocation, setFromLocation] = useState<string>('Mirpur-10');
   const [toLocation, setToLocation] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -91,12 +99,17 @@ export default function App() {
       setActiveTheme(themeManager.getActiveTheme());
     });
 
+    const unsubSettings = appSettingsService.subscribe((s) => {
+      setAppSettings(s);
+    });
+
     return () => {
       unsubAuth();
       unsubAllTrips();
       unsubConn();
       unsubDate();
       unsubTheme();
+      unsubSettings();
     };
   }, []);
 
@@ -357,6 +370,7 @@ export default function App() {
         onOpenSimulator={() => setIsSimulatorOpen(true)}
         onOpenChalanConfig={() => setIsChalanConfigOpen(true)}
         onOpenThemeManager={() => setIsThemeManagerOpen(true)}
+        onOpenAdminPanel={() => setIsAdminPanelOpen(true)}
         onLogout={async () => {
           await authService.logout();
           setCurrentAdmin(null);
@@ -415,6 +429,7 @@ export default function App() {
                     trip={trip}
                     journeyDate={journeyDate}
                     isExpanded={isExpanded}
+                    showCoachNumber={appSettings.showCoachNumbersOnMainPage}
                     onToggleExpand={() => {
                       setExpandedCoachId(isExpanded ? null : trip.id);
                     }}
@@ -535,6 +550,33 @@ export default function App() {
         isOpen={isThemeManagerOpen}
         onClose={() => setIsThemeManagerOpen(false)}
       />
+
+      {/* Comprehensive Admin Panel Modal */}
+      <AdminPanelModal
+        isOpen={isAdminPanelOpen}
+        onClose={() => setIsAdminPanelOpen(false)}
+        trips={allTrips}
+        onOpenCreateTrip={() => setIsCreateTripOpen(true)}
+        onOpenChalanPreview={() => setReportTrip(allTrips[0] || null)}
+        onRefreshData={() => {
+          setAllTrips([...firebaseSync.getAllTrips()]);
+          showToast('Refreshed fleet data.', 'info');
+        }}
+      />
+
+      {/* Create Trip / Coach Modal */}
+      {isCreateTripOpen && (
+        <CreateTripModal
+          isOpen={isCreateTripOpen}
+          onClose={() => setIsCreateTripOpen(false)}
+          onCreateTrip={(newTrip) => {
+            firebaseSync.addTrip(newTrip);
+            setAllTrips([...firebaseSync.getAllTrips()]);
+            setIsCreateTripOpen(false);
+            showToast(`Added new trip for Coach ${newTrip.coachNumber}`, 'success');
+          }}
+        />
+      )}
 
     </div>
   );

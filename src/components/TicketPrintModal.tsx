@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trip, Seat } from '../types/bus';
 import { X, Printer, Bus, CheckCircle2, QrCode } from 'lucide-react';
+import { formatDateDMY } from '../utils/dateUtils';
 
 interface TicketPrintModalProps {
   isOpen: boolean;
@@ -109,11 +110,11 @@ export const TicketPrintModal: React.FC<TicketPrintModalProps> = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Departure:</span>
-                <strong className="text-red-700">{trip.departureDate} at {trip.departureTime}</strong>
+                <strong className="text-red-700">{formatDateDMY(trip.departureDate)} at {trip.departureTime}</strong>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Boarding Point:</span>
-                <span className="font-semibold text-emerald-800">{seat.boardingPoint || 'Arambagh Main Counter'}</span>
+                <span className="font-semibold text-emerald-800">{seat.boardingPoint || 'Mirpur-10'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Destination:</span>

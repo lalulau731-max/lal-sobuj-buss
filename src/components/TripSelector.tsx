@@ -11,8 +11,10 @@ import {
   Layers,
   RotateCw,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Lock
 } from 'lucide-react';
+import { formatDateDMY } from '../utils/dateUtils';
 
 interface TripSelectorProps {
   trips: Trip[];
@@ -215,7 +217,7 @@ export const TripSelector: React.FC<TripSelectorProps> = ({
             <p className="text-slate-600 text-xs flex flex-wrap items-center gap-x-3 gap-y-1">
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                <strong className="text-slate-700">Journey:</strong> {activeTrip.departureDate}
+                <strong className="text-slate-700">Journey:</strong> {formatDateDMY(activeTrip.departureDate)}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-slate-400" />
@@ -223,7 +225,10 @@ export const TripSelector: React.FC<TripSelectorProps> = ({
               </span>
               <span className="flex items-center gap-1">
                 <strong className="text-slate-700">Boarding:</strong>{' '}
-                <span className="font-semibold text-slate-800">{activeTrip.startingCounter}</span>
+                <span className="font-semibold text-slate-800 flex items-center gap-1">
+                  <span>Mirpur-10</span>
+                  <Lock className="w-2.5 h-2.5 text-amber-600" />
+                </span>
               </span>
             </p>
           </div>

@@ -510,7 +510,7 @@ export const SeatMatrix: React.FC<SeatMatrixProps> = ({
               onClick={onBookSelectedSeats}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg border border-emerald-400 transition-all transform active:scale-95"
             >
-              <span>Book / Reserve Selected ({selectedSeats.length})</span>
+              <span>Reservation / Selected ({selectedSeats.length})</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
